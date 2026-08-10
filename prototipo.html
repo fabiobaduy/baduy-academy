@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DominoMaestro — Aprende dominó con el Campeón del Mundo</title>
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --cream: #faf6ef;
+    --paper: #fffdf7;
+    --gold: #c9a227;
+    --red: #c0392b;
+    --green: #27ae60;
+    --shadow: 0 8px 30px rgba(0,0,0,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  /* ===== NAV ===== */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--ink); color: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.3rem; }
+  .logo .dot { color: var(--gold); font-size: 1.6rem; }
+  nav .links a {
+    color: #ddd; text-decoration: none; margin-left: 18px; font-size: 0.95rem;
+    transition: color .2s;
+  }
+  nav .links a:hover { color: var(--gold); }
+  nav .links a.active { color: var(--gold); font-weight: 700; }
+
+  /* ===== HERO ===== */
+  .hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 55%, #0f3460 100%);
+    color: #fff; padding: 80px 24px 70px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::after {
+    content: '🁢'; position: absolute; right: -40px; top: -60px;
+    font-size: 320px; opacity: 0.06; transform: rotate(15deg);
+  }
+  .hero .badge {
+    display: inline-block; background: var(--gold); color: var(--ink);
+    font-weight: 800; padding: 6px 16px; border-radius: 30px;
+    font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 22px;
+    text-transform: uppercase;
+  }
+  .hero h1 { font-size: 3rem; font-weight: 900; margin-bottom: 14px; line-height: 1.15; }
+  .hero h1 span { color: var(--gold); }
+  .hero p { max-width: 640px; margin: 0 auto 30px; font-size: 1.15rem; opacity: 0.9; }
+  .hero .cta {
+    display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+  }
+  .btn {
+    display: inline-block; padding: 14px 30px; border-radius: 10px;
+    font-weight: 700; text-decoration: none; font-size: 1rem;
+    transition: transform .15s, box-shadow .15s; cursor: pointer; border: none;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+  .btn-gold { background: var(--gold); color: var(--ink); }
+  .btn-outline { background: transparent; color: #fff; border: 2px solid #fff; }
+  .hero .stats {
+    display: flex; gap: 40px; justify-content: center; margin-top: 46px; flex-wrap: wrap;
+  }
+  .stat h3 { font-size: 1.9rem; color: var(--gold); }
+  .stat p { font-size: 0.85rem; opacity: 0.8; margin: 0; }
+
+  /* ===== SECTIONS ===== */
+  section { padding: 70px 24px; max-width: 1100px; margin: 0 auto; }
+  .section-tag {
+    color: var(--red); font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase; font-size: 0.8rem; margin-bottom: 8px;
+  }
+  h2 { font-size: 2.2rem; font-weight: 900; margin-bottom: 14px; }
+  .sub { opacity: 0.7; max-width: 620px; margin-bottom: 40px; }
+
+  /* ===== WHY CARDS ===== */
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+  .card {
+    background: var(--paper); border-radius: 16px; padding: 26px;
+    box-shadow: var(--shadow); transition: transform .2s;
+  }
+  .card:hover { transform: translateY(-4px); }
+  .card .icon { font-size: 2.2rem; margin-bottom: 12px; }
+  .card h4 { font-size: 1.1rem; margin-bottom: 8px; }
+  .card p { font-size: 0.92rem; opacity: 0.8; }
+
+  /* ===== CURRICULUM ===== */
+  .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+  .level {
+    background: var(--paper); border-radius: 18px; padding: 30px;
+    box-shadow: var(--shadow); border-top: 5px solid var(--gold); position: relative;
+  }
+  .level .step {
+    position: absolute; top: -16px; left: 24px; background: var(--ink); color: #fff;
+    width: 34px; height: 34px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-weight: 800;
+  }
+  .level h3 { font-size: 1.3rem; margin-bottom: 6px; }
+  .level .meta { font-size: 0.8rem; color: var(--gold); font-weight: 700; margin-bottom: 12px; }
+  .level ul { list-style: none; }
+  .level li { padding: 5px 0; font-size: 0.92rem; opacity: 0.85; }
+  .level li::before { content: '◆'; color: var(--gold); margin-right: 8px; font-size: 0.7rem; }
+  .level .pill {
+    display: inline-block; margin-top: 14px; background: #eef3f8;
+    padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* ===== GAME PREVIEW ===== */
+  .game-preview {
+    background: linear-gradient(160deg, #0b3d2e 0%, #14532d 60%, #1e6f3f 100%);
+    border-radius: 20px; padding: 40px; color: #fff; display: grid;
+    grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+  }
+  .board {
+    background: #0a2a1e; border-radius: 14px; padding: 24px;
+    border: 3px solid #1e6f3f; min-height: 240px;
+    display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center;
+  }
+  .tile {
+    width: 44px; height: 80px; background: var(--paper); border-radius: 6px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4); display: flex; flex-direction: column;
+    justify-content: space-between; padding: 8px 6px; align-items: center;
+  }
+  .tile .pips { font-size: 1.05rem; line-height: 1.05; font-weight: 900; color: var(--ink); }
+  .tile.double .pips { color: var(--red); }
+  .game-preview h3 { font-size: 1.6rem; margin-bottom: 10px; }
+  .game-preview ul { list-style: none; margin-top: 16px; }
+  .game-preview li { padding: 6px 0; font-size: 0.95rem; }
+  .game-preview li::before { content: '✅ '; }
+  .hand { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+  .hand .tile { width: 34px; height: 60px; }
+
+  /* ===== SCHOOLS ===== */
+  .schools { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+  .schools .points li { padding: 8px 0; font-size: 1rem; list-style: none; }
+  .schools .points li::before { content: '🏆 '; }
+  .impact-box {
+    background: var(--ink); color: #fff; border-radius: 16px; padding: 26px;
+    margin-top: 30px; display: flex; gap: 30px; flex-wrap: wrap; justify-content: space-around;
+  }
+  .impact-box .num { font-size: 2rem; color: var(--gold); font-weight: 900; }
+  .impact-box .lbl { font-size: 0.85rem; opacity: 0.8; }
+
+  /* ===== CHAMPION ===== */
+  .champion { display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center; }
+  .avatar {
+    width: 170px; height: 170px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #8b6914);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem; color: #fff; box-shadow: var(--shadow);
+  }
+  .champion h3 { font-size: 1.7rem; margin-bottom: 6px; }
+  .champion .title { color: var(--gold); font-weight: 800; margin-bottom: 14px; }
+  .champion p { opacity: 0.85; margin-bottom: 10px; }
+
+  /* ===== CTA FINAL ===== */
+  .final-cta { text-align: center; background: linear-gradient(135deg, var(--gold), #e8c84a); border-radius: 20px; padding: 60px 30px; margin: 60px 24px; }
+  .final-cta h2 { color: var(--ink); }
+  .final-cta p { color: var(--ink); opacity: 0.8; margin-bottom: 24px; max-width: 520px; margin-left: auto; margin-right: auto; }
+
+  footer { background: var(--ink); color: #999; text-align: center; padding: 30px 20px; font-size: 0.85rem; }
+  footer b { color: var(--gold); }
+
+  @media (max-width: 800px) {
+    .game-preview, .schools, .champion { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 2.2rem; }
+    nav .links a { margin-left: 10px; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav>
+  <div class="logo"><span class="dot">⬛</span> Domino<span style="color:var(--gold)">Maestro</span></div>
+  <div class="links">
+    <a href="#inicio" class="active">Inicio</a>
+    <a href="#aprender">Aprender</a>
+    <a href="#curriculo">Currículo</a>
+    <a href="#escuelas">Escuelas</a>
+    <a href="#campeon">El Campeón</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="inicio">
+  <span class="badge">🏆 Campeón del Mundo de Dominó 2007</span>
+  <h1>Aprende Dominó con el<br><span>Campeón del Mundo</span></h1>
+  <p>La primera plataforma educativa que lleva el dominó a las escuelas, como Rusia hizo con el ajedrez. Lógica, estrategia y matemáticas a través del juego más latino del mundo.</p>
+  <div class="cta">
+    <a href="#curriculo" class="btn btn-gold">🎓 Empezar a Aprender</a>
+    <a href="#escuelas" class="btn btn-outline">🏫 Para Escuelas</a>
+  </div>
+  <div class="stats">
+    <div class="stat"><h3>3</h3><p>Campeonatos Mundiales<br>(2007 equipos + parejas)</p></div>
+    <div class="stat"><h3>7</h3><p>Años como jugador<br>profesional</p></div>
+    <div class="stat"><h3>+35%</h3><p>Rendimiento académico<br>con juegos de estrategia*</p></div>
+  </div>
+</header>
+
+<!-- ============ WHY ============ -->
+<section id="aprender">
+  <div class="section-tag">¿Por qué dominó?</div>
+  <h2>Más que un juego: una escuela de pensamiento</h2>
+  <p class="sub">El dominó desarrolla habilidades cognitivas comprobadas — las mismas que el ajedrez, pero con la identidad y calidez de nuestra cultura latina.</p>
+  <div class="grid-4">
+    <div class="card"><div class="icon">🧮</div><h4>Matemáticas vivas</h4><p>Suma, conteo y probabilidad se aprenden jugando, no memorizando.</p></div>
+    <div class="card"><div class="icon">🧠</div><h4>Razonamiento lógico</h4><p>Cada jugada exige deducir qué fichas tiene el rival y planear 3 pasos adelante.</p></div>
+    <div class="card"><div class="icon">🃏</div><h4>Memoria activa</h4><p>Seguir las fichas jugadas entrena la memoria de trabajo como pocos juegos.</p></div>
+    <div class="card"><div class="icon">🤝</div><h4>Valores sociales</h4><p>Trabajo en pareja, respeto, tolerancia a la frustración y fair play.</p></div>
+  </div>
+</section>
+
+<!-- ============ CURRICULUM ============ -->
+<section id="curriculo">
+  <div class="section-tag">El método</div>
+  <h2>Un currículo de campeón, nivel por nivel</h2>
+  <p class="sub">Diseñado por un ingeniero y Campeón del Mundo, alineado con estándares educativos de matemáticas.</p>
+  <div class="levels">
+    <div class="level">
+      <div class="step">1</div>
+      <h3>🟢 Básico</h3>
+      <div class="meta">Edades 7-10 · Fichas y números</div>
+      <ul>
+        <li>Conocer las 28 fichas y sus valores</li>
+        <li>Sumar puntos y contar en la mesa</li>
+        <li>Reglas del juego en parejas</li>
+        <li>Primeros conceptos de estrategia</li>
+      </ul>
+      <span class="pill">🎯 Objetivo: amar el juego</span>
+    </div>
+    <div class="level">
+      <div class="step">2</div>
+      <h3>🟡 Intermedio</h3>
+      <div class="meta">Edades 11-14 · Lógica y probabilidad</div>
+      <ul>
+        <li>Conteo de fichas: ¿qué tiene el rival?</li>
+        <li>Probabilidad aplicada a cada jugada</li>
+        <li>Estrategia de pareja y comunicación</li>
+        <li>Control del juego: abrir y cerrar palos</li>
+      </ul>
+      <span class="pill">🎯 Objetivo: pensar como estratega</span>
+    </div>
+    <div class="level">
+      <div class="step">3</div>
+      <h3>🔴 Avanzado</h3>
+      <div class="meta">Edades 15+ · Alta competencia</div>
+      <ul>
+        <li>Lectura avanzada de manos rivales</li>
+        <li>Manejo de presión en torneos</li>
+        <li>Sistemas de pareja de nivel mundial</li>
+        <li>Preparación para competencias</li>
+      </ul>
+      <span class="pill">🎯 Objetivo: competir al más alto nivel</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GAME PREVIEW ============ -->
+<section>
+  <div class="game-preview">
+    <div>
+      <h3>🎮 Juega mientras aprendes</h3>
+      <p>El modo educativo analiza cada jugada y te explica el porqué — como un entrenador personal dentro de la app.</p>
+      <ul>
+        <li>Modo práctica con consejos en tiempo real</li>
+        <li>Análisis post-partida de tus decisiones</li>
+        <li>Retos diarios con puntos y medallas</li>
+        <li>Juega contra la IA o con amigos</li>
+      </ul>
+      <div class="hand">
+        <div class="tile"><span class="pips">◉<br>◉</span></div>
+        <div class="tile"><span class="pips">◉<br>◉<br>◉</span></div>
+        <div class="tile double"><span class="pips">◉<br>◉<br>◉<br>◉</span></div>
+        <div class="tile"><span class="pips">◉<br>◉</span></div>
+        <div class="tile"><span class="pips">◉</span></div>
+      </div>
+    </div>
+    <div class="board">
+      <div class="tile"><span class="pips">◉<br>◉</span></div>
+      <div class="tile double"><span class="pips">◉<br>◉<br>◉</span></div>
+      <div class="tile"><span class="pips">◉<br>◉</span></div>
+      <div class="tile"><span class="pips">◉</span></div>
+      <div class="tile double"><span class="pips">◉<br>◉</span></div>
+      <div class="tile"><span class="pips">◉<br>◉<br>◉</span></div>
+      <div class="tile"><span class="pips">◉<br>◉</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCHOOLS ============ -->
+<section id="escuelas">
+  <div class="section-tag">Programa escolar</div>
+  <h2>DominoMaestro en las Escuelas</h2>
+  <div class="schools">
+    <div>
+      <p class="sub">Llevemos el dominó a las aulas como herramienta pedagógica — igual que Rusia, Armenia e Islandia hicieron con el ajedrez.</p>
+      <ul class="points">
+        <li>Currículo listo para maestros: planes de clase por grado</li>
+        <li>Alineado con estándares de matemáticas (Common Core)</li>
+        <li>Kit digital gratuito: guías, videos y ejercicios</li>
+        <li>Torneos interescolares y certificaciones por nivel</li>
+        <li>Programa piloto para escuelas latinas en EE.UU.</li>
+      </ul>
+    </div>
+    <div class="impact-box">
+      <div><div class="num">1,000+</div><div class="lbl">escuelas meta<br>año 3</div></div>
+      <div><div class="num">50K</div><div class="lbl">estudiantes<br>impactados</div></div>
+      <div><div class="num">3</div><div class="lbl">niveles de<br>certificación</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHAMPION ============ -->
+<section id="campeon">
+  <div class="section-tag">La marca</div>
+  <h2>Detrás del método</h2>
+  <div class="champion">
+    <div class="avatar">🏆</div>
+    <div>
+      <h3>Ing. Fabio Baduy</h3>
+      <div class="title">Campeón del Mundo de Dominó 2007 · Ingeniero en Computación · Educador</div>
+      <p>Campeón del Mundo de Dominó 2007 en modalidad por equipos y por parejas. Ingeniero en Computación (Universidad Simón Bolívar). Nadador y waterpolista de alta competencia. Vivió del póker profesionalmente durante 7 años.</p>
+      <p>Su misión: <b>democratizar la enseñanza del dominó</b> y convertirlo en herramienta educativa para las nuevas generaciones latinas, tal como el ajedrez transformó la educación en el mundo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<div class="final-cta">
+  <h2>¿Listo para hacer historia?</h2>
+  <p>Únete al movimiento que lleva el dominó a las escuelas. Aprende, enseña, compite.</p>
+  <a href="#" class="btn" style="background:var(--ink);color:#fff;">📲 Descarga la App (pronto)</a>
+  <a href="#" class="btn" style="background:var(--red);color:#fff;">🏫 Solicita el Programa Escolar</a>
+</div>
+
+<footer>
+  <b>DominoMaestro</b> © 2026 · Hecho con ❤️ y 🁢 por el Campeón del Mundo · <span style="color:#777">"La amabilidad es la palabra más bonita."</span>
+</footer>
+
+</body>
+</html>

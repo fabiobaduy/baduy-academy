@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baduy Academy — Donde el juego forma mentes brillantes y corazones nobles</title>
+<style>
+  :root {
+    --ink: #0d1b2a;
+    --navy: #1b263b;
+    --blue: #1e6091;
+    --cyan: #48cae4;
+    --cream: #faf6ef;
+    --paper: #fffdf7;
+    --gold: #c9a227;
+    --red: #c0392b;
+    --shadow: 0 8px 30px rgba(0,0,0,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.7;
+  }
+  /* ===== NAV ===== */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--ink); color: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .logo { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.15rem; }
+  .logo img { height: 38px; width: auto; border-radius: 6px; }
+  .logo .brand { line-height: 1.1; }
+  .logo .brand small {
+    display: block; font-size: 0.58rem; font-weight: 400;
+    color: var(--cyan); letter-spacing: 1.5px; text-transform: uppercase;
+  }
+  .nav-right { display: flex; align-items: center; gap: 14px; }
+  nav .links a {
+    color: #ddd; text-decoration: none; margin-left: 14px; font-size: 0.88rem;
+    transition: color .2s;
+  }
+  nav .links a:hover { color: var(--cyan); }
+  .lang-switch {
+    display: flex; border: 1px solid rgba(255,255,255,0.25); border-radius: 20px;
+    overflow: hidden;
+  }
+  .lang-switch button {
+    background: transparent; color: #aaa; border: none; padding: 5px 12px;
+    font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all .2s;
+  }
+  .lang-switch button.active { background: var(--cyan); color: var(--ink); }
+
+  /* ===== HERO ===== */
+  .hero {
+    background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 55%, #1e6091 100%);
+    color: #fff; padding: 90px 24px 70px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::after {
+    content: '🁢'; position: absolute; right: -40px; top: -60px;
+    font-size: 340px; opacity: 0.05; transform: rotate(15deg);
+  }
+  .hero .badge {
+    display: inline-block; background: var(--gold); color: var(--ink);
+    font-weight: 800; padding: 6px 16px; border-radius: 30px;
+    font-size: 0.82rem; letter-spacing: 1px; margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+  .hero h1 { font-size: 2.9rem; font-weight: 900; margin-bottom: 18px; line-height: 1.15; }
+  .hero h1 span { color: var(--cyan); }
+  .hero .mission {
+    max-width: 720px; margin: 0 auto 22px; font-size: 1.22rem;
+    font-style: italic; opacity: 0.97; line-height: 1.6;
+  }
+  .hero p.sub { max-width: 620px; margin: 0 auto 34px; opacity: 0.85; font-size: 1.02rem; }
+  .hero .cta { display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .btn {
+    display: inline-block; padding: 14px 30px; border-radius: 10px;
+    font-weight: 700; text-decoration: none; font-size: 1rem;
+    transition: transform .15s, box-shadow .15s; cursor: pointer; border: none;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+  .btn-gold { background: var(--gold); color: var(--ink); }
+  .btn-outline { background: transparent; color: #fff; border: 2px solid #fff; }
+  .hero .stats {
+    display: flex; gap: 44px; justify-content: center; margin-top: 50px; flex-wrap: wrap;
+  }
+  .stat h3 { font-size: 2rem; color: var(--cyan); }
+  .stat p { font-size: 0.85rem; opacity: 0.8; margin: 0; }
+
+  /* ===== SECTIONS ===== */
+  section { padding: 70px 24px; max-width: 1100px; margin: 0 auto; }
+  .section-tag {
+    color: var(--blue); font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase; font-size: 0.78rem; margin-bottom: 10px;
+  }
+  h2 { font-size: 2.1rem; font-weight: 900; margin-bottom: 14px; line-height: 1.25; }
+  .sub { opacity: 0.72; max-width: 660px; margin-bottom: 40px; font-size: 1.02rem; }
+
+  /* ===== CARDS ===== */
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+  .card {
+    background: var(--paper); border-radius: 16px; padding: 26px;
+    box-shadow: var(--shadow); transition: transform .2s;
+  }
+  .card:hover { transform: translateY(-4px); }
+  .card .icon { font-size: 2.2rem; margin-bottom: 12px; }
+  .card h4 { font-size: 1.08rem; margin-bottom: 8px; }
+  .card p { font-size: 0.92rem; opacity: 0.82; }
+
+  /* ===== MVV ===== */
+  .mvv { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; }
+  .mvv-box {
+    background: var(--paper); border-radius: 18px; padding: 30px;
+    box-shadow: var(--shadow); position: relative; overflow: hidden;
+  }
+  .mvv-box .tag { font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; }
+  .mvv-box h3 { font-size: 1.3rem; margin-bottom: 10px; }
+  .mvv-box p { font-size: 0.98rem; opacity: 0.85; }
+
+  /* ===== PILLARS ===== */
+  .pillars {
+    background: linear-gradient(135deg, var(--ink), var(--navy));
+    border-radius: 20px; padding: 44px; color: #fff; text-align: center;
+    margin-top: 40px;
+  }
+  .pillars h3 { font-size: 1.5rem; margin-bottom: 24px; color: var(--cyan); }
+  .pillar-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+  .pillar {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 14px; padding: 22px 26px; min-width: 160px;
+  }
+  .pillar .emoji { font-size: 2rem; margin-bottom: 8px; }
+  .pillar b { display: block; font-size: 1.05rem; }
+  .pillar small { opacity: 0.7; font-size: 0.8rem; }
+  .pillars .arrow { font-size: 1.8rem; margin: 18px 0 6px; color: var(--gold); }
+  .pillars .final { font-size: 2.1rem; font-weight: 900; color: var(--gold); letter-spacing: 6px; }
+
+  /* ===== DISCIPLINES ===== */
+  .disciplines { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .discipline {
+    background: var(--paper); border-radius: 18px; padding: 32px;
+    box-shadow: var(--shadow); position: relative; overflow: hidden;
+  }
+  .discipline .big { font-size: 3rem; margin-bottom: 10px; }
+  .discipline h3 { font-size: 1.4rem; margin-bottom: 6px; }
+  .discipline .role { font-size: 0.82rem; font-weight: 800; color: var(--blue); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+  .discipline ul { list-style: none; }
+  .discipline li { padding: 5px 0; font-size: 0.95rem; opacity: 0.85; }
+  .discipline li::before { content: '◆'; color: var(--cyan); margin-right: 8px; font-size: 0.7rem; }
+  .discipline.domino { border-top: 5px solid var(--gold); }
+  .discipline.poker { border-top: 5px solid var(--blue); }
+
+  /* ===== LEVELS ===== */
+  .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 24px; }
+  .level {
+    background: var(--paper); border-radius: 18px; padding: 30px;
+    box-shadow: var(--shadow); border-top: 5px solid var(--gold); position: relative;
+  }
+  .level .step {
+    position: absolute; top: -16px; left: 24px; background: var(--ink); color: #fff;
+    width: 34px; height: 34px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-weight: 800;
+  }
+  .level h3 { font-size: 1.28rem; margin-bottom: 6px; }
+  .level .meta { font-size: 0.8rem; color: var(--blue); font-weight: 700; margin-bottom: 12px; }
+  .level ul { list-style: none; }
+  .level li { padding: 5px 0; font-size: 0.92rem; opacity: 0.85; }
+  .level li::before { content: '◆'; color: var(--gold); margin-right: 8px; font-size: 0.7rem; }
+  .level .pill {
+    display: inline-block; margin-top: 14px; background: #eef3f8;
+    padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* ===== GAME ===== */
+  .game-preview {
+    background: linear-gradient(160deg, #0b3d2e 0%, #14532d 60%, #1e6f3f 100%);
+    border-radius: 20px; padding: 40px; color: #fff; display: grid;
+    grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+  }
+  .board {
+    background: #0a2a1e; border-radius: 14px; padding: 24px;
+    border: 3px solid #1e6f3f; min-height: 240px;
+    display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center;
+  }
+  .tile {
+    width: 44px; height: 80px; background: var(--paper); border-radius: 6px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4); display: flex; flex-direction: column;
+    justify-content: space-between; padding: 8px 6px; align-items: center;
+  }
+  .tile .pips { font-size: 1.05rem; line-height: 1.05; font-weight: 900; color: var(--ink); }
+  .tile.double .pips { color: var(--red); }
+  .game-preview h3 { font-size: 1.55rem; margin-bottom: 10px; }
+  .game-preview ul { list-style: none; margin-top: 16px; }
+  .game-preview li { padding: 6px 0; font-size: 0.95rem; }
+  .game-preview li::before { content: '✅ '; }
+  .hand { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+  .hand .tile { width: 34px; height: 60px; }
+
+  /* ===== SCHOOLS ===== */
+  .schools { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+  .schools .points li { padding: 8px 0; font-size: 1rem; list-style: none; }
+  .schools .points li::before { content: '🏆 '; }
+  .impact-box {
+    background: var(--ink); color: #fff; border-radius: 16px; padding: 26px;
+    margin-top: 30px; display: flex; gap: 30px; flex-wrap: wrap; justify-content: space-around;
+  }
+  .impact-box .num { font-size: 2rem; color: var(--cyan); font-weight: 900; }
+  .impact-box .lbl { font-size: 0.85rem; opacity: 0.8; }
+
+  /* ===== IMPACT ===== */
+  .impact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+  .impact-card {
+    background: var(--paper); border-radius: 16px; padding: 30px; text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .impact-card .num { font-size: 2.3rem; font-weight: 900; color: var(--blue); }
+  .impact-card p { font-size: 0.9rem; opacity: 0.8; margin-top: 6px; }
+
+  /* ===== TESTIMONIALS ===== */
+  .testimonials { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+  .testimonial {
+    background: var(--paper); border-radius: 16px; padding: 26px;
+    box-shadow: var(--shadow); font-style: italic; font-size: 0.95rem;
+  }
+  .testimonial .who { display: block; margin-top: 14px; font-style: normal; font-weight: 700; color: var(--blue); font-size: 0.88rem; }
+
+  /* ===== RESOURCES ===== */
+  .resources { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+  .resource {
+    background: var(--paper); border-radius: 16px; padding: 24px;
+    box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px;
+    transition: transform .2s;
+  }
+  .resource:hover { transform: translateY(-4px); }
+  .resource .icon { font-size: 2rem; }
+  .resource h4 { font-size: 1.05rem; }
+  .resource p { font-size: 0.9rem; opacity: 0.8; }
+  .resource a { color: var(--blue); font-weight: 700; text-decoration: none; font-size: 0.88rem; }
+  .resource a:hover { text-decoration: underline; }
+
+  /* ===== EVENTS ===== */
+  .events { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+  .event {
+    background: var(--paper); border-radius: 16px; padding: 24px;
+    box-shadow: var(--shadow); border-left: 5px solid var(--gold);
+  }
+  .event .date { font-size: 0.8rem; font-weight: 800; color: var(--blue); text-transform: uppercase; }
+  .event h4 { font-size: 1.08rem; margin: 6px 0; }
+  .event p { font-size: 0.9rem; opacity: 0.8; }
+
+  /* ===== FAQ ===== */
+  .faq { max-width: 760px; margin: 0 auto; }
+  .faq-item {
+    background: var(--paper); border-radius: 12px; margin-bottom: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08); overflow: hidden;
+  }
+  .faq-q {
+    padding: 16px 20px; font-weight: 700; cursor: pointer; font-size: 0.98rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .faq-q::after { content: '+'; font-size: 1.3rem; color: var(--blue); }
+  .faq-item.open .faq-q::after { content: '−'; }
+  .faq-a { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height .3s; font-size: 0.92rem; opacity: 0.85; }
+  .faq-item.open .faq-a { max-height: 300px; padding-bottom: 16px; }
+
+  /* ===== CONTACT ===== */
+  .contact {
+    background: var(--paper); border-radius: 20px; padding: 44px; box-shadow: var(--shadow);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+  }
+  .contact h3 { font-size: 1.5rem; margin-bottom: 10px; }
+  .contact p { opacity: 0.8; margin-bottom: 18px; }
+  .contact form { display: flex; flex-direction: column; gap: 12px; }
+  .contact input, .contact textarea, .contact button {
+    padding: 13px 16px; border-radius: 10px; border: 2px solid #e0dccf;
+    font-size: 0.95rem; font-family: inherit; background: #fff;
+  }
+  .contact input:focus, .contact textarea:focus { outline: none; border-color: var(--blue); }
+  .contact button { background: var(--blue); color: #fff; border: none; font-weight: 700; cursor: pointer; transition: background .2s; }
+  .contact button:hover { background: var(--navy); }
+  .contact-info { display: flex; flex-direction: column; gap: 14px; }
+  .contact-info .item { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; }
+  .contact-info .item .e { font-size: 1.3rem; }
+
+  /* ===== FOUNDER ===== */
+  .champion { display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center; }
+  .avatar {
+    width: 170px; height: 170px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--navy));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem; color: #fff; box-shadow: var(--shadow);
+  }
+  .champion h3 { font-size: 1.7rem; margin-bottom: 6px; }
+  .champion .title { color: var(--blue); font-weight: 800; margin-bottom: 14px; }
+  .champion p { opacity: 0.85; margin-bottom: 10px; }
+  .quote {
+    background: var(--paper); border-left: 5px solid var(--gold);
+    padding: 20px 24px; border-radius: 0 12px 12px 0; margin-top: 20px;
+    font-style: italic; font-size: 1.05rem;
+  }
+  .quote b { color: var(--blue); }
+
+  /* ===== CTA FINAL ===== */
+  .final-cta { text-align: center; background: linear-gradient(135deg, var(--blue), var(--cyan)); border-radius: 20px; padding: 60px 30px; margin: 60px 24px; }
+  .final-cta h2 { color: #fff; font-size: 2rem; }
+  .final-cta p { color: #fff; opacity: 0.92; margin-bottom: 24px; max-width: 540px; margin-left: auto; margin-right: auto; }
+
+  footer { background: var(--ink); color: #999; text-align: center; padding: 34px 20px; font-size: 0.85rem; }
+  footer b { color: var(--cyan); }
+  footer .f-links { margin-top: 12px; display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
+  footer .f-links a { color: #aaa; text-decoration: none; font-size: 0.82rem; }
+  footer .f-links a:hover { color: var(--cyan); }
+
+  @media (max-width: 800px) {
+    .game-preview, .schools, .champion, .disciplines, .contact { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 2rem; }
+    nav .links a { margin-left: 8px; font-size: 0.72rem; }
+    .nav-right { gap: 6px; }
+    .logo { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav>
+  <div class="logo">
+    <img src="assets/logo-baduy.jpg" alt="Logo Baduy">
+    <div class="brand">BADUY ACADEMY<small data-i18n="tagline">Mentes sanas · Paz</small></div>
+  </div>
+  <div class="nav-right">
+    <div class="links">
+      <a href="#inicio" data-i18n="nav_home">Inicio</a>
+      <a href="#filosofia" data-i18n="nav_philosophy">Filosofía</a>
+      <a href="#metodo" data-i18n="nav_method">Método</a>
+      <a href="#programas" data-i18n="nav_programs">Programas</a>
+      <a href="#escuelas" data-i18n="nav_schools">Escuelas</a>
+      <a href="#fundador" data-i18n="nav_founder">Fundador</a>
+      <a href="#contacto" data-i18n="nav_contact">Contacto</a>
+    </div>
+    <div class="lang-switch">
+      <button id="lang-es" class="active" onclick="setLang('es')">ES</button>
+      <button id="lang-en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="inicio">
+  <span class="badge" data-i18n="hero_badge">🏆 Campeón del Mundo de Dominó 2007</span>
+  <h1 data-i18n="hero_title">Donde el juego forma <span>mentes brillantes</span> y <span>corazones nobles</span></h1>
+  <p class="mission" data-i18n="hero_mission">"Dos disciplinas mentales tocaron mi vida: el dominó y el póker. Hoy quiero que las nuevas generaciones descubran que un juego puede formar mentes sanas, corazones nobles y personas en paz."</p>
+  <p class="sub" data-i18n="hero_sub">Baduy Academy usa el juego como escuela de pensamiento analítico, valores y desarrollo integral — para cultivar el encuentro humano y sembrar la paz.</p>
+  <div class="cta">
+    <a href="#programas" class="btn btn-gold" data-i18n="hero_cta1">🎓 Empezar a Aprender</a>
+    <a href="#escuelas" class="btn btn-outline" data-i18n="hero_cta2">🏫 Para Escuelas</a>
+  </div>
+  <div class="stats">
+    <div class="stat"><h3 data-i18n="stat1n">2</h3><p data-i18n="stat1l">Disciplinas mentales<br>(dominó + póker)</p></div>
+    <div class="stat"><h3 data-i18n="stat2n">3</h3><p data-i18n="stat2l">Campeonatos Mundiales<br>(2007 equipos + parejas)</p></div>
+    <div class="stat"><h3 data-i18n="stat3n">+35%</h3><p data-i18n="stat3l">Rendimiento académico<br>con juegos de estrategia*</p></div>
+  </div>
+</header>
+
+<!-- ============ MVV ============ -->
+<section id="filosofia">
+  <div class="section-tag" data-i18n="mvv_tag">Nuestra Filosofía</div>
+  <h2 data-i18n="mvv_title">Creemos en el poder transformador del juego</h2>
+  <p class="sub" data-i18n="mvv_sub">El juego es la forma más natural de aprender. A través de él formamos personas íntegras: mentes que piensan con claridad, corazones que eligen la amabilidad y cuerpos que honran la disciplina.</p>
+  <div class="mvv">
+    <div class="mvv-box">
+      <div class="tag" data-i18n="mvv_m_tag">Misión</div>
+      <h3 data-i18n="mvv_m_title">Formar personas íntegras</h3>
+      <p data-i18n="mvv_m_text">Formar personas íntegras a través del juego: mentes que piensan con claridad, corazones que eligen la amabilidad y cuerpos que honran la disciplina.</p>
+    </div>
+    <div class="mvv-box">
+      <div class="tag" data-i18n="mvv_v_tag">Visión</div>
+      <h3 data-i18n="mvv_v_title">Sembrar las semillas de la paz</h3>
+      <p data-i18n="mvv_v_text">Un mundo donde cada niño tenga acceso a herramientas lúdicas que desarrollen su inteligencia emocional y analítica, sembrando así las semillas de la paz.</p>
+    </div>
+    <div class="mvv-box">
+      <div class="tag" data-i18n="mvv_val_tag">Valores</div>
+      <h3 data-i18n="mvv_val_title">Amabilidad · Disciplina · Paz</h3>
+      <p data-i18n="mvv_val_text">La amabilidad como puente entre las personas. La disciplina como camino a la excelencia. La paz como destino final de todo lo que hacemos.</p>
+    </div>
+  </div>
+
+  <!-- PILARES -->
+  <div class="pillars">
+    <h3 data-i18n="pillars_title">Nuestros tres pilares</h3>
+    <div class="pillar-row">
+      <div class="pillar"><div class="emoji">🫀</div><b data-i18n="pillar1_t">Corazón</b><small data-i18n="pillar1_s">amabilidad y valores</small></div>
+      <div class="pillar"><div class="emoji">🧠</div><b data-i18n="pillar2_t">Cerebro</b><small data-i18n="pillar2_s">pensamiento analítico</small></div>
+      <div class="pillar"><div class="emoji">💪</div><b data-i18n="pillar3_t">Cuerpo</b><small data-i18n="pillar3_s">disciplina y salud</small></div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="final" data-i18n="pillars_final">🕊️ LA PAZ</div>
+  </div>
+</section>
+
+<!-- ============ METHOD ============ -->
+<section id="metodo">
+  <div class="section-tag" data-i18n="method_tag">El Método Baduy</div>
+  <h2 data-i18n="method_title">Dos juegos, una escuela de vida</h2>
+  <p class="sub" data-i18n="method_sub">El dominó entrena la lógica, la probabilidad y el trabajo en equipo. El póker enseña a decidir bajo incertidumbre sin apego al resultado. Juntos forman un camino probado por un Campeón del Mundo.</p>
+  <div class="disciplines">
+    <div class="discipline domino">
+      <div class="big">🁢</div>
+      <h3 data-i18n="domino_title">El Dominó</h3>
+      <div class="role" data-i18n="domino_role">Campeón del Mundo 2007 · Equipos y Parejas</div>
+      <ul>
+        <li data-i18n="domino_l1">Matemáticas vivas: suma, conteo y probabilidad</li>
+        <li data-i18n="domino_l2">Trabajo en pareja: comunicación y confianza</li>
+        <li data-i18n="domino_l3">Razonamiento deductivo: leer al rival</li>
+        <li data-i18n="domino_l4">Identidad y orgullo latino</li>
+      </ul>
+    </div>
+    <div class="discipline poker">
+      <div class="big">♠️</div>
+      <h3 data-i18n="poker_title">El Póker</h3>
+      <div class="role" data-i18n="poker_role">7 años como jugador profesional (2010-2017)</div>
+      <ul>
+        <li data-i18n="poker_l1">Control emocional bajo presión</li>
+        <li data-i18n="poker_l2">Gestión del riesgo y la incertidumbre</li>
+        <li data-i18n="poker_l3">Lectura de personas y patrones</li>
+        <li data-i18n="poker_l4">Decidir sin apego al resultado</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROGRAMS ============ -->
+<section id="programas">
+  <div class="section-tag" data-i18n="programs_tag">Programas</div>
+  <h2 data-i18n="programs_title">Un currículo de campeón, nivel por nivel</h2>
+  <p class="sub" data-i18n="programs_sub">Diseñado por un ingeniero y Campeón del Mundo, alineado con estándares educativos de matemáticas.</p>
+  <div class="levels">
+    <div class="level">
+      <div class="step">1</div>
+      <h3 data-i18n="lvl1_title">🟢 Básico</h3>
+      <div class="meta" data-i18n="lvl1_meta">Edades 7-10 · Fichas y números</div>
+      <ul>
+        <li data-i18n="lvl1_l1">Conocer las 28 fichas y sus valores</li>
+        <li data-i18n="lvl1_l2">Sumar puntos y contar en la mesa</li>
+        <li data-i18n="lvl1_l3">Reglas del juego en parejas</li>
+        <li data-i18n="lvl1_l4">Primeros conceptos de estrategia</li>
+      </ul>
+      <span class="pill" data-i18n="lvl1_pill">🎯 Objetivo: amar el juego</span>
+    </div>
+    <div class="level">
+      <div class="step">2</div>
+      <h3 data-i18n="lvl2_title">🟡 Intermedio</h3>
+      <div class="meta" data-i18n="lvl2_meta">Edades 11-14 · Lógica y probabilidad</div>
+      <ul>
+        <li data-i18n="lvl2_l1">Conteo de fichas: ¿qué tiene el rival?</li>
+        <li data-i18n="lvl2_l2">Probabilidad aplicada a cada jugada</li>
+        <li data-i18n="lvl2_l3">Estrategia de pareja y comunicación</li>
+        <li data-i18n="lvl2_l4">Control del juego: abrir y cerrar palos</li>
+      </ul>
+      <span class="pill" data-i18n="lvl2_pill">🎯 Objetivo: pensar como estratega</span>
+    </div>
+    <div class="level">
+      <div class="step">3</div>
+      <h3 data-i18n="lvl3_title">🔴 Avanzado</h3>
+      <div class="meta" data-i18n="lvl3_meta">Edades 15+ · Alta competencia</div>
+      <ul>
+        <li data-i18n="lvl3_l1">Lectura avanzada de manos rivales</li>
+        <li data-i18n="lvl3_l2">Manejo de presión en torneos</li>
+        <li data-i18n="lvl3_l3">Sistemas de pareja de nivel mundial</li>
+        <li data-i18n="lvl3_l4">Preparación para competencias</li>
+      </ul>
+      <span class="pill" data-i18n="lvl3_pill">🎯 Objetivo: competir al más alto nivel</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GAME ============ -->
+<section>
+  <div class="game-preview">
+    <div>
+      <h3 data-i18n="game_title">🎮 Juega mientras aprendes</h3>
+      <p data-i18n="game_text">El modo educativo analiza cada jugada y te explica el porqué — como un entrenador personal dentro de la app.</p>
+      <ul>
+        <li data-i18n="game_l1">Modo práctica con consejos en tiempo real</li>
+        <li data-i18n="game_l2">Análisis post-partida de tus decisiones</li>
+        <li data-i18n="game_l3">Retos diarios con puntos y medallas</li>
+        <li data-i18n="game_l4">Juega contra la IA o con amigos</li>
+      </ul>
+      <div class="hand">
+        <div class="tile"><span class="pips">◉<br>◉</span></div>
+        <div class="tile"><span class="pips">◉<br>◉<br>◉</span></div>
+        <div class="tile double"><span class="pips">◉<br>◉<br>◉<br>◉</span></div>
+        <div class="tile"><span class="pips">◉<br>◉</span></div>
+        <div class="tile"><span class="pips">◉</span></div>
+      </div>
+    </div>
+    <div class="board">
+      <div class="tile"><span class="pips">◉<br>◉</span></div>
+      <div class="tile double"><span class="pips">◉<br>◉<br>◉</span></div>
+      <div class="tile"><span class="pips">◉<br>◉</span></div>
+      <div class="tile"><span class="pips">◉</span></div>
+      <div class="tile double"><span class="pips">◉<br>◉</span></div>
+      <div class="tile"><span class="pips">◉<br>◉<br>◉</span></div>
+      <div class="tile"><span class="pips">◉<br>◉</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCHOOLS ============ -->
+<section id="escuelas">
+  <div class="section-tag" data-i18n="schools_tag">Programa Escolar</div>
+  <h2 data-i18n="schools_title">Baduy Academy en las Escuelas</h2>
+  <div class="schools">
+    <div>
+      <p class="sub" data-i18n="schools_sub">Llevemos el dominó a las aulas como herramienta pedagógica — igual que Rusia, Armenia e Islandia hicieron con el ajedrez.</p>
+      <ul class="points">
+        <li data-i18n="schools_p1">Currículo listo para maestros: planes de clase por grado</li>
+        <li data-i18n="schools_p2">Alineado con estándares de matemáticas (Common Core)</li>
+        <li data-i18n="schools_p3">Kit digital gratuito: guías, videos y ejercicios</li>
+        <li data-i18n="schools_p4">Torneos interescolares y certificaciones por nivel</li>
+        <li data-i18n="schools_p5">Programa piloto para escuelas latinas en EE.UU.</li>
+      </ul>
+    </div>
+    <div class="impact-box">
+      <div><div class="num" data-i18n="schools_i1n">1,000+</div><div class="lbl" data-i18n="schools_i1l">escuelas meta<br>año 3</div></div>
+      <div><div class="num" data-i18n="schools_i2n">50K</div><div class="lbl" data-i18n="schools_i2l">estudiantes<br>impactados</div></div>
+      <div><div class="num" data-i18n="schools_i3n">3</div><div class="lbl" data-i18n="schools_i3l">niveles de<br>certificación</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ IMPACT ============ -->
+<section id="impacto">
+  <div class="section-tag" data-i18n="impact_tag">Impacto</div>
+  <h2 data-i18n="impact_title">El juego que transforma</h2>
+  <p class="sub" data-i18n="impact_sub">La evidencia lo respalda: los juegos de estrategia desarrollan habilidades cognitivas y socioemocionales que mejoran el rendimiento académico y la convivencia.</p>
+  <div class="impact-grid">
+    <div class="impact-card"><div class="num" data-i18n="imp1n">+35%</div><p data-i18n="imp1l">Mejor rendimiento académico con juegos de estrategia</p></div>
+    <div class="impact-card"><div class="num" data-i18n="imp2n">🧠</div><p data-i18n="imp2l">Desarrolla lógica, memoria y probabilidad</p></div>
+    <div class="impact-card"><div class="num" data-i18n="imp3n">🤝</div><p data-i18n="imp3l">Fomenta trabajo en equipo y fair play</p></div>
+    <div class="impact-card"><div class="num" data-i18n="imp4n">🕊️</div><p data-i18n="imp4l">Forma personas que eligen la paz</p></div>
+  </div>
+</section>
+
+<!-- ============ TESTIMONIALS ============ -->
+<section id="testimonios">
+  <div class="section-tag" data-i18n="testi_tag">Testimonios</div>
+  <h2 data-i18n="testi_title">Voces del movimiento</h2>
+  <p class="sub" data-i18n="testi_sub">Pronto, las historias de padres, maestros y estudiantes que viven el método Baduy. Este espacio espera sus primeras voces.</p>
+  <div class="testimonials">
+    <div class="testimonial">
+      <p data-i18n="testi1">"El dominó le enseñó a mi hijo a pensar antes de actuar. Hoy lo aplica en la escuela y en la vida."</p>
+      <span class="who" data-i18n="testi1_who">— Padre de familia · Próximamente</span>
+    </div>
+    <div class="testimonial">
+      <p data-i18n="testi2">"Los niños que juegan estrategia desarrollan una calma y una lógica que se nota en el salón de clases."</p>
+      <span class="who" data-i18n="testi2_who">— Maestra · Próximamente</span>
+    </div>
+    <div class="testimonial">
+      <p data-i18n="testi3">"Aprender a perder con dignidad y ganar con humildad: eso es lo que el método Baduy enseña."</p>
+      <span class="who" data-i18n="testi3_who">— Estudiante · Próximamente</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESOURCES ============ -->
+<section id="recursos">
+  <div class="section-tag" data-i18n="res_tag">Recursos</div>
+  <h2 data-i18n="res_title">Empieza hoy, gratis</h2>
+  <p class="sub" data-i18n="res_sub">Material gratuito para que descubras el método antes de unirte. Porque creemos que la educación debe estar al alcance de todos.</p>
+  <div class="resources">
+    <div class="resource">
+      <div class="icon">📖</div>
+      <h4 data-i18n="res1_t">Guía del Principiante</h4>
+      <p data-i18n="res1_p">Las reglas del dominó explicadas paso a paso.</p>
+      <a href="#" data-i18n="res1_a">Descargar →</a>
+    </div>
+    <div class="resource">
+      <div class="icon">🎬</div>
+      <h4 data-i18n="res2_t">Lección en Video</h4>
+      <p data-i18n="res2_p">Primera lección gratuita con el Campeón del Mundo.</p>
+      <a href="#" data-i18n="res2_a">Ver ahora →</a>
+    </div>
+    <div class="resource">
+      <div class="icon">🧩</div>
+      <h4 data-i18n="res3_t">Ejercicios de Lógica</h4>
+      <p data-i18n="res3_p">Retos semanales de probabilidad y estrategia.</p>
+      <a href="#" data-i18n="res3_a">Empezar →</a>
+    </div>
+    <div class="resource">
+      <div class="icon">🏫</div>
+      <h4 data-i18n="res4_t">Kit para Maestros</h4>
+      <p data-i18n="res4_p">Material de aula listo para usar con tus estudiantes.</p>
+      <a href="#" data-i18n="res4_a">Solicitar →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EVENTS ============ -->
+<section id="eventos">
+  <div class="section-tag" data-i18n="events_tag">Eventos</div>
+  <h2 data-i18n="events_title">Torneos y encuentros</h2>
+  <p class="sub" data-i18n="events_sub">La competitividad sana es parte del método: competimos contra otros, pero sobre todo contra nuestra mejor versión.</p>
+  <div class="events">
+    <div class="event">
+      <div class="date" data-i18n="ev1_date">Próximamente</div>
+      <h4 data-i18n="ev1_t">Torneo Escolar de Dominó</h4>
+      <p data-i18n="ev1_p">Primer torneo interescolar del programa piloto.</p>
+    </div>
+    <div class="event">
+      <div class="date" data-i18n="ev2_date">Próximamente</div>
+      <h4 data-i18n="ev2_t">Clínica con el Campeón</h4>
+      <p data-i18n="ev2_p">Sesión de entrenamiento en vivo con Fabio Baduy.</p>
+    </div>
+    <div class="event">
+      <div class="date" data-i18n="ev3_date">Próximamente</div>
+      <h4 data-i18n="ev3_t">Copa Baduy Academy</h4>
+      <p data-i18n="ev3_p">Competencia abierta por categorías para toda la comunidad.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq">
+  <div class="section-tag" data-i18n="faq_tag">Preguntas Frecuentes</div>
+  <h2 style="text-align:center" data-i18n="faq_title">¿Tienes dudas?</h2>
+  <p class="sub" style="text-align:center;margin-left:auto;margin-right:auto" data-i18n="faq_sub">Aquí respondemos las preguntas más comunes de padres y escuelas.</p>
+  <div class="faq">
+    <div class="faq-item">
+      <div class="faq-q" data-i18n="faq1_q">¿El dominó es realmente educativo?</div>
+      <div class="faq-a" data-i18n="faq1_a">Sí. El dominó desarrolla matemáticas, lógica, memoria y trabajo en equipo. Estudios académicos confirman que los juegos de estrategia mejoran el rendimiento escolar hasta un 35%.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" data-i18n="faq2_q">¿Enseñan póker a los niños?</div>
+      <div class="faq-a" data-i18n="faq2_a">No. El programa escolar se basa exclusivamente en dominó y juegos de mesa de estrategia. El póker forma parte de la filosofía del método para adultos y jóvenes, siempre con enfoque educativo y valores.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" data-i18n="faq3_q">¿Necesito experiencia previa?</div>
+      <div class="faq-a" data-i18n="faq3_a">Para nada. Nuestros programas están diseñados para empezar desde cero, nivel por nivel, sin importar la edad.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" data-i18n="faq4_q">¿Cómo llevo el programa a mi escuela?</div>
+      <div class="faq-a" data-i18n="faq4_a">Contáctanos a través del formulario y te guiamos en el proceso. Tenemos un kit gratuito para maestros y un programa piloto para escuelas.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contacto">
+  <div class="section-tag" data-i18n="contact_tag">Contacto</div>
+  <h2 data-i18n="contact_title">Únete al movimiento</h2>
+  <div class="contact">
+    <div>
+      <h3 data-i18n="contact_h3">Hablemos</h3>
+      <p data-i18n="contact_p">Escríbenos para más información, alianzas, o para llevar el programa a tu escuela o comunidad.</p>
+      <form onsubmit="event.preventDefault(); alert(document.querySelector('[data-i18n=contact_ok]').textContent);">
+        <input type="text" data-i18n="contact_name" placeholder="Tu nombre">
+        <input type="email" data-i18n="contact_email" placeholder="Tu correo electrónico">
+        <textarea rows="4" data-i18n="contact_msg" placeholder="Cuéntanos cómo podemos ayudarte..."></textarea>
+        <button type="submit" data-i18n="contact_btn">Enviar mensaje</button>
+      </form>
+    </div>
+    <div class="contact-info">
+      <div class="item"><span class="e">📧</span> <span data-i18n="info_email">hola@baduyacademy.com</span></div>
+      <div class="item"><span class="e">🌐</span> <span data-i18n="info_web">www.baduyacademy.com</span></div>
+      <div class="item"><span class="e">📍</span> <span data-i18n="info_loc">Estados Unidos · Venezuela</span></div>
+      <div class="item"><span class="e">🕊️</span> <span data-i18n="info_motto">"La amabilidad es la palabra más bonita."</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOUNDER ============ -->
+<section id="fundador">
+  <div class="section-tag" data-i18n="founder_tag">El Fundador</div>
+  <h2 data-i18n="founder_title">Detrás del método</h2>
+  <div class="champion">
+    <div class="avatar">🏆</div>
+    <div>
+      <h3 data-i18n="founder_name">Ing. Fabio Baduy</h3>
+      <div class="title" data-i18n="founder_title2">Campeón del Mundo de Dominó 2007 · Ingeniero en Computación · Educador</div>
+      <p data-i18n="founder_p1">Campeón del Mundo de Dominó 2007 en modalidad por equipos y por parejas. Ingeniero en Computación (Universidad Simón Bolívar). Nadador, waterpolista y ajedrecista de alta competencia. Vivió del póker profesionalmente durante 7 años.</p>
+      <p data-i18n="founder_p2">Su misión: democratizar la enseñanza del dominó y convertirlo en herramienta educativa para las nuevas generaciones, tal como el ajedrez transformó la educación en el mundo.</p>
+      <div class="quote">
+        <span data-i18n="founder_quote">"La amabilidad es la palabra más bonita. Creo en la paz, en el amor y en la alegría como camino indispensable para mejorar nuestra humanidad. La familia es el pilar fundamental de la sociedad."</span> — <b>Fabio Baduy</b>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<div class="final-cta">
+  <h2 data-i18n="final_title">¿Listo para hacer historia?</h2>
+  <p data-i18n="final_text">Únete al movimiento. Aprende, enseña, compite — y ayúdanos a sembrar paz a través del juego.</p>
+  <a href="#contacto" class="btn" style="background:var(--ink);color:#fff;" data-i18n="final_btn1">📲 Únete al movimiento</a>
+  <a href="#escuelas" class="btn" style="background:#fff;color:var(--ink);" data-i18n="final_btn2">🏫 Solicita el Programa Escolar</a>
+</div>
+
+<footer>
+  <b data-i18n="foot_brand">BADUY ACADEMY</b> <span data-i18n="foot_tag">© 2026 · Dos disciplinas mentales: dominó y póker · Hecho con ❤️ y 🁢 por el Campeón del Mundo</span>
+  <div class="f-links">
+    <a href="#" data-i18n="foot_l1">Privacidad</a>
+    <a href="#" data-i18n="foot_l2">Términos</a>
+    <a href="#" data-i18n="foot_l3">Prensa</a>
+    <a href="#" data-i18n="foot_l4">Contacto</a>
+  </div>
+</footer>
+
+<script>
+/* ===== TRADUCCIONES ===== */
+const translations = {
+  es: {
+    tagline: "Mentes sanas · Paz",
+    nav_home: "Inicio", nav_philosophy: "Filosofía", nav_method: "Método",
+    nav_programs: "Programas", nav_schools: "Escuelas", nav_founder: "Fundador", nav_contact: "Contacto",
+    hero_badge: "🏆 Campeón del Mundo de Dominó 2007",
+    hero_title: "Donde el juego forma <span>mentes brillantes</span> y <span>corazones nobles</span>",
+    hero_mission: "\"Dos disciplinas mentales tocaron mi vida: el dominó y el póker. Hoy quiero que las nuevas generaciones descubran que un juego puede formar mentes sanas, corazones nobles y personas en paz.\"",
+    hero_sub: "Baduy Academy usa el juego como escuela de pensamiento analítico, valores y desarrollo integral — para cultivar el encuentro humano y sembrar la paz.",
+    hero_cta1: "🎓 Empezar a Aprender", hero_cta2: "🏫 Para Escuelas",
+    stat1n: "2", stat1l: "Disciplinas mentales<br>(dominó + póker)",
+    stat2n: "3", stat2l: "Campeonatos Mundiales<br>(2007 equipos + parejas)",
+    stat3n: "+35%", stat3l: "Rendimiento académico<br>con juegos de estrategia*",
+    mvv_tag: "Nuestra Filosofía",
+    mvv_title: "Creemos en el poder transformador del juego",
+    mvv_sub: "El juego es la forma más natural de aprender. A través de él formamos personas íntegras: mentes que piensan con claridad, corazones que eligen la amabilidad y cuerpos que honran la disciplina.",
+    mvv_m_tag: "Misión", mvv_m_title: "Formar personas íntegras",
+    mvv_m_text: "Formar personas íntegras a través del juego: mentes que piensan con claridad, corazones que eligen la amabilidad y cuerpos que honran la disciplina.",
+    mvv_v_tag: "Visión", mvv_v_title: "Sembrar las semillas de la paz",
+    mvv_v_text: "Un mundo donde cada niño tenga acceso a herramientas lúdicas que desarrollen su inteligencia emocional y analítica, sembrando así las semillas de la paz.",
+    mvv_val_tag: "Valores", mvv_val_title: "Amabilidad · Disciplina · Paz",
+    mvv_val_text: "La amabilidad como puente entre las personas. La disciplina como camino a la excelencia. La paz como destino final de todo lo que hacemos.",
+    pillars_title: "Nuestros tres pilares",
+    pillar1_t: "Corazón", pillar1_s: "amabilidad y valores",
+    pillar2_t: "Cerebro", pillar2_s: "pensamiento analítico",
+    pillar3_t: "Cuerpo", pillar3_s: "disciplina y salud",
+    pillars_final: "🕊️ LA PAZ",
+    method_tag: "El Método Baduy",
+    method_title: "Dos juegos, una escuela de vida",
+    method_sub: "El dominó entrena la lógica, la probabilidad y el trabajo en equipo. El póker enseña a decidir bajo incertidumbre sin apego al resultado. Juntos forman un camino probado por un Campeón del Mundo.",
+    domino_title: "El Dominó", domino_role: "Campeón del Mundo 2007 · Equipos y Parejas",
+    domino_l1: "Matemáticas vivas: suma, conteo y probabilidad",
+    domino_l2: "Trabajo en pareja: comunicación y confianza",
+    domino_l3: "Razonamiento deductivo: leer al rival",
+    domino_l4: "Identidad y orgullo latino",
+    poker_title: "El Póker", poker_role: "7 años como jugador profesional (2010-2017)",
+    poker_l1: "Control emocional bajo presión",
+    poker_l2: "Gestión del riesgo y la incertidumbre",
+    poker_l3: "Lectura de personas y patrones",
+    poker_l4: "Decidir sin apego al resultado",
+    programs_tag: "Programas",
+    programs_title: "Un currículo de campeón, nivel por nivel",
+    programs_sub: "Diseñado por un ingeniero y Campeón del Mundo, alineado con estándares educativos de matemáticas.",
+    lvl1_title: "🟢 Básico", lvl1_meta: "Edades 7-10 · Fichas y números",
+    lvl1_l1: "Conocer las 28 fichas y sus valores", lvl1_l2: "Sumar puntos y contar en la mesa",
+    lvl1_l3: "Reglas del juego en parejas", lvl1_l4: "Primeros conceptos de estrategia",
+    lvl1_pill: "🎯 Objetivo: amar el juego",
+    lvl2_title: "🟡 Intermedio", lvl2_meta: "Edades 11-14 · Lógica y probabilidad",
+    lvl2_l1: "Conteo de fichas: ¿qué tiene el rival?", lvl2_l2: "Probabilidad aplicada a cada jugada",
+    lvl2_l3: "Estrategia de pareja y comunicación", lvl2_l4: "Control del juego: abrir y cerrar palos",
+    lvl2_pill: "🎯 Objetivo: pensar como estratega",
+    lvl3_title: "🔴 Avanzado", lvl3_meta: "Edades 15+ · Alta competencia",
+    lvl3_l1: "Lectura avanzada de manos rivales", lvl3_l2: "Manejo de presión en torneos",
+    lvl3_l3: "Sistemas de pareja de nivel mundial", lvl3_l4: "Preparación para competencias",
+    lvl3_pill: "🎯 Objetivo: competir al más alto nivel",
+    game_title: "🎮 Juega mientras aprendes",
+    game_text: "El modo educativo analiza cada jugada y te explica el porqué — como un entrenador personal dentro de la app.",
+    game_l1: "Modo práctica con consejos en tiempo real",
+    game_l2: "Análisis post-partida de tus decisiones",
+    game_l3: "Retos diarios con puntos y medallas",
+    game_l4: "Juega contra la IA o con amigos",
+    schools_tag: "Programa Escolar",
+    schools_title: "Baduy Academy en las Escuelas",
+    schools_sub: "Llevemos el dominó a las aulas como herramienta pedagógica — igual que Rusia, Armenia e Islandia hicieron con el ajedrez.",
+    schools_p1: "Currículo listo para maestros: planes de clase por grado",
+    schools_p2: "Alineado con estándares de matemáticas (Common Core)",
+    schools_p3: "Kit digital gratuito: guías, videos y ejercicios",
+    schools_p4: "Torneos interescolares y certificaciones por nivel",
+    schools_p5: "Programa piloto para escuelas latinas en EE.UU.",
+    schools_i1n: "1,000+", schools_i1l: "escuelas meta<br>año 3",
+    schools_i2n: "50K", schools_i2l: "estudiantes<br>impactados",
+    schools_i3n: "3", schools_i3l: "niveles de<br>certificación",
+    impact_tag: "Impacto", impact_title: "El juego que transforma",
+    impact_sub: "La evidencia lo respalda: los juegos de estrategia desarrollan habilidades cognitivas y socioemocionales que mejoran el rendimiento académico y la convivencia.",
+    imp1n: "+35%", imp1l: "Mejor rendimiento académico con juegos de estrategia",
+    imp2n: "🧠", imp2l: "Desarrolla lógica, memoria y probabilidad",
+    imp3n: "🤝", imp3l: "Fomenta trabajo en equipo y fair play",
+    imp4n: "🕊️", imp4l: "Forma personas que eligen la paz",
+    testi_tag: "Testimonios", testi_title: "Voces del movimiento",
+    testi_sub: "Pronto, las historias de padres, maestros y estudiantes que viven el método Baduy. Este espacio espera sus primeras voces.",
+    testi1: "\"El dominó le enseñó a mi hijo a pensar antes de actuar. Hoy lo aplica en la escuela y en la vida.\"",
+    testi1_who: "— Padre de familia · Próximamente",
+    testi2: "\"Los niños que juegan estrategia desarrollan una calma y una lógica que se nota en el salón de clases.\"",
+    testi2_who: "— Maestra · Próximamente",
+    testi3: "\"Aprender a perder con dignidad y ganar con humildad: eso es lo que el método Baduy enseña.\"",
+    testi3_who: "— Estudiante · Próximamente",
+    res_tag: "Recursos", res_title: "Empieza hoy, gratis",
+    res_sub: "Material gratuito para que descubras el método antes de unirte. Porque creemos que la educación debe estar al alcance de todos.",
+    res1_t: "Guía del Principiante", res1_p: "Las reglas del dominó explicadas paso a paso.", res1_a: "Descargar →",
+    res2_t: "Lección en Video", res2_p: "Primera lección gratuita con el Campeón del Mundo.", res2_a: "Ver ahora →",
+    res3_t: "Ejercicios de Lógica", res3_p: "Retos semanales de probabilidad y estrategia.", res3_a: "Empezar →",
+    res4_t: "Kit para Maestros", res4_p: "Material de aula listo para usar con tus estudiantes.", res4_a: "Solicitar →",
+    events_tag: "Eventos", events_title: "Torneos y encuentros",
+    events_sub: "La competitividad sana es parte del método: competimos contra otros, pero sobre todo contra nuestra mejor versión.",
+    ev1_date: "Próximamente", ev1_t: "Torneo Escolar de Dominó", ev1_p: "Primer torneo interescolar del programa piloto.",
+    ev2_date: "Próximamente", ev2_t: "Clínica con el Campeón", ev2_p: "Sesión de entrenamiento en vivo con Fabio Baduy.",
+    ev3_date: "Próximamente", ev3_t: "Copa Baduy Academy", ev3_p: "Competencia abierta por categorías para toda la comunidad.",
+    faq_tag: "Preguntas Frecuentes", faq_title: "¿Tienes dudas?",
+    faq_sub: "Aquí respondemos las preguntas más comunes de padres y escuelas.",
+    faq1_q: "¿El dominó es realmente educativo?",
+    faq1_a: "Sí. El dominó desarrolla matemáticas, lógica, memoria y trabajo en equipo. Estudios académicos confirman que los juegos de estrategia mejoran el rendimiento escolar hasta un 35%.",
+    faq2_q: "¿Enseñan póker a los niños?",
+    faq2_a: "No. El programa escolar se basa exclusivamente en dominó y juegos de mesa de estrategia. El póker forma parte de la filosofía del método para adultos y jóvenes, siempre con enfoque educativo y valores.",
+    faq3_q: "¿Necesito experiencia previa?",
+    faq3_a: "Para nada. Nuestros programas están diseñados para empezar desde cero, nivel por nivel, sin importar la edad.",
+    faq4_q: "¿Cómo llevo el programa a mi escuela?",
+    faq4_a: "Contáctanos a través del formulario y te guiamos en el proceso. Tenemos un kit gratuito para maestros y un programa piloto para escuelas.",
+    contact_tag: "Contacto", contact_title: "Únete al movimiento",
+    contact_h3: "Hablemos",
+    contact_p: "Escríbenos para más información, alianzas, o para llevar el programa a tu escuela o comunidad.",
+    contact_name: "Tu nombre", contact_email: "Tu correo electrónico",
+    contact_msg: "Cuéntanos cómo podemos ayudarte...", contact_btn: "Enviar mensaje",
+    contact_ok: "✅ ¡Gracias! Te contactaremos pronto.",
+    info_email: "hola@baduyacademy.com", info_web: "www.baduyacademy.com",
+    info_loc: "Estados Unidos · Venezuela", info_motto: "\"La amabilidad es la palabra más bonita.\"",
+    founder_tag: "El Fundador", founder_title: "Detrás del método",
+    founder_name: "Ing. Fabio Baduy",
+    founder_title2: "Campeón del Mundo de Dominó 2007 · Ingeniero en Computación · Educador",
+    founder_p1: "Campeón del Mundo de Dominó 2007 en modalidad por equipos y por parejas. Ingeniero en Computación (Universidad Simón Bolívar). Nadador, waterpolista y ajedrecista de alta competencia. Vivió del póker profesionalmente durante 7 años.",
+    founder_p2: "Su misión: democratizar la enseñanza del dominó y convertirlo en herramienta educativa para las nuevas generaciones, tal como el ajedrez transformó la educación en el mundo.",
+    founder_quote: "\"La amabilidad es la palabra más bonita. Creo en la paz, en el amor y en la alegría como camino indispensable para mejorar nuestra humanidad. La familia es el pilar fundamental de la sociedad.\"",
+    final_title: "¿Listo para hacer historia?",
+    final_text: "Únete al movimiento. Aprende, enseña, compite — y ayúdanos a sembrar paz a través del juego.",
+    final_btn1: "📲 Únete al movimiento", final_btn2: "🏫 Solicita el Programa Escolar",
+    foot_brand: "BADUY ACADEMY",
+    foot_tag: "© 2026 · Dos disciplinas mentales: dominó y póker · Hecho con ❤️ y 🁢 por el Campeón del Mundo",
+    foot_l1: "Privacidad", foot_l2: "Términos", foot_l3: "Prensa", foot_l4: "Contacto"
+  },
+  en: {
+    tagline: "Healthy minds · Peace",
+    nav_home: "Home", nav_philosophy: "Philosophy", nav_method: "Method",
+    nav_programs: "Programs", nav_schools: "Schools", nav_founder: "Founder", nav_contact: "Contact",
+    hero_badge: "🏆 World Dominoes Champion 2007",
+    hero_title: "Where play shapes <span>brilliant minds</span> and <span>noble hearts</span>",
+    hero_mission: "\"Two mental disciplines shaped my life: dominoes and poker. Today I want new generations to discover that a game can build healthy minds, noble hearts, and peaceful people.\"",
+    hero_sub: "Baduy Academy uses play as a school of analytical thinking, values, and holistic development — to cultivate human connection and sow the seeds of peace.",
+    hero_cta1: "🎓 Start Learning", hero_cta2: "🏫 For Schools",
+    stat1n: "2", stat1l: "Mental disciplines<br>(dominoes + poker)",
+    stat2n: "3", stat2l: "World Championships<br>(2007 teams + pairs)",
+    stat3n: "+35%", stat3l: "Academic performance<br>with strategy games*",
+    mvv_tag: "Our Philosophy",
+    mvv_title: "We believe in the transformative power of play",
+    mvv_sub: "Play is the most natural way to learn. Through it we form whole people: minds that think clearly, hearts that choose kindness, and bodies that honor discipline.",
+    mvv_m_tag: "Mission", mvv_m_title: "Forming whole people",
+    mvv_m_text: "Forming whole people through play: minds that think clearly, hearts that choose kindness, and bodies that honor discipline.",
+    mvv_v_tag: "Vision", mvv_v_title: "Sowing the seeds of peace",
+    mvv_v_text: "A world where every child has access to playful tools that develop their emotional and analytical intelligence, sowing the seeds of peace.",
+    mvv_val_tag: "Values", mvv_val_title: "Kindness · Discipline · Peace",
+    mvv_val_text: "Kindness as a bridge between people. Discipline as the path to excellence. Peace as the final destination of everything we do.",
+    pillars_title: "Our three pillars",
+    pillar1_t: "Heart", pillar1_s: "kindness and values",
+    pillar2_t: "Mind", pillar2_s: "analytical thinking",
+    pillar3_t: "Body", pillar3_s: "discipline and health",
+    pillars_final: "🕊️ PEACE",
+    method_tag: "The Baduy Method",
+    method_title: "Two games, one school of life",
+    method_sub: "Dominoes trains logic, probability, and teamwork. Poker teaches deciding under uncertainty without attachment to the outcome. Together they form a path proven by a World Champion.",
+    domino_title: "Dominoes", domino_role: "World Champion 2007 · Teams and Pairs",
+    domino_l1: "Living math: addition, counting, and probability",
+    domino_l2: "Teamwork: communication and trust",
+    domino_l3: "Deductive reasoning: reading your opponent",
+    domino_l4: "Latino identity and pride",
+    poker_title: "Poker", poker_role: "7 years as a professional player (2010-2017)",
+    poker_l1: "Emotional control under pressure",
+    poker_l2: "Managing risk and uncertainty",
+    poker_l3: "Reading people and patterns",
+    poker_l4: "Deciding without attachment to the outcome",
+    programs_tag: "Programs",
+    programs_title: "A champion's curriculum, level by level",
+    programs_sub: "Designed by an engineer and World Champion, aligned with educational math standards.",
+    lvl1_title: "🟢 Beginner", lvl1_meta: "Ages 7-10 · Tiles and numbers",
+    lvl1_l1: "Learn the 28 tiles and their values", lvl1_l2: "Add points and count at the table",
+    lvl1_l3: "Rules of the partners game", lvl1_l4: "First strategy concepts",
+    lvl1_pill: "🎯 Goal: fall in love with the game",
+    lvl2_title: "🟡 Intermediate", lvl2_meta: "Ages 11-14 · Logic and probability",
+    lvl2_l1: "Tile counting: what does the opponent hold?",
+    lvl2_l2: "Probability applied to every move",
+    lvl2_l3: "Partner strategy and communication",
+    lvl2_l4: "Game control: opening and closing suits",
+    lvl2_pill: "🎯 Goal: think like a strategist",
+    lvl3_title: "🔴 Advanced", lvl3_meta: "Ages 15+ · High competition",
+    lvl3_l1: "Advanced reading of opponents' hands",
+    lvl3_l2: "Handling tournament pressure",
+    lvl3_l3: "World-class partner systems",
+    lvl3_l4: "Competition preparation",
+    lvl3_pill: "🎯 Goal: compete at the highest level",
+    game_title: "🎮 Play while you learn",
+    game_text: "The educational mode analyzes every move and explains the why — like a personal coach inside the app.",
+    game_l1: "Practice mode with real-time advice",
+    game_l2: "Post-game analysis of your decisions",
+    game_l3: "Daily challenges with points and medals",
+    game_l4: "Play against the AI or with friends",
+    schools_tag: "School Program",
+    schools_title: "Baduy Academy in Schools",
+    schools_sub: "Let's bring dominoes into classrooms as a teaching tool — just as Russia, Armenia, and Iceland did with chess.",
+    schools_p1: "Teacher-ready curriculum: lesson plans by grade",
+    schools_p2: "Aligned with math standards (Common Core)",
+    schools_p3: "Free digital kit: guides, videos, and exercises",
+    schools_p4: "Interschool tournaments and level certifications",
+    schools_p5: "Pilot program for Latino schools in the U.S.",
+    schools_i1n: "1,000+", schools_i1l: "target schools<br>year 3",
+    schools_i2n: "50K", schools_i2l: "students<br>impacted",
+    schools_i3n: "3", schools_i3l: "certification<br>levels",
+    impact_tag: "Impact", impact_title: "The game that transforms",
+    impact_sub: "Evidence supports it: strategy games develop cognitive and socio-emotional skills that improve academic performance and coexistence.",
+    imp1n: "+35%", imp1l: "Better academic performance with strategy games",
+    imp2n: "🧠", imp2l: "Develops logic, memory, and probability",
+    imp3n: "🤝", imp3l: "Fosters teamwork and fair play",
+    imp4n: "🕊️", imp4l: "Forms people who choose peace",
+    testi_tag: "Testimonials", testi_title: "Voices of the movement",
+    testi_sub: "Soon, stories from parents, teachers, and students living the Baduy method. This space awaits its first voices.",
+    testi1: "\"Dominoes taught my son to think before acting. Today he applies it at school and in life.\"",
+    testi1_who: "— Parent · Coming soon",
+    testi2: "\"Children who play strategy develop a calm and logic that shows in the classroom.\"",
+    testi2_who: "— Teacher · Coming soon",
+    testi3: "\"Learning to lose with dignity and win with humility: that is what the Baduy method teaches.\"",
+    testi3_who: "— Student · Coming soon",
+    res_tag: "Resources", res_title: "Start today, free",
+    res_sub: "Free material to discover the method before joining. Because we believe education should be within everyone's reach.",
+    res1_t: "Beginner's Guide", res1_p: "The rules of dominoes explained step by step.", res1_a: "Download →",
+    res2_t: "Video Lesson", res2_p: "First free lesson with the World Champion.", res2_a: "Watch now →",
+    res3_t: "Logic Exercises", res3_p: "Weekly challenges on probability and strategy.", res3_a: "Start →",
+    res4_t: "Teacher Kit", res4_p: "Classroom material ready to use with your students.", res4_a: "Request →",
+    events_tag: "Events", events_title: "Tournaments and gatherings",
+    events_sub: "Healthy competition is part of the method: we compete against others, but above all against our best selves.",
+    ev1_date: "Coming soon", ev1_t: "School Dominoes Tournament", ev1_p: "First interschool tournament of the pilot program.",
+    ev2_date: "Coming soon", ev2_t: "Clinic with the Champion", ev2_p: "Live training session with Fabio Baduy.",
+    ev3_date: "Coming soon", ev3_t: "Baduy Academy Cup", ev3_p: "Open competition by categories for the whole community.",
+    faq_tag: "FAQ", faq_title: "Any questions?",
+    faq_sub: "Here we answer the most common questions from parents and schools.",
+    faq1_q: "Is dominoes really educational?",
+    faq1_a: "Yes. Dominoes develops math, logic, memory, and teamwork. Academic studies confirm that strategy games improve school performance by up to 35%.",
+    faq2_q: "Do you teach poker to children?",
+    faq2_a: "No. The school program is based exclusively on dominoes and strategy board games. Poker is part of the method's philosophy for adults and young people, always with an educational and values-based approach.",
+    faq3_q: "Do I need previous experience?",
+    faq3_a: "Not at all. Our programs are designed to start from zero, level by level, regardless of age.",
+    faq4_q: "How do I bring the program to my school?",
+    faq4_a: "Contact us through the form and we will guide you through the process. We have a free teacher kit and a pilot program for schools.",
+    contact_tag: "Contact", contact_title: "Join the movement",
+    contact_h3: "Let's talk",
+    contact_p: "Write to us for more information, partnerships, or to bring the program to your school or community.",
+    contact_name: "Your name", contact_email: "Your email",
+    contact_msg: "Tell us how we can help you...", contact_btn: "Send message",
+    contact_ok: "✅ Thank you! We'll contact you soon.",
+    info_email: "hello@baduyacademy.com", info_web: "www.baduyacademy.com",
+    info_loc: "United States · Venezuela", info_motto: "\"Kindness is the most beautiful word.\"",
+    founder_tag: "The Founder", founder_title: "Behind the method",
+    founder_name: "Eng. Fabio Baduy",
+    founder_title2: "World Dominoes Champion 2007 · Computer Engineer · Educator",
+    founder_p1: "World Dominoes Champion 2007 in teams and pairs. Computer Engineer (Simón Bolívar University). High-competition swimmer, water polo player, and chess player. Lived from professional poker for 7 years.",
+    founder_p2: "His mission: to democratize dominoes education and turn it into an educational tool for new generations, just as chess transformed education around the world.",
+    founder_quote: "\"Kindness is the most beautiful word. I believe in peace, love, and joy as the indispensable path to improve our humanity. Family is the fundamental pillar of society.\"",
+    final_title: "Ready to make history?",
+    final_text: "Join the movement. Learn, teach, compete — and help us sow peace through play.",
+    final_btn1: "📲 Join the movement", final_btn2: "🏫 Request the School Program",
+    foot_brand: "BADUY ACADEMY",
+    foot_tag: "© 2026 · Two mental disciplines: dominoes and poker · Made with ❤️ and 🁢 by the World Champion",
+    foot_l1: "Privacy", foot_l2: "Terms", foot_l3: "Press", foot_l4: "Contact"
+  }
+};
+
+/* ===== CAMBIO DE IDIOMA ===== */
+let currentLang = 'es';
+
+function applyLang(lang) {
+  const dict = translations[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) el.innerHTML = dict[key];
+  });
+  document.documentElement.lang = lang === 'es' ? 'es' : 'en';
+  document.getElementById('lang-es').classList.toggle('active', lang === 'es');
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  currentLang = lang;
+  try { localStorage.setItem('baduy_lang', lang); } catch(e) {}
+}
+
+function setLang(lang) { applyLang(lang); }
+
+/* ===== FAQ ACORDEÓN ===== */
+document.querySelectorAll('.faq-item').forEach(item => {
+  item.querySelector('.faq-q').addEventListener('click', () => {
+    item.classList.toggle('open');
+  });
+});
+
+/* ===== IDIOMA INICIAL ===== */
+let saved = null;
+try { saved = localStorage.getItem('baduy_lang'); } catch(e) {}
+applyLang(saved === 'en' ? 'en' : 'es');
+</script>
+
+</body>
+</html>
