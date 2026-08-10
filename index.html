@@ -338,6 +338,7 @@
   <div class="nav-right">
     <div class="links">
       <a href="#inicio" data-i18n="nav_home">Inicio</a>
+      <a href="#manifiesto" data-i18n="nav_mani">Manifiesto</a>
       <a href="#filosofia" data-i18n="nav_philosophy">Filosofía</a>
       <a href="#metodo" data-i18n="nav_method">Método</a>
       <a href="#programas" data-i18n="nav_programs">Programas</a>
@@ -357,7 +358,7 @@
 <header class="hero" id="inicio">
   <span class="badge" data-i18n="hero_badge">🏆 Campeón del Mundo de Dominó 2007</span>
   <h1 data-i18n="hero_title">Donde el juego forma <span>mentes brillantes</span> y <span>corazones nobles</span></h1>
-  <p class="mission" data-i18n="hero_mission">"Dos disciplinas mentales tocaron mi vida: el dominó y el póker. Hoy quiero que las nuevas generaciones descubran que un juego puede formar mentes sanas, corazones nobles y personas en paz."</p>
+  <p class="mission" data-i18n="hero_mission">"Baduy es más que poker y dominó: es una forma de ver la vida como un juego, de disfrutarla cada segundo."</p>
   <p class="sub" data-i18n="hero_sub">Baduy Academy usa el juego como escuela de pensamiento analítico, valores y desarrollo integral — para cultivar el encuentro humano y sembrar la paz.</p>
   <div class="cta">
     <a href="#programas" class="btn btn-gold" data-i18n="hero_cta1">🎓 Empezar a Aprender</a>
@@ -369,6 +370,18 @@
     <div class="stat"><h3 data-i18n="stat3n">+35%</h3><p data-i18n="stat3l">Rendimiento académico<br>con juegos de estrategia*</p></div>
   </div>
 </header>
+
+<!-- ============ MANIFESTO ============ -->
+<section id="manifiesto">
+  <div class="section-tag" data-i18n="mani_tag">El Manifiesto Baduy</div>
+  <h2 data-i18n="mani_title">Una forma de ver la vida</h2>
+  <div class="quote" style="max-width:820px;margin:0 auto;font-size:1.15rem;line-height:1.9;">
+    <p data-i18n="mani_text1">"Baduy es más que poker y dominó: es una forma de ver la vida como un juego, de disfrutarla cada segundo, de entender que a pesar de querer ganar, lo más satisfactorio es la entrega, la lucha, la dedicación."</p>
+    <p data-i18n="mani_text2" style="margin-top:16px;">"Es disfrutar el camino agradeciendo lo que nos pase, sea bueno, sea malo, ganemos, perdamos. Es conectar nuestro pensar con nuestro sentir para posicionarnos en esta vida como seres íntegros, capaces de respetar al prójimo en cualquier circunstancia."</p>
+    <p data-i18n="mani_text3" style="margin-top:16px;">"Es vivir con alegría, buen humor y con la voluntad y el deseo de ayudar, con la esperanza de que algún día transformemos al mundo y se convierta en un espacio de amor, hermandad y humanidad. Amén."</p>
+    <p style="margin-top:20px;font-style:normal;font-weight:800;color:var(--blue);">— <span data-i18n="mani_sign">Fabio Baduy, Fundador</span></p>
+  </div>
+</section>
 
 <!-- ============ MVV ============ -->
 <section id="filosofia">
@@ -731,13 +744,19 @@
 const translations = {
   es: {
     tagline: "Entrenando Mentes para la Paz",
-    nav_home: "Inicio", nav_philosophy: "Filosofía", nav_method: "Método",
+    nav_home: "Inicio", nav_mani: "Manifiesto", nav_philosophy: "Filosofía", nav_method: "Método",
     nav_programs: "Programas", nav_schools: "Escuelas", nav_pilot: "Iniciativa", nav_founder: "Fundador", nav_contact: "Contacto",
     hero_badge: "🏆 Campeón del Mundo de Dominó 2007 y 2008",
     hero_title: "Donde el juego forma <span>mentes brillantes</span> y <span>corazones nobles</span>",
-    hero_mission: "\"Dos disciplinas mentales tocaron mi vida: el dominó y el póker. Hoy quiero que las nuevas generaciones descubran que un juego puede formar mentes sanas, corazones nobles y personas en paz.\"",
+    hero_mission: "\"Baduy es más que poker y dominó: es una forma de ver la vida como un juego, de disfrutarla cada segundo.\"",
     hero_sub: "Baduy Academy usa el juego como escuela de pensamiento analítico, valores y desarrollo integral — para cultivar el encuentro humano y sembrar la paz.",
     hero_cta1: "🎓 Empezar a Aprender", hero_cta2: "🏫 Para Escuelas",
+    mani_tag: "El Manifiesto Baduy",
+    mani_title: "Una forma de ver la vida",
+    mani_text1: "\"Baduy es más que poker y dominó: es una forma de ver la vida como un juego, de disfrutarla cada segundo, de entender que a pesar de querer ganar, lo más satisfactorio es la entrega, la lucha, la dedicación.\"",
+    mani_text2: "\"Es disfrutar el camino agradeciendo lo que nos pase, sea bueno, sea malo, ganemos, perdamos. Es conectar nuestro pensar con nuestro sentir para posicionarnos en esta vida como seres íntegros, capaces de respetar al prójimo en cualquier circunstancia.\"",
+    mani_text3: "\"Es vivir con alegría, buen humor y con la voluntad y el deseo de ayudar, con la esperanza de que algún día transformemos al mundo y se convierta en un espacio de amor, hermandad y humanidad. Amén.\"",
+    mani_sign: "Fabio Baduy, Fundador",
     stat1n: "2", stat1l: "Disciplinas mentales<br>(dominó + póker)",
     stat2n: "2", stat2l: "Títulos Mundiales<br>(2007 equipos · 2008 parejas)",
     stat3n: "+35%", stat3l: "Rendimiento académico<br>con juegos de estrategia*",
@@ -865,13 +884,19 @@ const translations = {
   },
   en: {
     tagline: "Training Minds for Peace",
-    nav_home: "Home", nav_philosophy: "Philosophy", nav_method: "Method",
+    nav_home: "Home", nav_mani: "Manifesto", nav_philosophy: "Philosophy", nav_method: "Method",
     nav_programs: "Programs", nav_schools: "Schools", nav_pilot: "Initiative", nav_founder: "Founder", nav_contact: "Contact",
     hero_badge: "🏆 World Dominoes Champion 2007 & 2008",
     hero_title: "Where play shapes <span>brilliant minds</span> and <span>noble hearts</span>",
-    hero_mission: "\"Two mental disciplines shaped my life: dominoes and poker. Today I want new generations to discover that a game can build healthy minds, noble hearts, and peaceful people.\"",
+    hero_mission: "\"Baduy is more than poker and dominoes: it is a way of seeing life as a game, enjoying every second of it.\"",
     hero_sub: "Baduy Academy uses play as a school of analytical thinking, values, and holistic development — to cultivate human connection and sow the seeds of peace.",
     hero_cta1: "🎓 Start Learning", hero_cta2: "🏫 For Schools",
+    mani_tag: "The Baduy Manifesto",
+    mani_title: "A way of seeing life",
+    mani_text1: "\"Baduy is more than poker and dominoes: it is a way of seeing life as a game, enjoying every second of it, understanding that even though we want to win, the most satisfying part is the commitment, the struggle, the dedication.\"",
+    mani_text2: "\"It is enjoying the journey, grateful for whatever comes our way, good or bad, win or lose. It is connecting our thinking with our feeling to position ourselves in this life as whole beings, capable of respecting our neighbor in any circumstance.\"",
+    mani_text3: "\"It is living with joy, good humor, and with the will and desire to help, with the hope that one day we will transform the world into a space of love, brotherhood, and humanity. Amen.\"",
+    mani_sign: "Fabio Baduy, Founder",
     stat1n: "2", stat1l: "Mental disciplines<br>(dominoes + poker)",
     stat2n: "2", stat2l: "World titles<br>(2007 teams · 2008 pairs)",
     stat3n: "+35%", stat3l: "Academic performance<br>with strategy games*",
