@@ -65,6 +65,44 @@
     content: '🁢'; position: absolute; right: -40px; top: -60px;
     font-size: 340px; opacity: 0.05; transform: rotate(15deg);
   }
+  /* ===== FICHAS DE DOMINÓ DECORATIVAS EN EL HERO ===== */
+  .hero-tiles { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+  .hero-tiles .tile-wrap { position: absolute; opacity: 0.13; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35)); }
+  .hero-tiles .tile-wrap.t1 { top: 8%; left: 5%; transform: rotate(-14deg); }
+  .hero-tiles .tile-wrap.t2 { top: 14%; right: 6%; transform: rotate(10deg); }
+  .hero-tiles .tile-wrap.t3 { bottom: 12%; left: 10%; transform: rotate(7deg); }
+  .hero-tiles .tile-wrap.t4 { bottom: 18%; right: 9%; transform: rotate(-18deg); }
+  .hero-tiles .tile-wrap.t5 { top: 45%; left: 22%; transform: rotate(35deg); }
+  .hero-tiles .tile-wrap.t6 { top: 38%; right: 24%; transform: rotate(-30deg); }
+  .hero-tiles .tile-wrap.t7 { top: 70%; left: 40%; transform: rotate(20deg); }
+  .hero-tiles .tile-wrap.t8 { top: 20%; left: 45%; transform: rotate(-8deg); }
+  .d-tile {
+    width: 72px; height: 116px; background: linear-gradient(160deg, #fffdf7, #f0e9da);
+    border-radius: 10px; border: 1px solid rgba(0,0,0,0.18);
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
+  }
+  .d-tile .half { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); padding: 6px; gap: 0; }
+  .d-tile .divider { height: 2px; background: rgba(0,0,0,0.22); flex-shrink: 0; }
+  .d-tile .pip {
+    width: 10px; height: 10px; border-radius: 50%; background: #1a1a2e;
+    align-self: center; justify-self: center; display: none;
+  }
+  /* posiciones de pips en la cuadrícula 3x3 */
+  .d-tile .p-a { grid-area: 1/1; } .d-tile .p-b { grid-area: 1/3; }
+  .d-tile .p-c { grid-area: 2/1; } .d-tile .p-d { grid-area: 2/2; } .d-tile .p-e { grid-area: 2/3; }
+  .d-tile .p-f { grid-area: 3/1; } .d-tile .p-g { grid-area: 3/3; }
+  /* combinaciones por número (n1..n6) */
+  .d-tile .n1 .p-d, .d-tile .n2 .p-a, .d-tile .n2 .p-g,
+  .d-tile .n3 .p-a, .d-tile .n3 .p-d, .d-tile .n3 .p-g,
+  .d-tile .n4 .p-a, .d-tile .n4 .p-b, .d-tile .n4 .p-f, .d-tile .n4 .p-g,
+  .d-tile .n5 .p-a, .d-tile .n5 .p-b, .d-tile .n5 .p-d, .d-tile .n5 .p-f, .d-tile .n5 .p-g,
+  .d-tile .n6 .p-a, .d-tile .n6 .p-b, .d-tile .n6 .p-c, .d-tile .n6 .p-e, .d-tile .n6 .p-f, .d-tile .n6 .p-g { display: block; }
+  .hero > *:not(.hero-tiles) { position: relative; z-index: 2; }
+  @media (max-width: 800px) {
+    .hero-tiles .tile-wrap.t5, .hero-tiles .tile-wrap.t6, .hero-tiles .tile-wrap.t7, .hero-tiles .tile-wrap.t8 { display: none; }
+    .d-tile { width: 56px; height: 90px; }
+  }
   .hero .badge {
     display: inline-block; background: var(--gold); color: var(--ink);
     font-weight: 800; padding: 6px 16px; border-radius: 30px;
@@ -356,6 +394,16 @@
 
 <!-- ============ HERO ============ -->
 <header class="hero" id="inicio">
+  <div class="hero-tiles">
+    <div class="tile-wrap t1"><div class="d-tile"><div class="half n6"><span class="pip p-a"></span><span class="pip p-b"></span><span class="pip p-c"></span><span class="pip p-e"></span><span class="pip p-f"></span><span class="pip p-g"></span></div><div class="divider"></div><div class="half n6"><span class="pip p-a"></span><span class="pip p-b"></span><span class="pip p-c"></span><span class="pip p-e"></span><span class="pip p-f"></span><span class="pip p-g"></span></div></div></div>
+    <div class="tile-wrap t2"><div class="d-tile"><div class="half n5"><span class="pip p-a"></span><span class="pip p-b"></span><span class="pip p-d"></span><span class="pip p-f"></span><span class="pip p-g"></span></div><div class="divider"></div><div class="half n3"><span class="pip p-a"></span><span class="pip p-d"></span><span class="pip p-g"></span></div></div></div>
+    <div class="tile-wrap t3"><div class="d-tile"><div class="half n4"><span class="pip p-a"></span><span class="pip p-b"></span><span class="pip p-f"></span><span class="pip p-g"></span></div><div class="divider"></div><div class="half n4"><span class="pip p-a"></span><span class="pip p-b"></span><span class="pip p-f"></span><span class="pip p-g"></span></div></div></div>
+    <div class="tile-wrap t4"><div class="d-tile"><div class="half n2"><span class="pip p-a"></span><span class="pip p-g"></span></div><div class="divider"></div><div class="half n1"><span class="pip p-d"></span></div></div></div>
+    <div class="tile-wrap t5"><div class="d-tile"><div class="half n6"><span class="pip p-a"></span><span class="pip p-b"></span><span class="pip p-c"></span><span class="pip p-e"></span><span class="pip p-f"></span><span class="pip p-g"></span></div><div class="divider"></div><div class="half n0"></div></div></div>
+    <div class="tile-wrap t6"><div class="d-tile"><div class="half n3"><span class="pip p-a"></span><span class="pip p-d"></span><span class="pip p-g"></span></div><div class="divider"></div><div class="half n3"><span class="pip p-a"></span><span class="pip p-d"></span><span class="pip p-g"></span></div></div></div>
+    <div class="tile-wrap t7"><div class="d-tile"><div class="half n5"><span class="pip p-a"></span><span class="pip p-b"></span><span class="pip p-d"></span><span class="pip p-f"></span><span class="pip p-g"></span></div><div class="divider"></div><div class="half n2"><span class="pip p-a"></span><span class="pip p-g"></span></div></div></div>
+    <div class="tile-wrap t8"><div class="d-tile"><div class="half n1"><span class="pip p-d"></span></div><div class="divider"></div><div class="half n0"></div></div></div>
+  </div>
   <span class="badge" data-i18n="hero_badge">🏆 Campeón del Mundo de Dominó 2007</span>
   <h1 data-i18n="hero_title">A través del Juego, <span>educamos para la vida</span></h1>
   <p class="mission" data-i18n="hero_mission">"Aprender jugando es de las maneras más efectivas y gratificantes de adquirir conocimientos: nos divertimos y a la vez crecemos como personas." — Fabio Baduy</p>
