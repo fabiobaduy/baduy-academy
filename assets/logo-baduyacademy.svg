@@ -1,52 +1,68 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" width="600" height="200">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" width="640" height="220">
   <defs>
     <linearGradient id="txtGrad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" style="stop-color:#48cae4"/>
       <stop offset="100%" style="stop-color:#1e6091"/>
     </linearGradient>
-    <linearGradient id="tileGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="tileFace" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#ffffff"/>
-      <stop offset="100%" style="stop-color:#f0e9da"/>
+      <stop offset="100%" style="stop-color:#f5f0e6"/>
     </linearGradient>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0d1b2a" flood-opacity="0.25"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0d1b2a" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <!-- ===== ICONO: FICHA DE DOMINÓ + BIRRETE ===== -->
   <g filter="url(#shadow)">
-    <!-- Ficha de dominó base -->
-    <rect x="30" y="52" width="110" height="110" rx="14" fill="url(#tileGrad)" stroke="#0d1b2a" stroke-width="3"/>
-    <!-- Línea divisoria -->
-    <line x1="30" y1="107" x2="140" y2="107" stroke="#0d1b2a" stroke-width="3"/>
-    <!-- Pips superiores (4) -->
-    <circle cx="53" cy="74" r="7" fill="#0d1b2a"/>
-    <circle cx="85" cy="74" r="7" fill="#0d1b2a"/>
-    <circle cx="53" cy="95" r="7" fill="#0d1b2a"/>
-    <circle cx="85" cy="95" r="7" fill="#0d1b2a"/>
-    <!-- Pips inferiores (3) -->
-    <circle cx="69" cy="125" r="7" fill="#0d1b2a"/>
-    <circle cx="85" cy="141" r="7" fill="#0d1b2a"/>
-    <circle cx="101" cy="125" r="7" fill="#0d1b2a"/>
-
-    <!-- Birrete de graduación -->
+    <!-- ===== FICHA DE DOMINÓ REAL (proporción 1:2 aprox) ===== -->
     <g>
-      <!-- Base del birrete (tablero) -->
-      <polygon points="42,52 128,52 114,44 56,44" fill="#0d1b2a" stroke="#1b263b" stroke-width="1"/>
-      <!-- Lado del birrete -->
-      <polygon points="56,44 114,44 114,58 56,58" fill="#1e6091"/>
-      <!-- Borla -->
-      <line x1="128" y1="52" x2="140" y2="38" stroke="#c9a227" stroke-width="3" stroke-linecap="round"/>
-      <circle cx="142" cy="36" r="5" fill="#c9a227"/>
-      <!-- Botón central -->
-      <circle cx="85" cy="48" r="4" fill="#c9a227"/>
+      <!-- Cuerpo de la ficha: 120x200 -->
+      <rect x="28" y="40" width="120" height="200" rx="16" fill="url(#tileFace)" stroke="#0d1b2a" stroke-width="3.5"/>
+      <!-- Línea divisoria central -->
+      <rect x="28" y="137" width="120" height="5" fill="#0d1b2a"/>
+      <!-- Mitad superior: 4 pips (cuadrados, como dominó real) -->
+      <g fill="#0d1b2a">
+        <rect x="46" y="58" width="14" height="14" rx="2"/>
+        <rect x="88" y="58" width="14" height="14" rx="2"/>
+        <rect x="67" y="76" width="14" height="14" rx="2"/>
+        <rect x="46" y="94" width="14" height="14" rx="2"/>
+        <rect x="88" y="94" width="14" height="14" rx="2"/>
+      </g>
+      <!-- Mitad inferior: 6 pips -->
+      <g fill="#0d1b2a">
+        <rect x="46" y="156" width="14" height="14" rx="2"/>
+        <rect x="88" y="156" width="14" height="14" rx="2"/>
+        <rect x="46" y="176" width="14" height="14" rx="2"/>
+        <rect x="88" y="176" width="14" height="14" rx="2"/>
+        <rect x="46" y="196" width="14" height="14" rx="2"/>
+        <rect x="88" y="196" width="14" height="14" rx="2"/>
+      </g>
+      <!-- Borde interior sutil para dar realismo -->
+      <rect x="34" y="46" width="108" height="188" rx="11" fill="none" stroke="#e5ddcd" stroke-width="1.5"/>
+    </g>
+
+    <!-- ===== BIRRETE DE GRADUACIÓN (encima, bien proporcionado) ===== -->
+    <g>
+      <!-- Tablero del birrete (romboidal, perspectiva) -->
+      <polygon points="38,40 88,18 148,40 98,62" fill="#0d1b2a"/>
+      <!-- Borde del tablero -->
+      <polygon points="38,40 88,18 148,40 98,62" fill="none" stroke="#1b263b" stroke-width="1.5"/>
+      <!-- Copa/casco del birrete -->
+      <polygon points="60,44 60,52 100,52 100,44 98,40 62,40" fill="#1e6091"/>
+      <!-- Borla dorada -->
+      <line x1="148" y1="40" x2="164" y2="22" stroke="#c9a227" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="167" cy="18" r="6" fill="#c9a227"/>
+      <line x1="167" y1="24" x2="167" y2="34" stroke="#c9a227" stroke-width="2"/>
+      <!-- Botón central dorado -->
+      <circle cx="93" cy="41" r="4" fill="#c9a227"/>
     </g>
   </g>
 
   <!-- ===== TEXTO ===== -->
-  <text x="165" y="105" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="44" fill="url(#txtGrad)" letter-spacing="1">BADUY</text>
-  <text x="165" y="140" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="24" fill="#1e6091" letter-spacing="6">ACADEMY</text>
+  <text x="185" y="115" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="52" fill="url(#txtGrad)" letter-spacing="2">BADUY</text>
+  <text x="185" y="155" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="26" fill="#1e6091" letter-spacing="8">ACADEMY</text>
 
-  <!-- Línea base -->
-  <line x1="165" y1="152" x2="560" y2="152" stroke="#0d1b2a" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
+  <!-- Línea base elegante -->
+  <line x1="185" y1="170" x2="600" y2="170" stroke="#0d1b2a" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="600" cy="170" r="4" fill="#c9a227"/>
 </svg>
