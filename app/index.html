@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baduy Academy — Coach de Dominó GTO</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo-mark">🁢</span>
+    <div>
+      <b>BADUY ACADEMY</b>
+      <small>Coach de Dominó GTO</small>
+    </div>
+  </div>
+  <div class="lang">
+    <button id="lang-es" class="active">ES</button>
+    <button id="lang-en">EN</button>
+  </div>
+</header>
+
+<main>
+  <!-- Panel de estado -->
+  <section class="status">
+    <div id="turn-info" class="turn">Turno: —</div>
+    <div id="round-info" class="round">Ronda: 1</div>
+    <button id="btn-new" class="btn-primary">🔄 Nueva Partida</button>
+  </section>
+
+  <!-- Tablero -->
+  <section class="board-wrap">
+    <h2 id="board-title">Tablero</h2>
+    <div id="board" class="board"></div>
+  </section>
+
+  <!-- Mano del jugador -->
+  <section class="hand-wrap">
+    <h2 id="hand-title">Tu mano</h2>
+    <div id="hand" class="hand"></div>
+    <div class="hand-actions">
+      <button id="btn-pass" class="btn-secondary" disabled>Pasar</button>
+      <button id="btn-analyze" class="btn-accent">🎯 Analizar jugada (Coach GTO)</button>
+    </div>
+  </section>
+
+  <!-- Coach GTO -->
+  <section class="coach-wrap" id="coach">
+    <h2>🎓 Coach GTO <small id="coach-desc">— Valor Esperado de cada jugada</small></h2>
+    <div id="coach-results" class="coach-results"></div>
+    <p class="coach-hint" id="coach-hint">Toca "Analizar jugada" para que el Coach calcule la mejor opción.</p>
+  </section>
+
+  <!-- Explicación educativa -->
+  <section class="lesson">
+    <h2 id="lesson-title">📖 ¿Qué es el Valor Esperado (EV)?</h2>
+    <p id="lesson-text">El EV mide cuánto puedes ganar (o perder) en promedio con una decisión, jugada tras jugada. El Coach simula cientos de finales de partida para estimar qué jugada te deja en mejor posición.</p>
+  </section>
+</main>
+
+<script src="js/engine.js"></script>
+<script src="js/coach.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
