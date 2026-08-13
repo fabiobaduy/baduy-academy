@@ -25,29 +25,35 @@
   };
 
   // ---- Utilidades de render ----
-  function renderPips(n) {
-    let html = '';
-    const positions = pipPositions(n);
-    positions.forEach(p => {
-      html += `<span class="pip" style="grid-area:${p}"></span>`;
-    });
-    return `<div class="pips" style="display:grid;grid-template-columns:repeat(2,1fr);gap:3px;width:100%;place-items:center">${html}</div>`;
-  }
-
-  // Posiciones de pips según el número (estilo dominó clásico)
+  // Posiciones de pips en grid 3x3 (estilo dominó clásico)
   function pipPositions(n) {
     const map = {
-      0: [], 1: ['2/2'], 2: ['1/1', '3/3'], 3: ['1/1', '2/2', '3/3'],
-      4: ['1/1', '1/3', '3/1', '3/3'], 5: ['1/1', '1/3', '2/2', '3/1', '3/3'],
-      6: ['1/1', '1/3', '2/1', '2/3', '3/1', '3/3'],
+      0: [],
+      1: [[2, 2]],
+      2: [[1, 1], [3, 3]],
+      3: [[1, 1], [2, 2], [3, 3]],
+      4: [[1, 1], [1, 3], [3, 1], [3, 3]],
+      5: [[1, 1], [1, 3], [2, 2], [3, 1], [3, 3]],
+      6: [[1, 1], [1, 3], [2, 1], [2, 3], [3, 1], [3, 3]],
     };
     return map[n] || [];
   }
 
-  function tileHTML(t, horizontal = false) {
+  function renderPips(n) {
+    const pos = pipPositions(n);
+    const pips = pos.map(([r, c]) =>
+      `<span class="pip" style="grid-row:${r};grid-column:${c}"></span>`).join('');
+    return `<div class="pips">${pips}</div>`;
+  }
+
+  function tileHTML(t, onBoard = false) {
     const [a, b] = t;
-    const cls = horizontal ? 'tile horizontal' : 'tile';
-    return `<div class="${cls}" data-a="${a}" data-b="${b}">${renderPips(a)}<div class="divider"></div>${renderPips(b)}</div>`;
+    const cls = onBoard ? 'tile tile-board' : 'tile';
+    return `<div class="${cls}" data-a="${a}" data-b="${b}">
+      <div class="half">${renderPips(a)}</div>
+      <div class="divider"></div>
+      <div class="half">${renderPips(b)}</div>
+    </div>`;
   }
 
   function renderBoard() {
@@ -62,7 +68,11 @@
     const p = state.currentPlayer();
     el.hand.innerHTML = p.hand.map((t, i) => {
       const sel = selectedTile && selectedTile[0] === t[0] && selectedTile[1] === t[1] ? ' selected' : '';
-      return `<div class="tile${sel}" data-idx="${i}" data-a="${t[0]}" data-b="${t[1]}">${renderPips(t[0])}<div class="divider"></div>${renderPips(t[1])}</div>`;
+      return `<div class="tile${sel}" data-idx="${i}" data-a="${t[0]}" data-b="${t[1]}">
+        <div class="half">${renderPips(t[0])}</div>
+        <div class="divider"></div>
+        <div class="half">${renderPips(t[1])}</div>
+      </div>`;
     }).join('');
 
     // Click en ficha para seleccionar
@@ -176,16 +186,66 @@
 
   function analyze() {
     if (isAnalyzing) return;
+    const p = state.currentPlayer();
+    const moves = E.legalMoves(p.hand, state.board);
+    if (!moves.length) {
+      el.coachHint.textContent = 'No tienes jugadas legales — debes pasar.';
+      return;
+    }
     isAnalyzing = true;
+    el.btnAnalyze.disabled = true;
     el.btnAnalyze.textContent = '⏳ Calculando...';
-    el.coachHint.textContent = 'Simulando cientos de finales de partida...';
+    el.coachResults.innerHTML = '';
+    el.coachHint.textContent = 'Analizando jugada por jugada...';
 
-    setTimeout(() => {
-      const results = C.analyzeAll(state, 400);
+    // Generar todas las opciones (ficha, lado)
+    const options = [];
+    if (!state.board.length) {
+      moves.forEach(t => options.push({ tile: t, side: 'right' }));
+    } else {
+      moves.forEach(t => {
+        options.push({ tile: t, side: 'left' });
+        options.push({ tile: t, side: 'right' });
+      });
+    }
+
+    const results = [];
+    const SIMS = 60;
+    let idx = 0;
+
+    // Procesa una opción por tick — la UI respira entre cada una (no se congela)
+    function processNext() {
+      if (idx >= options.length) { finish(); return; }
+      const opt = options[idx];
+      const r = C.analyzeMove(state, opt.tile, opt.side, SIMS);
+      if (r) results.push(r);
+      idx++;
+      el.coachHint.textContent = `Analizando ${idx}/${options.length}...`;
+      setTimeout(processNext, 0);
+    }
+
+    function finish() {
+      results.sort((a, b) => b.ev - a.ev);
       renderCoach(results);
+      highlightBest(results[0]);
       isAnalyzing = false;
+      el.btnAnalyze.disabled = false;
       el.btnAnalyze.textContent = '🎯 Analizar jugada (Coach GTO)';
-    }, 50);
+    }
+
+    processNext();
+  }
+
+  // Resalta la mejor jugada en la mano y la preselecciona
+  function highlightBest(best) {
+    if (!best) return;
+    document.querySelectorAll('#hand .tile').forEach(node => {
+      const a = parseInt(node.dataset.a), b = parseInt(node.dataset.b);
+      if (a === best.tile[0] && b === best.tile[1]) {
+        node.classList.add('best-tile');
+        selectTile(best.tile);
+      }
+    });
   }
 
   function renderCoach(results) {
