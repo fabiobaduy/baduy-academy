@@ -41,6 +41,7 @@
     <h2 id="hand-title">Tu mano</h2>
     <div id="hand" class="hand"></div>
     <div class="hand-actions">
+      <button id="btn-play" class="btn-primary" style="display:none;">✅ Jugar ficha</button>
       <button id="btn-pass" class="btn-secondary" disabled>Pasar</button>
       <button id="btn-analyze" class="btn-accent">🎯 Analizar jugada (Coach GTO)</button>
     </div>
@@ -49,6 +50,10 @@
   <!-- Coach GTO -->
   <section class="coach-wrap" id="coach">
     <h2>🎓 Coach GTO <small id="coach-desc">— Valor Esperado de cada jugada</small></h2>
+    <div id="coach-progress" class="coach-progress" style="display:none;">
+      <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+      <div id="progress-text" class="progress-text">0%</div>
+    </div>
     <div id="coach-results" class="coach-results"></div>
     <p class="coach-hint" id="coach-hint">Toca "Analizar jugada" para que el Coach calcule la mejor opción.</p>
   </section>

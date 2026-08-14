@@ -18,10 +18,14 @@
     turn: document.getElementById('turn-info'),
     round: document.getElementById('round-info'),
     btnNew: document.getElementById('btn-new'),
+    btnPlay: document.getElementById('btn-play'),
     btnPass: document.getElementById('btn-pass'),
     btnAnalyze: document.getElementById('btn-analyze'),
     coachResults: document.getElementById('coach-results'),
     coachHint: document.getElementById('coach-hint'),
+    coachProgress: document.getElementById('coach-progress'),
+    progressFill: document.getElementById('progress-fill'),
+    progressText: document.getElementById('progress-text'),
   };
 
   // ---- Utilidades de render ----
@@ -87,6 +91,8 @@
   function selectTile(tile) {
     if (!E.legalMoves(state.currentPlayer().hand, state.board).some(t => t[0] === tile[0] && t[1] === tile[1])) return;
     selectedTile = tile;
+    // Mostrar botón Jugar si el tablero tiene fichas y hay lado a elegir
+    el.btnPlay.style.display = 'block';
     renderHand();
     updateTurnInfo();
   }
@@ -114,6 +120,7 @@
     E.dealTiles(players);
     state = new E.GameState(players);
     selectedTile = null;
+    el.btnPlay.style.display = 'none';
     el.coachResults.innerHTML = '';
     el.coachHint.textContent = 'Toca "Analizar jugada" para que el Coach calcule la mejor opción.';
     renderBoard();
@@ -127,9 +134,26 @@
       return;
     }
     const p = state.currentPlayer();
-    const ok = E.applyMove(state, p, selectedTile, selectedSide);
+    // Determinar el lado: si el tablero está vacío, derecha; si no,
+    // pedir al usuario o elegir el lado donde la ficha encaja
+    let side = selectedSide;
+    if (state.board.length) {
+      const ends = state.boardEnds();
+      const leftOk = E.orientations(selectedTile, ends[0]).length > 0;
+      const rightOk = E.orientations(selectedTile, ends[1]).length > 0;
+      if (leftOk && rightOk) {
+        // Ambos lados posibles: preguntar (simple)
+        side = window.confirm('¿Jugar a la IZQUIERDA? (OK = izquierda, Cancelar = derecha)') ? 'left' : 'right';
+      } else if (leftOk) {
+        side = 'left';
+      } else {
+        side = 'right';
+      }
+    }
+    const ok = E.applyMove(state, p, selectedTile, side);
     if (!ok) { alert('Jugada inválida.'); return; }
     selectedTile = null;
+    el.btnPlay.style.display = 'none';
     state.advanceTurn();
     renderBoard();
     renderHand();
@@ -197,6 +221,9 @@
     el.btnAnalyze.textContent = '⏳ Calculando...';
     el.coachResults.innerHTML = '';
     el.coachHint.textContent = 'Analizando jugada por jugada...';
+    el.coachProgress.style.display = 'block';
+    el.progressFill.style.width = '0%';
+    el.progressText.textContent = '0%';
 
     // Generar todas las opciones (ficha, lado)
     const options = [];
@@ -220,7 +247,10 @@
       const r = C.analyzeMove(state, opt.tile, opt.side, SIMS);
       if (r) results.push(r);
       idx++;
+      const pct = Math.round((idx / options.length) * 100);
       el.coachHint.textContent = `Analizando ${idx}/${options.length}...`;
+      el.progressFill.style.width = pct + '%';
+      el.progressText.textContent = pct + '%';
       setTimeout(processNext, 0);
     }
 
@@ -231,6 +261,7 @@
       isAnalyzing = false;
       el.btnAnalyze.disabled = false;
       el.btnAnalyze.textContent = '🎯 Analizar jugada (Coach GTO)';
+      el.coachProgress.style.display = 'none';
     }
 
     processNext();
@@ -271,6 +302,7 @@
 
   // ---- Eventos ----
   el.btnNew.addEventListener('click', newGame);
+  el.btnPlay.addEventListener('click', playSelected);
   el.btnPass.addEventListener('click', () => {
     const p = state.currentPlayer();
     const moves = E.legalMoves(p.hand, state.board);
