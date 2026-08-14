@@ -152,41 +152,96 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 }
 .btn-accent:hover { transform: scale(1.04); }
 
-/* ---- Board ---- */
-.board-wrap, .hand-wrap, .coach-wrap, .lesson {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: var(--radius);
-  padding: 18px;
+/* ---- Mesa de juego ---- */
+.table-wrap {
+  background: linear-gradient(160deg, #1a4a3a 0%, #0f3d2e 50%, #0a2e23 100%);
+  border: 6px solid #5a3a1e;
+  border-radius: 24px;
+  padding: 16px;
   margin-bottom: 18px;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.4);
 }
-.board-wrap h2, .hand-wrap h2, .coach-wrap h2, .lesson h2 {
-  font-size: 1rem; color: var(--cyan); margin-bottom: 12px; letter-spacing: 0.5px;
+.table-middle {
+  display: flex; align-items: stretch; gap: 12px;
+}
+.board-felt {
+  flex: 1; min-width: 0;
+  background: rgba(0,0,0,0.3);
+  border-radius: 14px;
+  padding: 10px;
+}
+.board-felt-inner h2 {
+  color: var(--gold); font-size: 0.8rem; letter-spacing: 2px;
+  text-align: center; margin-bottom: 8px; text-transform: uppercase;
 }
 .board {
-  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
-  min-height: 120px; padding: 10px; background: rgba(0,0,0,0.25); border-radius: 10px;
+  display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;
+  align-items: center; min-height: 74px;
 }
-.board-empty { color: rgba(255,255,255,0.4); align-self: center; }
+.board-empty {
+  color: rgba(255,255,255,0.45); font-size: 0.85rem;
+  text-align: center; padding: 20px 10px;
+}
+
+/* ---- Jugadores ---- */
+.player-top, .player-bottom, .player-side {
+  background: rgba(0,0,0,0.35);
+  border-radius: 12px;
+  padding: 8px;
+}
+.player-top { margin-bottom: 12px; text-align: center; }
+.player-bottom { margin-top: 12px; }
+.player-side {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 84px;
+}
+.player-side .p-avatar { writing-mode: vertical-rl; }
+.player-name {
+  font-weight: 800; font-size: 0.85rem; color: var(--cyan);
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.player-name .p-letter {
+  background: var(--gold); color: var(--ink);
+  border-radius: 50%; width: 22px; height: 22px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 900;
+}
+.player-name.me { color: #fff; }
+.player-name.me .p-letter { background: var(--cyan); }
+.player-name.team1 { color: #7fd1ff; }
+.player-name.team2 { color: #ffb07f; }
+.player-sub { font-size: 0.65rem; opacity: 0.6; margin-top: 2px; }
+.player-cards {
+  display: flex; gap: 3px; justify-content: center; margin-top: 6px;
+}
+/* Fichas boca abajo de rivales */
+.card-back {
+  width: 16px; height: 26px; border-radius: 3px;
+  background: repeating-linear-gradient(45deg, #2a4a8a, #2a4a8a 2px, #1e3a6a 2px, #1e3a6a 4px);
+  border: 1px solid #0d1b2a;
+}
+/* Mano visible del jugador de perspectiva */
+.player-bottom .hand { margin-top: 8px; }
 
 /* ---- Fichas ---- */
 .tile {
   background: var(--white); color: var(--ink);
-  width: 44px; border-radius: 8px; padding: 3px;
+  border-radius: 6px; padding: 2px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
   position: relative;
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
   border: 2px solid transparent;
   gap: 1px;
+  width: 40px;
 }
 .tile:hover { transform: translateY(-4px); }
-.tile.selected { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,162,39,0.35); }
+.tile.selected { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,162,39,0.4); }
 .tile.best-tile { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(72,202,228,0.45); }
 .tile .half {
   display: flex; justify-content: center; align-items: center;
-  width: 100%; height: 26px;
+  width: 100%; height: 22px;
 }
 .tile .divider { width: 100%; height: 2px; background: var(--ink); }
 .tile .pips {
@@ -198,15 +253,52 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
   height: 100%;
 }
 .pip {
-  width: 6px; height: 6px; border-radius: 50%; background: var(--ink);
+  width: 5px; height: 5px; border-radius: 50%; background: var(--ink);
   justify-self: center; align-self: center;
 }
+/* Ficha horizontal en el tablero (cadena) */
+.tile-h {
+  flex-direction: row;
+  width: auto;
+  padding: 2px 4px;
+}
+.tile-h .half { width: 22px; height: 100%; }
+.tile-h .divider { width: 2px; height: 100%; }
 .tile-board { cursor: default; }
 .tile-board:hover { transform: none; }
+.tile-sm { width: 32px; }
+.tile-sm .half { height: 18px; }
+.tile-sm .pip { width: 4px; height: 4px; }
+.tile-xs { width: 26px; }
+.tile-xs .half { height: 15px; }
+.tile-xs .pip { width: 3px; height: 3px; }
 
-/* ---- Hand ---- */
-.hand { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 90px; }
-.hand-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: center; flex-wrap: wrap; }
+/* ---- Selector de perspectiva ---- */
+.perspective-wrap {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+.perspective-wrap h3 { color: var(--cyan); font-size: 0.95rem; margin-bottom: 10px; }
+.perspective-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.perspective-btn {
+  background: rgba(255,255,255,0.08); color: var(--white);
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 10px; padding: 8px 14px;
+  cursor: pointer; font-weight: 800; font-size: 0.9rem;
+  transition: all 0.15s;
+}
+.perspective-btn:hover { border-color: var(--cyan); }
+.perspective-btn.active {
+  background: var(--cyan); color: var(--ink); border-color: var(--cyan);
+}
+.perspective-hint { font-size: 0.75rem; opacity: 0.6; margin-top: 8px; }
+
+/* ---- Mano ---- */
+.hand { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; min-height: 70px; }
+.hand-actions { display: flex; gap: 10px; margin-top: 12px; justify-content: center; flex-wrap: wrap; }
 
 /* ---- Coach ---- */
 .coach-progress { margin-bottom: 12px; }

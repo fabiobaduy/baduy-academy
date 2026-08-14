@@ -10,6 +10,7 @@
   let selectedTile = null;
   let selectedSide = 'right';
   let isAnalyzing = false;
+  let perspective = 0; // jugador cuya perspectiva mostramos (0-3)
 
   // ---- Referencias DOM ----
   const el = {
@@ -26,6 +27,12 @@
     coachProgress: document.getElementById('coach-progress'),
     progressFill: document.getElementById('progress-fill'),
     progressText: document.getElementById('progress-text'),
+    // Mesa
+    playerTop: document.getElementById('player-top'),
+    playerLeft: document.getElementById('player-left'),
+    playerRight: document.getElementById('player-right'),
+    playerBottomInfo: document.getElementById('player-bottom-info'),
+    perspectiveButtons: document.getElementById('perspective-buttons'),
     // Editor de manos
     btnEditHands: document.getElementById('btn-edit-hands'),
     handEditor: document.getElementById('hand-editor'),
@@ -59,26 +66,84 @@
     return `<div class="pips">${pips}</div>`;
   }
 
-  function tileHTML(t, onBoard = false) {
+  // Ficha vertical
+  function tileHTML(t, extra = '') {
     const [a, b] = t;
-    const cls = onBoard ? 'tile tile-board' : 'tile';
-    return `<div class="${cls}" data-a="${a}" data-b="${b}">
+    return `<div class="tile ${extra}" data-a="${a}" data-b="${b}">
       <div class="half">${renderPips(a)}</div>
       <div class="divider"></div>
       <div class="half">${renderPips(b)}</div>
     </div>`;
   }
 
-  function renderBoard() {
-    if (!state.board.length) {
-      el.board.innerHTML = '<div class="board-empty">El tablero está vacío — juega tu primera ficha</div>';
-      return;
-    }
-    el.board.innerHTML = state.board.map(t => tileHTML(t, true)).join('');
+  // Ficha horizontal (cadena del tablero)
+  function tileHHTML(t) {
+    const [a, b] = t;
+    return `<div class="tile tile-h tile-board" data-a="${a}" data-b="${b}">
+      <div class="half">${renderPips(a)}</div>
+      <div class="divider"></div>
+      <div class="half">${renderPips(b)}</div>
+    </div>`;
   }
 
-  function renderHand() {
-    const p = state.currentPlayer();
+  // Posición de cada jugador en la mesa según la perspectiva
+  // En dominó por parejas: el compañero está ENFRENTE.
+  // Equipos: A(0)+C(2) vs B(1)+D(3)
+  // Desde la perspectiva del jugador P:
+  //   - P abajo (mano visible)
+  //   - compañero arriba (enfrente)
+  //   - los otros dos a los lados (boca abajo)
+  function tablePositions(perspIdx) {
+    const players = state.players;
+    const teammate = players.findIndex((p, i) => i !== perspIdx && p.teamId === players[perspIdx].teamId);
+    const others = [0, 1, 2, 3].filter(i => i !== perspIdx && i !== teammate);
+    return { me: perspIdx, teammate, left: others[0], right: others[1] };
+  }
+
+  // Tarjeta de jugador (nombre, letra, fichas boca abajo o vacío)
+  function playerCard(idx, isMe, isTeammate) {
+    const p = state.players[idx];
+    const letter = 'ABCD'[idx];
+    const meCls = isMe ? ' me' : '';
+    const teamCls = p.teamId === 1 ? ' team1' : ' team2';
+    const teamLabel = p.teamId === 1 ? 'Equipo A' : 'Equipo B';
+    const cards = p.hand.map(() => '<div class="card-back"></div>').join('');
+    const count = p.hand.length;
+    return `
+      <div class="player-name${meCls}${teamCls}">
+        <span class="p-letter">${letter}</span> ${p.name}
+        ${isTeammate ? ' 🤝' : ''}
+      </div>
+      <div class="player-sub">${teamLabel} · ${count} fichas</div>
+      <div class="player-cards">${cards}</div>`;
+  }
+
+  function renderBoard() {
+    if (!state.board.length) {
+      el.board.innerHTML = '<div class="board-empty">Tablero vacío — juega la primera ficha</div>';
+      return;
+    }
+    el.board.innerHTML = state.board.map(t => tileHHTML(t)).join('');
+  }
+
+  // Render de la mesa completa según la perspectiva
+  function renderTable() {
+    const pos = tablePositions(perspective);
+    // Compañero arriba (enfrente)
+    el.playerTop.innerHTML = playerCard(pos.teammate, false, true);
+    // Rivales a los lados
+    el.playerLeft.innerHTML = playerCard(pos.left, false, false);
+    el.playerRight.innerHTML = playerCard(pos.right, false, false);
+    // Yo abajo (mano visible)
+    const me = state.players[pos.me];
+    el.playerBottomInfo.innerHTML = playerCard(pos.me, true, false);
+    // La mano visible es la del jugador de perspectiva
+    renderHandFor(pos.me);
+  }
+
+  // Render de la mano del jugador indicado (visible solo para él)
+  function renderHandFor(idx) {
+    const p = state.players[idx];
     el.hand.innerHTML = p.hand.map((t, i) => {
       const sel = selectedTile && selectedTile[0] === t[0] && selectedTile[1] === t[1] ? ' selected' : '';
       return `<div class="tile${sel}" data-idx="${i}" data-a="${t[0]}" data-b="${t[1]}">
@@ -88,11 +153,37 @@
       </div>`;
     }).join('');
 
-    // Click en ficha para seleccionar
+    // Click en ficha para seleccionar (solo si es la perspectiva y es su turno)
     el.hand.querySelectorAll('.tile').forEach(node => {
       node.addEventListener('click', () => {
+        if (perspective !== state.turn % 4) {
+          alert('No es el turno de este jugador.');
+          return;
+        }
         const a = parseInt(node.dataset.a), b = parseInt(node.dataset.b);
         selectTile([a, b]);
+      });
+    });
+  }
+
+  // Render de los botones de perspectiva
+  function renderPerspectiveButtons() {
+    el.perspectiveButtons.innerHTML = 'ABCD'.split('').map((letter, i) => {
+      const p = state.players[i];
+      const team = p.teamId === 1 ? 'A' : 'B';
+      const active = i === perspective ? ' active' : '';
+      return `<button class="perspective-btn${active}" data-p="${i}">${letter} · ${p.name} <small>(Eq ${team})</small></button>`;
+    }).join('');
+
+    el.perspectiveButtons.querySelectorAll('.perspective-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        perspective = parseInt(btn.dataset.p);
+        selectedTile = null;
+        el.btnPlay.style.display = 'none';
+        renderPerspectiveButtons();
+        renderTable();
+        renderBoard();
+        updateTurnInfo();
       });
     });
   }
@@ -102,16 +193,21 @@
     selectedTile = tile;
     // Mostrar botón Jugar si el tablero tiene fichas y hay lado a elegir
     el.btnPlay.style.display = 'block';
-    renderHand();
+    renderHandFor(perspective);
     updateTurnInfo();
   }
 
   function updateTurnInfo() {
     const p = state.currentPlayer();
-    el.turn.textContent = `Turno: ${p.name}${p.teamId ? ` (Equipo ${p.teamId})` : ''}`;
+    const persp = state.players[perspective];
+    el.turn.textContent = `Turno: ${p.name} (${p.teamId === 1 ? 'Eq A' : 'Eq B'}) · Viendo: ${persp.name} (${'ABCD'[perspective]})`;
     const moves = E.legalMoves(p.hand, state.board);
-    el.btnPass.disabled = moves.length > 0;
-    if (moves.length) {
+    // El botón pasar solo es útil si vemos al jugador de turno
+    const isViewingTurn = perspective === state.turn % 4;
+    el.btnPass.disabled = !isViewingTurn || moves.length > 0;
+    if (!isViewingTurn) {
+      el.btnPass.textContent = '—';
+    } else if (moves.length) {
       el.btnPass.textContent = 'Pasar';
     } else {
       el.btnPass.textContent = 'No tienes jugadas — Pasar';
@@ -132,8 +228,9 @@
     el.btnPlay.style.display = 'none';
     el.coachResults.innerHTML = '';
     el.coachHint.textContent = 'Toca "Analizar jugada" para que el Coach calcule la mejor opción.';
+    renderPerspectiveButtons();
+    renderTable();
     renderBoard();
-    renderHand();
     updateTurnInfo();
   }
 
@@ -164,8 +261,8 @@
     selectedTile = null;
     el.btnPlay.style.display = 'none';
     state.advanceTurn();
+    renderTable();
     renderBoard();
-    renderHand();
     updateTurnInfo();
     // Revisar fin de partida
     checkEnd();
@@ -197,8 +294,8 @@
       state.passed.push(p.name);
     }
     state.advanceTurn();
+    renderTable();
     renderBoard();
-    renderHand();
     updateTurnInfo();
     checkEnd();
     if (!isHumanTurn()) setTimeout(cpuTurn, 600);
@@ -259,9 +356,9 @@
       el.progressText.textContent = pct + '%';
       // Actualizar progreso ANTES de calcular (evita sensación de congelado)
       setTimeout(() => {
-        // MODO ESTUDIO: analizar desde la perspectiva del jugador de turno,
+        // MODO ESTUDIO: analizar desde la PERSPECTIVA seleccionada,
         // muestreando manos posibles de los rivales (información imperfecta)
-        const viewerIdx = state.turn % state.players.length;
+        const viewerIdx = perspective;
         const r = C.analyzeMoveStudy(state, opt.tile, opt.side, viewerIdx, SIMS);
         if (r) results.push(r);
         idx++;
@@ -328,8 +425,8 @@
     if (moves.length) { alert('Tienes jugadas legales — no puedes pasar.'); return; }
     state.passed.push(p.name);
     state.advanceTurn();
+    renderTable();
     renderBoard();
-    renderHand();
     updateTurnInfo();
     checkEnd();
     if (!isHumanTurn()) setTimeout(cpuTurn, 500);
@@ -479,8 +576,10 @@
     el.coachHint.textContent = 'Manos de estudio aplicadas. Analiza desde la perspectiva del jugador de turno.';
     el.handEditor.style.display = 'none';
     editorState.visible = false;
+    perspective = 0;
+    renderPerspectiveButtons();
+    renderTable();
     renderBoard();
-    renderHand();
     updateTurnInfo();
   }
 })();

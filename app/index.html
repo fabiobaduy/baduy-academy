@@ -53,21 +53,40 @@
     <div id="round-info" class="round">Ronda: 1</div>
   </section>
 
-  <!-- Tablero -->
-  <section class="board-wrap">
-    <h2 id="board-title">Tablero</h2>
-    <div id="board" class="board"></div>
+  <!-- Mesa de juego -->
+  <section class="table-wrap">
+    <!-- Compañero (enfrente) -->
+    <div class="player-top" id="player-top"></div>
+    <div class="table-middle">
+      <!-- Rival izquierdo -->
+      <div class="player-side" id="player-left"></div>
+      <!-- Tablero (mesa de fieltro) -->
+      <div class="board-felt">
+        <div class="board-felt-inner">
+          <h2 id="board-title">Tablero</h2>
+          <div id="board" class="board"></div>
+        </div>
+      </div>
+      <!-- Rival derecho -->
+      <div class="player-side" id="player-right"></div>
+    </div>
+    <!-- Tú (mano visible) -->
+    <div class="player-bottom">
+      <div class="player-bottom-info" id="player-bottom-info"></div>
+      <div id="hand" class="hand"></div>
+      <div class="hand-actions">
+        <button id="btn-play" class="btn-primary" style="display:none;">✅ Jugar ficha</button>
+        <button id="btn-pass" class="btn-secondary" disabled>Pasar</button>
+        <button id="btn-analyze" class="btn-accent">🎯 Analizar jugada (Coach GTO)</button>
+      </div>
+    </div>
   </section>
 
-  <!-- Mano del jugador -->
-  <section class="hand-wrap">
-    <h2 id="hand-title">Tu mano</h2>
-    <div id="hand" class="hand"></div>
-    <div class="hand-actions">
-      <button id="btn-play" class="btn-primary" style="display:none;">✅ Jugar ficha</button>
-      <button id="btn-pass" class="btn-secondary" disabled>Pasar</button>
-      <button id="btn-analyze" class="btn-accent">🎯 Analizar jugada (Coach GTO)</button>
-    </div>
+  <!-- Selector de perspectiva -->
+  <section class="perspective-wrap">
+    <h3>🎭 Estudio — ver como jugador:</h3>
+    <div id="perspective-buttons" class="perspective-buttons"></div>
+    <p class="perspective-hint">A es pareja de C · B es pareja de D · el compañero está enfrente</p>
   </section>
 
   <!-- Coach GTO -->
