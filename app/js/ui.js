@@ -125,23 +125,47 @@
     }
 
     // state.board guarda fichas ORIENTADAS correctamente por el motor:
-    //   [n_izq, n_der] donde n_izq conecta con la ficha previa y
-    //   n_der con la siguiente. t[i][1] === t[i+1][0] (Mickey-Mickey).
-    // Render SIMPLE y fiel: cada ficha muestra su orientación real,
-    // los dobles van perpendiculares (verticales), wrap si hay muchas.
+    //   [n_izq, n_der] con t[i][1] === t[i+1][0] (Mickey-Mickey).
+    // SERPIENTE REAL (como mesa física):
+    //   - Filas de 6 fichas, alternando dirección
+    //   - Fila par (0,2..): izquierda → derecha, fichas horizontales
+    //   - Fila impar (1,3..): derecha → izquierda (row-reverse),
+    //     la primera ficha (esquina) rotada 90° para conectar con la
+    //     fila anterior. Las demás horizontales con orientación real.
+    //   - Los dobles van perpendiculares (verticales)
     const tiles = state.board;
+    const PER_ROW = 6;
 
-    let html = '';
-    tiles.forEach(t => {
-      const isDouble = t[0] === t[1];
-      let cls = 'tile tile-board';
-      cls += isDouble ? ' tile-v' : ' tile-h';
-      html += `<div class="${cls}" data-a="${t[0]}" data-b="${t[1]}">
-        <div class="half">${renderPips(t[0])}</div>
-        <div class="divider"></div>
-        <div class="half">${renderPips(t[1])}</div>
-      </div>`;
+    // Dividir en filas
+    const rows = [];
+    for (let i = 0; i < tiles.length; i += PER_ROW) {
+      rows.push(tiles.slice(i, i + PER_ROW));
+    }
+
+    let html = '<div class="board-chain">';
+    rows.forEach((row, r) => {
+      const isEven = r % 2 === 0;
+      html += `<div class="board-row${isEven ? '' : ' board-row-rev'}">`;
+
+      row.forEach((t, j) => {
+        const isDouble = t[0] === t[1];
+        const isCorner = !isEven && j === 0; // esquina: conecta filas
+
+        let cls = 'tile tile-board';
+        if (isDouble) cls += ' tile-v';
+        else if (isCorner) cls += ' tile-h tile-corner';
+        else cls += ' tile-h';
+
+        html += `<div class="${cls}" data-a="${t[0]}" data-b="${t[1]}">
+          <div class="half">${renderPips(t[0])}</div>
+          <div class="divider"></div>
+          <div class="half">${renderPips(t[1])}</div>
+        </div>`;
+      });
+
+      html += '</div>';
     });
+    html += '</div>';
 
     el.board.innerHTML = html;
   }
