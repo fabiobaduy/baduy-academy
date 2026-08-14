@@ -123,7 +123,6 @@
       el.board.innerHTML = '<div class="board-empty">Tablero vacío — juega la primera ficha</div>';
       return;
     }
-
     // state.board guarda fichas ORIENTADAS: [n_izq, n_der]
     // n_izq conecta con la ficha previa, n_der con la siguiente.
     // Los dobles van PERPENDICULARES (verticales, cruzados).
@@ -150,6 +149,21 @@
     });
 
     el.board.innerHTML = html;
+  }
+
+  // Secuencia de la mano en notación (A66, B65, C55...)
+  function renderSequence() {
+    const seqEl = document.getElementById('sequence');
+    if (!seqEl) return;
+    if (!state.history.length && !state.passed.length) {
+      seqEl.textContent = '—';
+      return;
+    }
+    try {
+      seqEl.textContent = window.Notation.readHand(state);
+    } catch (e) {
+      seqEl.textContent = '...';
+    }
   }
 
   // Render de la mesa completa según la perspectiva
@@ -209,6 +223,7 @@
         renderPerspectiveButtons();
         renderTable();
         renderBoard();
+        renderSequence();
         updateTurnInfo();
       });
     });
@@ -257,6 +272,7 @@
     renderPerspectiveButtons();
     renderTable();
     renderBoard();
+    renderSequence();
     updateTurnInfo();
   }
 
@@ -287,13 +303,15 @@
     selectedTile = null;
     el.btnPlay.style.display = 'none';
     state.advanceTurn();
+    // MODO ESTUDIO: rotar la vista al siguiente jugador automáticamente
+    perspective = state.turn % 4;
+    renderPerspectiveButtons();
     renderTable();
     renderBoard();
+    renderSequence();
     updateTurnInfo();
     // Revisar fin de partida
     checkEnd();
-    // Si el turno es de la CPU, jugar automáticamente
-    if (!isHumanTurn()) setTimeout(cpuTurn, 500);
   }
 
   function isHumanTurn() {
@@ -451,11 +469,14 @@
     if (moves.length) { alert('Tienes jugadas legales — no puedes pasar.'); return; }
     state.passed.push(p.name);
     state.advanceTurn();
+    // Rotar vista al siguiente jugador
+    perspective = state.turn % 4;
+    renderPerspectiveButtons();
     renderTable();
     renderBoard();
+    renderSequence();
     updateTurnInfo();
     checkEnd();
-    if (!isHumanTurn()) setTimeout(cpuTurn, 500);
   });
   el.btnAnalyze.addEventListener('click', analyze);
 
@@ -606,6 +627,7 @@
     renderPerspectiveButtons();
     renderTable();
     renderBoard();
+    renderSequence();
     updateTurnInfo();
   }
 })();

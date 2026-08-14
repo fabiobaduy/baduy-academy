@@ -179,6 +179,21 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
   text-align: center; padding: 15px 8px;
 }
 
+/* Secuencia de la mano (notación en vivo) */
+.sequence {
+  margin-top: 8px;
+  padding: 6px 8px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 8px;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  color: var(--gold);
+  text-align: center;
+  line-height: 1.5;
+  word-break: break-all;
+  min-height: 20px;
+}
+
 /* ---- Jugadores ---- */
 .player-top, .player-bottom, .player-side {
   background: rgba(0,0,0,0.35);
@@ -246,10 +261,12 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
   justify-content: flex-start;
   padding: 4px 2px;
   scrollbar-width: thin;
+  max-width: 100%;
 }
 .board::-webkit-scrollbar { height: 4px; }
 .board::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
-.board .tile-h { flex-shrink: 0; }
+.board .tile-h, .board .tile-v { flex-shrink: 0; }
+.board-felt { overflow: hidden; }
 
 /* ---- Fichas ---- */
 .tile {
