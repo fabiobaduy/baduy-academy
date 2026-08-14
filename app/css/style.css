@@ -155,32 +155,32 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 /* ---- Mesa de juego ---- */
 .table-wrap {
   background: linear-gradient(160deg, #1a4a3a 0%, #0f3d2e 50%, #0a2e23 100%);
-  border: 6px solid #5a3a1e;
-  border-radius: 24px;
-  padding: 16px;
-  margin-bottom: 18px;
+  border: 5px solid #5a3a1e;
+  border-radius: 20px;
+  padding: 12px;
+  margin-bottom: 16px;
   box-shadow: inset 0 0 40px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.4);
 }
 .table-middle {
-  display: flex; align-items: stretch; gap: 12px;
+  display: flex; align-items: stretch; gap: 8px;
 }
 .board-felt {
   flex: 1; min-width: 0;
   background: rgba(0,0,0,0.3);
-  border-radius: 14px;
-  padding: 10px;
+  border-radius: 12px;
+  padding: 8px;
 }
 .board-felt-inner h2 {
-  color: var(--gold); font-size: 0.8rem; letter-spacing: 2px;
-  text-align: center; margin-bottom: 8px; text-transform: uppercase;
+  color: var(--gold); font-size: 0.7rem; letter-spacing: 2px;
+  text-align: center; margin-bottom: 5px; text-transform: uppercase;
 }
 .board {
-  display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;
-  align-items: center; min-height: 74px;
+  display: flex; flex-wrap: wrap; gap: 3px; justify-content: center;
+  align-items: center; min-height: 60px;
 }
 .board-empty {
-  color: rgba(255,255,255,0.45); font-size: 0.85rem;
-  text-align: center; padding: 20px 10px;
+  color: rgba(255,255,255,0.45); font-size: 0.8rem;
+  text-align: center; padding: 15px 8px;
 }
 
 /* ---- Jugadores ---- */
@@ -189,36 +189,51 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
   border-radius: 12px;
   padding: 8px;
 }
-.player-top { margin-bottom: 12px; text-align: center; }
-.player-bottom { margin-top: 12px; }
+.player-top { margin-bottom: 10px; text-align: center; }
+.player-bottom { margin-top: 10px; }
 .player-side {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  min-width: 84px;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  min-width: 56px;
+  gap: 6px;
 }
-.player-side .p-avatar { writing-mode: vertical-rl; }
 .player-name {
-  font-weight: 800; font-size: 0.85rem; color: var(--cyan);
-  display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-weight: 800; font-size: 0.8rem; color: var(--cyan);
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  white-space: nowrap;
 }
 .player-name .p-letter {
   background: var(--gold); color: var(--ink);
-  border-radius: 50%; width: 22px; height: 22px;
+  border-radius: 50%; width: 20px; height: 20px;
   display: inline-flex; align-items: center; justify-content: center;
-  font-size: 0.75rem; font-weight: 900;
+  font-size: 0.7rem; font-weight: 900;
+  flex-shrink: 0;
 }
 .player-name.me { color: #fff; }
 .player-name.me .p-letter { background: var(--cyan); }
 .player-name.team1 { color: #7fd1ff; }
 .player-name.team2 { color: #ffb07f; }
-.player-sub { font-size: 0.65rem; opacity: 0.6; margin-top: 2px; }
-.player-cards {
-  display: flex; gap: 3px; justify-content: center; margin-top: 6px;
+.player-sub { font-size: 0.62rem; opacity: 0.6; margin-top: 1px; }
+
+/* Fichas boca abajo — HORIZONTALES para arriba/abajo */
+.player-top .player-cards, .player-bottom .player-cards {
+  display: flex; gap: 3px; justify-content: center; margin-top: 5px;
+  flex-wrap: wrap;
 }
-/* Fichas boca abajo de rivales */
 .card-back {
   width: 16px; height: 26px; border-radius: 3px;
   background: repeating-linear-gradient(45deg, #2a4a8a, #2a4a8a 2px, #1e3a6a 2px, #1e3a6a 4px);
   border: 1px solid #0d1b2a;
+  flex-shrink: 0;
+}
+
+/* Fichas boca abajo — VERTICALES para los lados (ahorran espacio) */
+.player-side .player-cards {
+  display: flex; flex-direction: column; gap: 3px;
+  margin-top: 2px;
+  align-items: center;
+}
+.player-side .card-back {
+  width: 14px; height: 22px;
 }
 /* Mano visible del jugador de perspectiva */
 .player-bottom .hand { margin-top: 8px; }
@@ -260,10 +275,11 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 .tile-h {
   flex-direction: row;
   width: auto;
-  padding: 2px 4px;
+  padding: 2px 3px;
 }
-.tile-h .half { width: 22px; height: 100%; }
+.tile-h .half { width: 19px; height: 100%; }
 .tile-h .divider { width: 2px; height: 100%; }
+.tile-h .pip { width: 4px; height: 4px; }
 .tile-board { cursor: default; }
 .tile-board:hover { transform: none; }
 .tile-sm { width: 32px; }
