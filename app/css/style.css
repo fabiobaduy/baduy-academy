@@ -174,10 +174,6 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
   color: var(--gold); font-size: 0.7rem; letter-spacing: 2px;
   text-align: center; margin-bottom: 5px; text-transform: uppercase;
 }
-.board {
-  display: flex; flex-wrap: wrap; gap: 3px; justify-content: center;
-  align-items: center; min-height: 60px;
-}
 .board-empty {
   color: rgba(255,255,255,0.45); font-size: 0.8rem;
   text-align: center; padding: 15px 8px;
@@ -228,15 +224,32 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 
 /* Fichas boca abajo — VERTICALES para los lados (ahorran espacio) */
 .player-side .player-cards {
-  display: flex; flex-direction: column; gap: 3px;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
   margin-top: 2px;
   align-items: center;
 }
 .player-side .card-back {
-  width: 14px; height: 22px;
+  width: 14px !important;
+  height: 22px !important;
 }
 /* Mano visible del jugador de perspectiva */
 .player-bottom .hand { margin-top: 8px; }
+
+/* Tablero con scroll horizontal si la cadena es larga */
+.board {
+  display: flex; gap: 3px; align-items: center;
+  min-height: 56px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  justify-content: flex-start;
+  padding: 4px 2px;
+  scrollbar-width: thin;
+}
+.board::-webkit-scrollbar { height: 4px; }
+.board::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+.board .tile-h { flex-shrink: 0; }
 
 /* ---- Fichas ---- */
 .tile {
@@ -280,6 +293,18 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 .tile-h .half { width: 19px; height: 100%; }
 .tile-h .divider { width: 2px; height: 100%; }
 .tile-h .pip { width: 4px; height: 4px; }
+
+/* Ficha VERTICAL (doble perpendicular en el tablero) */
+.tile-v {
+  flex-direction: column;
+  width: 34px;
+  padding: 2px;
+  align-self: center;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+}
+.tile-v .half { width: 100%; height: 20px; }
+.tile-v .divider { width: 100%; height: 2px; }
+.tile-v .pip { width: 4px; height: 4px; }
 .tile-board { cursor: default; }
 .tile-board:hover { transform: none; }
 .tile-sm { width: 32px; }

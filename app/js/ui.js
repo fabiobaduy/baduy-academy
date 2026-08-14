@@ -123,7 +123,33 @@
       el.board.innerHTML = '<div class="board-empty">Tablero vacío — juega la primera ficha</div>';
       return;
     }
-    el.board.innerHTML = state.board.map(t => tileHHTML(t)).join('');
+
+    // state.board guarda fichas ORIENTADAS: [n_izq, n_der]
+    // n_izq conecta con la ficha previa, n_der con la siguiente.
+    // Los dobles van PERPENDICULARES (verticales, cruzados).
+    const tiles = state.board;
+
+    let html = '';
+    tiles.forEach((t, i) => {
+      const isDouble = t[0] === t[1];
+      if (isDouble) {
+        // Doble: perpendicular — vertical cruzado
+        html += `<div class="tile tile-v tile-board" data-a="${t[0]}" data-b="${t[1]}">
+          <div class="half">${renderPips(t[0])}</div>
+          <div class="divider"></div>
+          <div class="half">${renderPips(t[1])}</div>
+        </div>`;
+      } else {
+        // Ficha mixta: horizontal con orientación real (Mickey con Mickey)
+        html += `<div class="tile tile-h tile-board" data-a="${t[0]}" data-b="${t[1]}">
+          <div class="half">${renderPips(t[0])}</div>
+          <div class="divider"></div>
+          <div class="half">${renderPips(t[1])}</div>
+        </div>`;
+      }
+    });
+
+    el.board.innerHTML = html;
   }
 
   // Render de la mesa completa según la perspectiva
