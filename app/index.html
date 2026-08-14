@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Baduy Academy — Coach de Dominó GTO</title>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=2">
 </head>
 <body>
 
@@ -53,19 +53,18 @@
     <div id="round-info" class="round">Ronda: 1</div>
   </section>
 
-  <!-- Mesa de juego -->
+  <!-- Mesa de juego INTEGRADA (estilo casino) -->
   <section class="table-wrap">
     <!-- Compañero (enfrente) -->
     <div class="player-top" id="player-top"></div>
     <div class="table-middle">
       <!-- Rival izquierdo -->
       <div class="player-side" id="player-left"></div>
-      <!-- Tablero (mesa de fieltro) -->
+      <!-- Tablero (protagonista) -->
       <div class="board-felt">
         <div class="board-felt-inner">
           <h2 id="board-title">Tablero</h2>
           <div id="board" class="board"></div>
-          <div id="sequence" class="sequence">—</div>
         </div>
       </div>
       <!-- Rival derecho -->
@@ -82,6 +81,8 @@
       </div>
     </div>
   </section>
+  <!-- Secuencia de la mano (debajo de la mesa) -->
+  <div id="sequence" class="sequence">—</div>
 
   <!-- Selector de perspectiva -->
   <section class="perspective-wrap">
@@ -108,10 +109,10 @@
   </section>
 </main>
 
-<script src="js/engine.js"></script>
-<script src="js/sampler.js"></script>
-<script src="js/coach.js"></script>
-<script src="js/notation.js"></script>
-<script src="js/ui.js"></script>
+<script src="js/engine.js?v=2"></script>
+<script src="js/sampler.js?v=2"></script>
+<script src="js/coach.js?v=2"></script>
+<script src="js/notation.js?v=2"></script>
+<script src="js/ui.js?v=2"></script>
 </body>
 </html>
