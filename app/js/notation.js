@@ -9,67 +9,77 @@
  *   - Número = ficha jugada (sin separador: A66 = A juega 6-6)
  *   - (n) = la ficha "cuadró" el palo n (ambos extremos quedaron en n)
  *   - "P" = el jugador pasó
+ *   - La PRIMERA ficha nunca es cuadre (no hay dos extremos aún)
  * ============================================================ */
 const E = require('./engine.js');
 
-// Reconstruye la secuencia jugada a jugada y genera la notación
+// Reconstruye la secuencia completa (jugadas + pases en orden real)
 function readHand(state) {
   const nPlayers = state.players.length;
-  // Mapear nombre → letra (por índice de asiento)
   const nameToLetter = {};
   state.players.forEach((p, i) => { nameToLetter[p.name] = 'ABCD'[i]; });
 
-  const parts = [];
-
-  // Reconstruir: estado vacío, aplicamos cada jugada del historial
-  // para conocer los extremos del tablero en cada momento.
+  // Reconstruir el tablero jugada a jugada para saber extremos
   const emptyPlayers = state.players.map((p, i) => new E.Player(p.name, p.teamId));
   const replay = new E.GameState(emptyPlayers);
-  // Nota: las manos ya no importan — solo reconstruimos el tablero.
-  // Los movimientos del historial tienen la ficha y el lado.
 
-  for (let h = 0; h < state.history.length; h++) {
-    const entry = state.history[h];
-    const letter = nameToLetter[entry.player] || '?';
-    const tile = entry.tile;
+  // Timeline: intercalar jugadas y pases en orden real.
+  // El historial tiene las jugadas; los pases hay que reconstruirlos:
+  // cuando un jugador no tiene jugadas legales en su turno, pasa.
+  const parts = [];
+  let historyIdx = 0;
 
-    // Reconstruir el estado de ese momento
-    // (aplicar las jugadas anteriores si no lo hemos hecho)
-    // Aplicamos SOLO si la jugada es la siguiente en el replay
-    // (el historial ya está ordenado)
+  // Reconstruimos turno a turno desde el inicio (turno 0).
+  // Usamos el historial como fuente de jugadas y detectamos pases.
+  const replayTurn = 0;
+  const replayPassed = new Set();
 
-    // Aplicar la jugada al replay
-    const playerObj = replay.players.find(p => p.name === entry.player);
-    // Para reconstruir el tablero necesitamos dar la ficha al jugador
-    // en el replay. Las manos no importan: la ponemos temporalmente.
-    playerObj.hand.push(tile);
-    const ok = E.applyMove(replay, playerObj, tile, entry.side);
-    if (!ok) {
-      // Fallback: insertar directamente en el tablero
-      if (!replay.board.length) replay.board.push([tile[0], tile[1]]);
-      else if (entry.side === 'left') replay.board.unshift([tile[0], tile[1]]);
-      else replay.board.push([tile[0], tile[1]]);
+  // Enfoque: recorrer turnos, si la siguiente jugada del historial
+  // corresponde al jugador de turno, es jugada; si no, pasó.
+  let turn = 0;
+  const maxTurns = state.history.length + nPlayers * 3 + 10;
+  for (let t = 0; t < maxTurns && historyIdx < state.history.length; t++) {
+    const playerIdx = turn % nPlayers;
+    const playerName = state.players[playerIdx].name;
+    const next = state.history[historyIdx];
+
+    if (next && next.player === playerName) {
+      // Jugada real
+      const letter = nameToLetter[playerName] || '?';
+      const tile = next.tile;
+
+      // Aplicar al replay para conocer extremos
+      const pObj = replay.players[playerIdx];
+      pObj.hand.push(tile);
+      const ok = E.applyMove(replay, pObj, tile, next.side);
+      if (!ok) {
+        if (!replay.board.length) replay.board.push([tile[0], tile[1]]);
+        else if (next.side === 'left') replay.board.unshift([tile[0], tile[1]]);
+        else replay.board.push([tile[0], tile[1]]);
+      }
+
+      // ¿Cuadre? Solo si ya había fichas antes (2 extremos) y ahora son iguales
+      const ends = replay.boardEnds();
+      let cuadre = null;
+      if (replay.board.length >= 2 && ends && ends[0] === ends[1]) {
+        cuadre = ends[0];
+      }
+
+      const tileStr = `${tile[0]}${tile[1]}`;
+      parts.push(`${letter}${tileStr}${cuadre !== null ? `(${cuadre})` : ''}`);
+      historyIdx++;
+    } else {
+      // Pase: este jugador no tenía jugadas en su turno
+      const letter = nameToLetter[playerName] || '?';
+      parts.push(`${letter} P`);
     }
-
-    // Determinar si cuadró: tras la jugada, ¿ambos extremos son iguales?
-    const ends = replay.boardEnds();
-    let cuadre = null;
-    if (ends && ends[0] === ends[1]) {
-      cuadre = ends[0];
-    }
-
-    // Notación de la ficha: concatenar números (ej: 6-6 → "66", 1-6 → "16")
-    const tileStr = `${tile[0]}${tile[1]}`;
-    parts.push(`${letter}${tileStr}${cuadre !== null ? `(${cuadre})` : ''}`);
+    turn++;
   }
 
-  // Añadir los pases registrados en orden aproximado:
-  // Los pases se registran en state.passed (nombres). Pero el orden
-  // exacto requiere reconstruir. Añadimos los pases del estado actual
-  // al final con la letra correspondiente.
+  // Pases finales (si quedaron registrados al terminar)
   state.passed.forEach(pname => {
     const letter = nameToLetter[pname] || '?';
-    parts.push(`${letter} P`);
+    if (!parts.includes(`${letter} P`)) parts.push(`${letter} P`);
   });
 
   return parts.join(', ');
@@ -77,13 +87,10 @@ function readHand(state) {
 
 // Notación de UNA jugada individual (para el panel en vivo)
 function moveNotation(letter, tile, side, prevEnds) {
-  // prevEnds: extremos ANTES de la jugada
   const tileStr = `${tile[0]}${tile[1]}`;
-  // Simular el cuadre: conocemos el extremo donde se jugó
   let cuadre = null;
   if (prevEnds) {
     const end = side === 'left' ? prevEnds[0] : prevEnds[1];
-    // Si la ficha conecta por `end`, el nuevo extremo de ese lado es el otro número
     const other = tile[0] === end ? tile[1] : tile[0];
     const otherEnd = side === 'left' ? prevEnds[1] : prevEnds[0];
     if (other === otherEnd) cuadre = other;

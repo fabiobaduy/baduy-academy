@@ -87,17 +87,17 @@
   }
 
   // Posición de cada jugador en la mesa según la perspectiva
-  // En dominó por parejas: el compañero está ENFRENTE.
-  // Equipos: A(0)+C(2) vs B(1)+D(3)
-  // Desde la perspectiva del jugador P:
-  //   - P abajo (mano visible)
-  //   - compañero arriba (enfrente)
-  //   - los otros dos a los lados (boca abajo)
+  // El dominó se juega en sentido CONTRARIO a las agujas del reloj:
+  //   - El compañero está ENFRENTE (arriba)
+  //   - El SIGUIENTE jugador (perspIdx+1) se sienta a la DERECHA
+  //   - El ANTERIOR (perspIdx-1) se sienta a la IZQUIERDA
+  // Ejemplo desde A: B a la derecha, D a la izquierda, C enfrente.
   function tablePositions(perspIdx) {
     const players = state.players;
     const teammate = players.findIndex((p, i) => i !== perspIdx && p.teamId === players[perspIdx].teamId);
-    const others = [0, 1, 2, 3].filter(i => i !== perspIdx && i !== teammate);
-    return { me: perspIdx, teammate, left: others[0], right: others[1] };
+    const left = (perspIdx + 3) % 4;  // el anterior (contra-reloj) → izquierda
+    const right = (perspIdx + 1) % 4; // el siguiente (contra-reloj) → derecha
+    return { me: perspIdx, teammate, left, right };
   }
 
   // Tarjeta de jugador (nombre, letra, fichas boca abajo o vacío)
