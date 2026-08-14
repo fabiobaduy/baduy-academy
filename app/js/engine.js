@@ -76,8 +76,19 @@ function applyMove(state, player, tile, side = 'right') {
     const end = side === 'left' ? ends[0] : ends[1];
     const oris = orientations(tile, end);
     if (!oris.length) return false;
-    if (side === 'left') state.board.unshift(oris[0]);
-    else state.board.push(oris[0]);
+    let oriented = oris[0];
+    // Orientación según el lado (clave para la cadena visual correcta):
+    // - DERECHA (push): la ficha se añade al final. El primer número
+    //   de la ficha debe conectar con el extremo derecho del tablero.
+    //   orientations() pone `end` primero → [end, other]. ✓ sin invertir.
+    // - IZQUIERDA (unshift): la ficha se inserta al inicio. El SEGUNDO
+    //   número de la ficha debe conectar con el extremo izquierdo viejo
+    //   (board[0][0]). Necesitamos [other, end] → INVERTIR [end, other].
+    //   Ejemplo: tablero [2,2], jugar 4-2 a la izquierda → debe quedar
+    //   [4,2] con el 2 tocando el doble (no [2,4] con el 4 tocando).
+    if (side === 'left') oriented = [oriented[1], oriented[0]];
+    if (side === 'left') state.board.unshift(oriented);
+    else state.board.push(oriented);
   }
 
   player.hand.splice(idx, 1);

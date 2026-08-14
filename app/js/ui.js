@@ -123,30 +123,55 @@
       el.board.innerHTML = '<div class="board-empty">Tablero vacío — juega la primera ficha</div>';
       return;
     }
+
     // state.board guarda fichas ORIENTADAS: [n_izq, n_der]
     // n_izq conecta con la ficha previa, n_der con la siguiente.
-    // Los dobles van PERPENDICULARES (verticales, cruzados).
+    // Render en SERPIENTE (como mesa real):
+    //  - Filas de máximo 8 fichas, alternando dirección
+    //  - Las fichas se tocan (Mickey con Mickey: t[i][1] === t[i+1][0])
+    //  - Los DOBLES van perpendiculares (verticales, cruzados)
+    //  - La ficha que dobla la esquina se rota 90°
     const tiles = state.board;
+    const PER_ROW = 8;
 
-    let html = '';
-    tiles.forEach((t, i) => {
-      const isDouble = t[0] === t[1];
-      if (isDouble) {
-        // Doble: perpendicular — vertical cruzado
-        html += `<div class="tile tile-v tile-board" data-a="${t[0]}" data-b="${t[1]}">
-          <div class="half">${renderPips(t[0])}</div>
+    // Dividir en filas
+    const rows = [];
+    for (let i = 0; i < tiles.length; i += PER_ROW) {
+      rows.push(tiles.slice(i, i + PER_ROW));
+    }
+
+    let html = '<div class="board-chain">';
+    rows.forEach((row, r) => {
+      const isEven = r % 2 === 0;
+      // Filas impares: invertir para serpentear (la cadena da la vuelta)
+      const ordered = isEven ? row : row.slice().reverse();
+      html += `<div class="board-row${isEven ? '' : ' board-row-rev'}">`;
+
+      ordered.forEach((t, j) => {
+        const globalIdx = r * PER_ROW + (isEven ? j : row.length - 1 - j);
+        const isDouble = t[0] === t[1];
+        const isCorner = r > 0 && j === 0; // primera ficha visual de fila impar (la vuelta)
+
+        // Orientación visual: en filas impares (invertidas) la ficha se
+        // muestra volteada [b|a] para mantener la continuidad de la cadena
+        const a = isEven ? t[0] : t[1];
+        const b = isEven ? t[1] : t[0];
+
+        let cls = 'tile tile-board';
+        if (isDouble) cls += ' tile-v';
+        else cls += ' tile-h';
+        if (isCorner && !isDouble) cls += ' tile-corner';
+
+        html += `<div class="${cls}" data-a="${t[0]}" data-b="${t[1]}">
+          <div class="half">${renderPips(a)}</div>
           <div class="divider"></div>
-          <div class="half">${renderPips(t[1])}</div>
+          <div class="half">${renderPips(b)}</div>
         </div>`;
-      } else {
-        // Ficha mixta: horizontal con orientación real (Mickey con Mickey)
-        html += `<div class="tile tile-h tile-board" data-a="${t[0]}" data-b="${t[1]}">
-          <div class="half">${renderPips(t[0])}</div>
-          <div class="divider"></div>
-          <div class="half">${renderPips(t[1])}</div>
-        </div>`;
-      }
+      });
+
+      html += '</div>';
     });
+    html += '</div>';
 
     el.board.innerHTML = html;
   }

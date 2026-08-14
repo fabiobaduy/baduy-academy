@@ -252,12 +252,16 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 /* Mano visible del jugador de perspectiva */
 .player-bottom .hand { margin-top: 8px; }
 
-/* Tablero: todas las fichas visibles — wrap en filas */
-.board {
-  display: flex; gap: 3px; align-items: center;
-  min-height: 56px;
-  flex-wrap: wrap;
+/* Tablero: cadena en serpiente (mesa real) */
+.board-chain { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.board-row {
+  display: flex; gap: 2px; align-items: center;
   justify-content: center;
+}
+.board-row-rev { flex-direction: row-reverse; }
+.board {
+  display: flex; flex-direction: column;
+  min-height: 56px;
   padding: 4px 2px;
   max-width: 100%;
 }
@@ -318,6 +322,12 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 .tile-v .half { width: 100%; height: 20px; }
 .tile-v .divider { width: 100%; height: 2px; }
 .tile-v .pip { width: 4px; height: 4px; }
+
+/* Ficha que dobla la esquina de la serpiente (rotada 90°) */
+.tile-corner {
+  transform: rotate(90deg);
+  margin: 6px -4px;
+}
 .tile-board { cursor: default; }
 .tile-board:hover { transform: none; }
 .tile-sm { width: 32px; }
