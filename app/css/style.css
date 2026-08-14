@@ -154,25 +154,46 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 
 /* ---- Mesa de juego ---- */
 .table-wrap {
-  background: linear-gradient(160deg, #1a4a3a 0%, #0f3d2e 50%, #0a2e23 100%);
-  border: 5px solid #5a3a1e;
-  border-radius: 20px;
-  padding: 12px;
+  background:
+    radial-gradient(ellipse at center, rgba(255,255,255,0.06) 0%, transparent 70%),
+    repeating-linear-gradient(45deg, #174531 0px, #174531 2px, #15402d 2px, #15402d 4px),
+    linear-gradient(160deg, #1d5139 0%, #123a29 50%, #0c2b1f 100%);
+  border: 8px solid #6b4226;
+  border-radius: 28px;
+  padding: 14px;
   margin-bottom: 16px;
-  box-shadow: inset 0 0 40px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.4);
+  box-shadow:
+    inset 0 0 60px rgba(0,0,0,0.6),
+    inset 0 0 4px rgba(255,255,255,0.1),
+    0 10px 30px rgba(0,0,0,0.5);
+  position: relative;
+}
+/* Bisel de la mesa (madera) */
+.table-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 2px solid rgba(139,90,43,0.4);
+  border-radius: 22px;
+  pointer-events: none;
 }
 .table-middle {
   display: flex; align-items: stretch; gap: 8px;
 }
 .board-felt {
   flex: 1; min-width: 0;
-  background: rgba(0,0,0,0.3);
-  border-radius: 12px;
-  padding: 8px;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.08) 0%, transparent 60%),
+    rgba(0,0,0,0.35);
+  border: 2px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 10px;
+  box-shadow: inset 0 2px 12px rgba(0,0,0,0.5);
 }
 .board-felt-inner h2 {
-  color: var(--gold); font-size: 0.7rem; letter-spacing: 2px;
-  text-align: center; margin-bottom: 5px; text-transform: uppercase;
+  color: var(--gold); font-size: 0.7rem; letter-spacing: 3px;
+  text-align: center; margin-bottom: 8px; text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
 }
 .board-empty {
   color: rgba(255,255,255,0.45); font-size: 0.8rem;
@@ -194,17 +215,22 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
   min-height: 20px;
 }
 
-/* ---- Jugadores ---- */
+/* ---- Jugadores con atril ---- */
 .player-top, .player-bottom, .player-side {
-  background: rgba(0,0,0,0.35);
-  border-radius: 12px;
-  padding: 8px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 8px 10px;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.08);
 }
 .player-top { margin-bottom: 10px; text-align: center; }
 .player-bottom { margin-top: 10px; }
 .player-side {
   display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-  min-width: 56px;
+  min-width: 62px;
   gap: 6px;
 }
 .player-name {
@@ -218,6 +244,7 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
   display: inline-flex; align-items: center; justify-content: center;
   font-size: 0.7rem; font-weight: 900;
   flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 .player-name.me { color: #fff; }
 .player-name.me .p-letter { background: var(--cyan); }
@@ -225,48 +252,63 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 .player-name.team2 { color: #ffb07f; }
 .player-sub { font-size: 0.62rem; opacity: 0.6; margin-top: 1px; }
 
-/* Fichas boca abajo — HORIZONTALES para arriba/abajo */
+/* Atril: base donde descansan las fichas boca abajo */
 .player-top .player-cards, .player-bottom .player-cards {
-  display: flex; gap: 3px; justify-content: center; margin-top: 5px;
+  display: flex; gap: 3px; justify-content: center; margin-top: 6px;
   flex-wrap: wrap;
+  padding: 5px 8px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.15));
+  border-radius: 8px;
+  border-bottom: 3px solid rgba(139,90,43,0.5);
 }
 .card-back {
   width: 16px; height: 26px; border-radius: 3px;
-  background: repeating-linear-gradient(45deg, #2a4a8a, #2a4a8a 2px, #1e3a6a 2px, #1e3a6a 4px);
+  background:
+    repeating-linear-gradient(45deg, #2a4a8a, #2a4a8a 2px, #1e3a6a 2px, #1e3a6a 4px);
   border: 1px solid #0d1b2a;
   flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 
-/* Fichas boca abajo — VERTICALES para los lados (ahorran espacio) */
+/* Atril lateral (vertical) */
 .player-side .player-cards {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 3px !important;
+  display: flex; flex-direction: column; gap: 3px;
   margin-top: 2px;
   align-items: center;
+  padding: 6px 5px;
+  background: linear-gradient(90deg, rgba(0,0,0,0.35), rgba(0,0,0,0.15));
+  border-radius: 8px;
+  border-right: 3px solid rgba(139,90,43,0.5);
 }
 .player-side .card-back {
-  width: 14px !important;
-  height: 22px !important;
+  width: 14px; height: 22px;
 }
 /* Mano visible del jugador de perspectiva */
 .player-bottom .hand { margin-top: 8px; }
 
 /* Tablero: cadena en serpiente (mesa real) */
-.board-chain { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.board-chain { display: flex; flex-direction: column; gap: 6px; width: 100%; }
 .board-row {
-  display: flex; gap: 2px; align-items: center;
+  display: flex; gap: 3px; align-items: center;
   justify-content: center;
 }
 .board-row-rev { flex-direction: row-reverse; }
 .board {
   display: flex; flex-direction: column;
-  min-height: 56px;
-  padding: 4px 2px;
+  min-height: 90px;
+  padding: 6px;
   max-width: 100%;
 }
 .board .tile-h, .board .tile-v { flex-shrink: 0; }
 .board-felt { overflow: hidden; }
+
+/* Fichas del tablero MÁS GRANDES */
+.board .tile-h { width: auto; padding: 3px 5px; }
+.board .tile-h .half { width: 26px; height: 100%; }
+.board .tile-h .pip { width: 6px; height: 6px; }
+.board .tile-v { width: 44px; padding: 3px; }
+.board .tile-v .half { height: 26px; }
+.board .tile-v .pip { width: 6px; height: 6px; }
 
 /* ---- Fichas ---- */
 .tile {
