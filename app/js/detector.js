@@ -110,7 +110,9 @@ function teammateBenefit(state, playerIdx, tile, side) {
 
 // ---- 5. ANÁLISIS COMPLETO DE UNA JUGADA ----
 // Registra la jugada, calcula gap y beneficio al compañero.
-function analyzeMove(state, playerIdx, tile, side, log) {
+// `thinkTimeMs` es el tiempo de pensada del jugador antes de ejecutar.
+// `moveType` es el tipo de jugada: 'regular' | 'cuadre' | 'tranca'
+function analyzeMove(state, playerIdx, tile, side, log, thinkTimeMs = 0, moveType = 'regular') {
   const options = analyzeOptions(state, playerIdx);
   if (!options.length) return null;
 
@@ -134,6 +136,9 @@ function analyzeMove(state, playerIdx, tile, side, log) {
     teammateBenefit: Math.round(benefit * 100) / 100,
     rank: options.findIndex(o => o.tile[0] === tile[0] && o.tile[1] === tile[1] && o.side === side) + 1,
     totalOptions: options.length,
+    // Tiempo de pensada
+    thinkTimeMs,
+    moveType,
   };
 
   if (log) log.recordMove(entry);
@@ -158,24 +163,66 @@ class SuspicionEngine {
       suspicionThreshold: 6,
       // Nivel para "descalificación"
       disqualifyThreshold: 12,
+      // ---- Tiempos máximos de pensada (reglamento Federación) ----
+      maxThinkTime: {
+        regular: 15000,   // 15 s jugada regular
+        cuadre: 30000,    // 30 s piedra de cuadre
+        tranca: 60000,    // 60 s piedra de tranca
+      },
+      // Fracción del tiempo máximo que ya se considera "prolongado"
+      // (sistemáticamente cerca del máximo = procesando señales)
+      prolongedFraction: 0.8,
+      // Peso de la sospecha por tiempo prolongado
+      timeWeight: 1.2,
       ...config,
     };
-    this.teamScores = {}; // teamId → {score, moves, flags}
+    this.teamScores = {}; // teamId → {score, moves, flags, timeFlags}
   }
 
-  processMove(state, playerIdx, tile, side, log) {
+  processMove(state, playerIdx, tile, side, log, thinkTimeMs = 0, moveType = 'regular') {
     // state debe ser el estado ANTES de la jugada (sin aplicarla aún)
-    const entry = analyzeMove(state, playerIdx, tile, side, log);
+    const entry = analyzeMove(state, playerIdx, tile, side, log, thinkTimeMs, moveType);
     if (!entry) return null;
 
     const player = state.players[playerIdx];
     const teamId = player.teamId;
 
     if (!this.teamScores[teamId]) {
-      this.teamScores[teamId] = { score: 0, moves: 0, flags: [] };
+      this.teamScores[teamId] = { score: 0, moves: 0, flags: [], timeFlags: [] };
     }
     const team = this.teamScores[teamId];
     team.moves++;
+
+    // ¿Excede el tiempo máximo permitido? (infracción reglamentaria)
+    const maxTime = this.config.maxThinkTime[moveType] || this.config.maxThinkTime.regular;
+    if (thinkTimeMs > maxTime) {
+      team.timeFlags.push({
+        turn: entry.turn,
+        playerName: entry.playerName,
+        moveType,
+        thinkTimeMs,
+        maxTime,
+        type: 'exceso_tiempo',
+      });
+      team.score += 0.5; // infracción menor
+    }
+
+    // ¿Tiempo prolongado (cerca del máximo) en jugada REGULAR?
+    // Sistemáticamente = procesando señales ilegales
+    const prolonged = thinkTimeMs > maxTime * this.config.prolongedFraction;
+    if (prolonged && moveType === 'regular') {
+      team.timeFlags.push({
+        turn: entry.turn,
+        playerName: entry.playerName,
+        thinkTimeMs,
+        maxTime,
+        type: 'pensada_prolongada',
+      });
+      // Solo suma sospecha si además la jugada beneficia al compañero
+      if (entry.teammateBenefit > 0) {
+        team.score += this.config.timeWeight * this.config.prolongedFraction;
+      }
+    }
 
     // ¿Jugada sospechosa? gap alto Y beneficio al compañero alto
     const isSuspicious = entry.gap >= this.config.gapThreshold &&
@@ -189,6 +236,8 @@ class SuspicionEngine {
         tile: entry.tile,
         gap: entry.gap,
         benefit: entry.teammateBenefit,
+        thinkTimeMs: entry.thinkTimeMs,
+        moveType: entry.moveType,
       });
     }
 
@@ -222,7 +271,7 @@ class SuspicionEngine {
       confidence = avgScore * 0.5;
     }
 
-    return { status, score, moves, confidence: Math.round(confidence * 100) / 100, flags: team.flags };
+    return { status, score, moves, confidence: Math.round(confidence * 100) / 100, flags: team.flags, timeFlags: team.timeFlags };
   }
 
   report() {
