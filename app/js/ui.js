@@ -126,15 +126,17 @@
 
     // state.board guarda fichas ORIENTADAS correctamente por el motor:
     //   [n_izq, n_der] con t[i][1] === t[i+1][0] (Mickey-Mickey).
-    // SERPIENTE REAL (como mesa física):
-    //   - Filas de 6 fichas, alternando dirección
-    //   - Fila par (0,2..): izquierda → derecha, fichas horizontales
-    //   - Fila impar (1,3..): derecha → izquierda (row-reverse),
-    //     la primera ficha (esquina) rotada 90° para conectar con la
-    //     fila anterior. Las demás horizontales con orientación real.
+    // SERPIENTE RESPONSIVE:
+    //   - PER_ROW dinámico según el ancho disponible del tablero
+    //   - Filas alternando dirección, esquina rotada 90°
     //   - Los dobles van perpendiculares (verticales)
     const tiles = state.board;
-    const PER_ROW = 6;
+
+    // Calcular fichas por fila según el ancho del tablero
+    const boardEl = document.querySelector('.board');
+    const availW = (boardEl ? boardEl.clientWidth : 300) - 12;
+    const tileW = 64; // ancho aprox de una ficha horizontal grande
+    const PER_ROW = Math.max(2, Math.floor(availW / tileW));
 
     // Dividir en filas
     const rows = [];

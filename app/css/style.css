@@ -450,8 +450,33 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 
 /* ---- Responsive ---- */
 @media (max-width: 520px) {
-  .tile { width: 38px; }
-  .pip { width: 7px; height: 7px; }
+  /* Laterales compactos: solo avatar y conteo, sin fichas visibles */
+  .player-side {
+    min-width: 44px;
+    padding: 6px 4px;
+  }
+  .player-side .player-cards { display: none; }
+  .player-side .player-sub { font-size: 0.55rem; }
+  .player-name { font-size: 0.7rem; }
+  .player-name .p-letter { width: 18px; height: 18px; font-size: 0.65rem; }
+
+  /* Tablero ocupa todo el ancho disponible */
+  .table-wrap { padding: 10px; border-width: 6px; border-radius: 20px; }
+  .table-middle { gap: 4px; }
+  .board-felt { padding: 8px; min-height: 120px; }
+
+  /* Fichas del tablero más pequeñas en móvil */
+  .board .tile-h .half { width: 20px; }
+  .board .tile-h .pip { width: 4.5px; height: 4.5px; }
+  .board .tile-v { width: 34px; }
+  .board .tile-v .half { height: 20px; }
+  .board .tile-v .pip { width: 4.5px; height: 4.5px; }
+
+  /* Mano más compacta */
+  .tile { width: 34px; }
+  .tile .half { height: 18px; }
+  .pip { width: 4px; height: 4px; }
+
   .status { flex-direction: column; align-items: stretch; }
   .hand-actions { flex-direction: column; }
   .btn-accent, .btn-primary, .btn-secondary { width: 100%; }
