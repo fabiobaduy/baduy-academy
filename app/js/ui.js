@@ -26,6 +26,15 @@
     coachProgress: document.getElementById('coach-progress'),
     progressFill: document.getElementById('progress-fill'),
     progressText: document.getElementById('progress-text'),
+    // Editor de manos
+    btnEditHands: document.getElementById('btn-edit-hands'),
+    handEditor: document.getElementById('hand-editor'),
+    editorPlayers: document.getElementById('editor-players'),
+    bankTiles: document.getElementById('bank-tiles'),
+    bankCount: document.getElementById('bank-count'),
+    btnEditorClear: document.getElementById('btn-editor-clear'),
+    btnEditorRandom: document.getElementById('btn-editor-random'),
+    btnEditorApply: document.getElementById('btn-editor-apply'),
   };
 
   // ---- Utilidades de render ----
@@ -309,6 +318,10 @@
   // ---- Eventos ----
   el.btnNew.addEventListener('click', newGame);
   el.btnPlay.addEventListener('click', playSelected);
+  el.btnEditHands.addEventListener('click', toggleEditor);
+  el.btnEditorClear.addEventListener('click', clearEditor);
+  el.btnEditorApply.addEventListener('click', applyHands);
+  el.btnEditorRandom.addEventListener('click', randomHands);
   el.btnPass.addEventListener('click', () => {
     const p = state.currentPlayer();
     const moves = E.legalMoves(p.hand, state.board);
@@ -325,4 +338,149 @@
 
   // Iniciar
   newGame();
+  initEditor();
+
+  // ============================================================
+  // EDITOR DE MANOS DE ESTUDIO
+  // Dos modalidades: asignación manual + generación aleatoria
+  // ============================================================
+
+  const PLAYER_NAMES = ['Tú', 'CPU 1', 'CPU 2', 'CPU 3'];
+  let editorState = {
+    visible: false,
+    activePlayer: 0,
+    hands: [[], [], [], []],       // fichas asignadas a cada jugador
+    selectedBank: null,            // ficha seleccionada del banco
+  };
+
+  function initEditor() {
+    clearEditor();
+  }
+
+  function toggleEditor() {
+    editorState.visible = !editorState.visible;
+    el.handEditor.style.display = editorState.visible ? 'block' : 'none';
+    if (editorState.visible) renderEditor();
+  }
+
+  // Render completo del editor
+  function renderEditor() {
+    // Jugadores
+    el.editorPlayers.innerHTML = PLAYER_NAMES.map((name, i) => {
+      const active = i === editorState.activePlayer ? ' active' : '';
+      const tiles = editorState.hands[i];
+      const slots = [];
+      for (let s = 0; s < 7; s++) {
+        if (s < tiles.length) {
+          const t = tiles[s];
+          slots.push(`<div class="ep-slot filled" data-player="${i}" data-slot="${s}" data-a="${t[0]}" data-b="${t[1]}">
+            <span class="ep-half"><span class="ep-dot"></span><span class="ep-dot"></span></span>
+            <span class="ep-half"><span class="ep-dot"></span><span class="ep-dot"></span></span>
+          </div>`);
+        } else {
+          slots.push(`<div class="ep-slot" data-player="${i}" data-slot="${s}">+</div>`);
+        }
+      }
+      return `<div class="editor-player${active}" data-player="${i}">
+        <div class="ep-name">${name} <small>(${tiles.length}/7)</small></div>
+        <div class="ep-tiles">${slots.join('')}</div>
+      </div>`;
+    }).join('');
+
+    // Banco: todas las fichas no usadas
+    const used = editorState.hands.flat().map(t => t[0] * 10 + t[1]);
+    const bank = E.ALL_TILES.filter(t => !used.includes(t[0] * 10 + t[1]));
+    el.bankCount.textContent = bank.length;
+    el.bankTiles.innerHTML = bank.map(t =>
+      `<div class="bank-tile" data-a="${t[0]}" data-b="${t[1]}">
+        <span class="bt-half"><span class="bt-dot"></span><span class="bt-dot"></span></span>
+        <span class="bt-half"><span class="bt-dot"></span><span class="bt-dot"></span></span>
+      </div>`).join('');
+
+    // Eventos: seleccionar jugador
+    el.editorPlayers.querySelectorAll('.editor-player').forEach(node => {
+      node.addEventListener('click', () => {
+        editorState.activePlayer = parseInt(node.dataset.player);
+        renderEditor();
+      });
+    });
+
+    // Eventos: slots (quitar ficha)
+    el.editorPlayers.querySelectorAll('.ep-slot.filled').forEach(node => {
+      node.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const pi = parseInt(node.dataset.player);
+        const si = parseInt(node.dataset.slot);
+        editorState.hands[pi].splice(si, 1);
+        renderEditor();
+      });
+    });
+
+    // Eventos: banco (seleccionar ficha → asignar al jugador activo)
+    el.bankTiles.querySelectorAll('.bank-tile').forEach(node => {
+      node.addEventListener('click', () => {
+        const a = parseInt(node.dataset.a), b = parseInt(node.dataset.b);
+        addTileToActive(a, b);
+      });
+    });
+  }
+
+  // Agrega una ficha al jugador activo (si tiene espacio)
+  function addTileToActive(a, b) {
+    const pi = editorState.activePlayer;
+    if (editorState.hands[pi].length >= 7) {
+      alert(`${PLAYER_NAMES[pi]} ya tiene 7 fichas.`);
+      return;
+    }
+    // Evitar duplicados
+    const exists = editorState.hands[pi].some(t => t[0] === a && t[1] === b);
+    if (exists) return;
+    editorState.hands[pi].push([a, b]);
+    renderEditor();
+  }
+
+  // Genera manos aleatorias completas (reparto estándar)
+  function randomHands() {
+    const players = PLAYER_NAMES.map((n, i) => new E.Player(n, (i % 2) + 1));
+    E.dealTiles(players);
+    editorState.hands = players.map(p => p.hand.slice());
+    renderEditor();
+  }
+
+  function clearEditor() {
+    editorState.hands = [[], [], [], []];
+    editorState.activePlayer = 0;
+    renderEditor();
+  }
+
+  // Aplica las manos editadas al juego y empieza a estudiar
+  function applyHands() {
+    // Validar: 7 fichas por jugador
+    const incomplete = editorState.hands.some(h => h.length !== 7);
+    if (incomplete) {
+      alert('Todos los jugadores deben tener exactamente 7 fichas.');
+      return;
+    }
+    // Validar: sin duplicados entre jugadores
+    const all = editorState.hands.flat();
+    const seen = new Set(all.map(t => t[0] * 10 + t[1]));
+    if (seen.size !== 28) {
+      alert('Hay fichas duplicadas o faltantes. Revisa las manos.');
+      return;
+    }
+
+    // Crear el juego con las manos editadas
+    const players = PLAYER_NAMES.map((n, i) => new E.Player(n, (i % 2) + 1));
+    players.forEach((p, i) => { p.hand = editorState.hands[i].map(t => [t[0], t[1]]); });
+    state = new E.GameState(players);
+    selectedTile = null;
+    el.btnPlay.style.display = 'none';
+    el.coachResults.innerHTML = '';
+    el.coachHint.textContent = 'Manos de estudio aplicadas. Analiza desde la perspectiva del jugador de turno.';
+    el.handEditor.style.display = 'none';
+    editorState.visible = false;
+    renderBoard();
+    renderHand();
+    updateTurnInfo();
+  }
 })();

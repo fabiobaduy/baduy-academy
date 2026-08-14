@@ -47,6 +47,83 @@ body {
 /* ---- Main ---- */
 main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 
+/* ---- Toolbar de estudio ---- */
+.toolbar {
+  display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.btn-tool {
+  background: rgba(255,255,255,0.1); color: var(--white);
+  border: 1px solid var(--cyan); padding: 10px 16px;
+  border-radius: 10px; cursor: pointer; font-weight: 700;
+}
+.btn-tool:hover { background: rgba(72,202,228,0.15); }
+
+/* ---- Editor de manos ---- */
+.hand-editor {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 18px;
+}
+.editor-header h2 { color: var(--cyan); font-size: 1.1rem; margin-bottom: 6px; }
+.editor-sub { font-size: 0.85rem; opacity: 0.8; margin-bottom: 14px; }
+.editor-players {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+  margin-bottom: 16px;
+}
+@media (min-width: 700px) { .editor-players { grid-template-columns: repeat(4, 1fr); } }
+.editor-player {
+  background: rgba(0,0,0,0.25); border-radius: 10px; padding: 10px;
+  cursor: pointer; border: 2px solid transparent;
+}
+.editor-player.active { border-color: var(--cyan); background: rgba(72,202,228,0.08); }
+.editor-player .ep-name { font-weight: 800; font-size: 0.9rem; color: var(--cyan); margin-bottom: 6px; }
+.editor-player .ep-tiles { display: flex; flex-wrap: wrap; gap: 4px; min-height: 40px; }
+.editor-player .ep-slot {
+  width: 30px; height: 46px; border-radius: 5px;
+  background: rgba(255,255,255,0.08);
+  border: 1px dashed rgba(255,255,255,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; color: rgba(255,255,255,0.4);
+  cursor: pointer; position: relative;
+}
+.editor-player .ep-slot.filled {
+  background: var(--white); border: 1px solid var(--ink);
+  color: var(--ink); font-weight: 800; font-size: 0.75rem;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.editor-player .ep-slot.filled .ep-half {
+  display: flex; gap: 1px; justify-content: center; width: 100%;
+}
+.editor-player .ep-slot.filled .ep-dot {
+  width: 4px; height: 4px; border-radius: 50%; background: var(--ink);
+}
+.editor-player .ep-count { font-size: 0.7rem; opacity: 0.6; margin-top: 5px; text-align: center; }
+.editor-bank h3 { color: var(--cyan); font-size: 0.95rem; margin-bottom: 8px; }
+.bank-count {
+  background: var(--gold); color: var(--ink); padding: 2px 8px;
+  border-radius: 10px; font-size: 0.8rem; font-weight: 800;
+}
+.bank-tiles {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px;
+  min-height: 60px;
+}
+.bank-tile {
+  width: 40px; height: 60px; border-radius: 7px;
+  background: var(--white); color: var(--ink);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; cursor: pointer; border: 2px solid transparent;
+  font-size: 0.7rem; font-weight: 800;
+  transition: transform 0.12s;
+}
+.bank-tile:hover { transform: scale(1.1); border-color: var(--cyan); }
+.bank-tile.used { opacity: 0.25; cursor: not-allowed; }
+.bank-tile .bt-half { display: flex; gap: 1px; justify-content: center; width: 100%; }
+.bank-tile .bt-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ink); }
+.editor-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+
 /* ---- Status ---- */
 .status {
   display: flex; align-items: center; justify-content: space-between;

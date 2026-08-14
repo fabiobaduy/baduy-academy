@@ -23,11 +23,34 @@
 </header>
 
 <main>
+  <!-- Barra de herramientas de estudio -->
+  <section class="toolbar">
+    <button id="btn-edit-hands" class="btn-tool">✋ Editar Manos</button>
+    <button id="btn-new" class="btn-primary">🔄 Nueva Partida</button>
+  </section>
+
+  <!-- Editor de manos (oculto por defecto) -->
+  <section id="hand-editor" class="hand-editor" style="display:none;">
+    <div class="editor-header">
+      <h2>✋ Editor de Manos de Estudio</h2>
+      <p class="editor-sub">Asigna las 7 fichas de cada jugador. Toca una ficha del banco y luego un slot del jugador.</p>
+    </div>
+    <div id="editor-players" class="editor-players"></div>
+    <div class="editor-bank">
+      <h3>Banco de fichas <span id="bank-count" class="bank-count">28</span></h3>
+      <div id="bank-tiles" class="bank-tiles"></div>
+    </div>
+    <div class="editor-actions">
+      <button id="btn-editor-random" class="btn-primary">🎲 Manos Aleatorias</button>
+      <button id="btn-editor-clear" class="btn-secondary">🧹 Limpiar</button>
+      <button id="btn-editor-apply" class="btn-accent">✅ Aplicar Manos y Estudiar</button>
+    </div>
+  </section>
+
   <!-- Panel de estado -->
   <section class="status">
     <div id="turn-info" class="turn">Turno: —</div>
     <div id="round-info" class="round">Ronda: 1</div>
-    <button id="btn-new" class="btn-primary">🔄 Nueva Partida</button>
   </section>
 
   <!-- Tablero -->
