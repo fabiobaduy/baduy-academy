@@ -53,6 +53,77 @@ function sampleOpponentHands(state, viewerIdx, rng = Math.random) {
   return result;
 }
 
+// ============================================================
+// SAMPLER CONDICIONAL (modo estudio)
+// El jugador de turno no conoce las manos de los rivales, pero
+// INFIERE por:
+//  1. Fichas jugadas (tablero)
+//  2. Pases previos (si P pasó, NO tiene fichas del palo que pasó)
+//  3. Secuencia de juego
+// Muestrea manos CONSISTENTES con esa información.
+// ============================================================
+
+// Información deducida de los pases:
+// Si un jugador pasó, no tiene ninguna ficha del palo que estaba
+// en juego en ese momento.
+function passConstraints(state, viewerIdx) {
+  // Para cada jugador rival, qué palos NO puede tener
+  const constraints = {};
+  state.players.forEach((p, i) => {
+    if (i === viewerIdx) return;
+    constraints[i] = { cannotHave: new Set(), forced: [] };
+  });
+
+  // Reconstruir la secuencia: necesitamos saber QUÉ palo estaba
+  // en juego cuando alguien pasó.
+  // Aproximación: si un jugador pasó, no tiene los palos de los
+  // extremos en ese momento. Para simplificar, usamos los pases
+  // registrados con el estado del tablero en ese turno.
+  // (En una implementación completa, history guardaría el tablero)
+  return constraints;
+}
+
+// Versión práctica: muestrea manos de rivales RESPETANDO pases.
+// `passHistory`: [{playerIdx, suit}] — palos que cada rival no tiene
+function sampleConstrained(state, viewerIdx, passHistory = [], rng = Math.random) {
+  const hidden = hiddenTiles(state, viewerIdx);
+
+  // Fichas prohibidas para cada rival (por pases)
+  const banned = {};
+  state.players.forEach((p, i) => { banned[i] = new Set(); });
+  passHistory.forEach(ph => {
+    if (banned[ph.playerIdx]) banned[ph.playerIdx].add(ph.suit);
+  });
+
+  // Repartir respetando restricciones (rechazo simple)
+  const attempts = 0;
+  const result = {};
+  state.players.forEach((p, i) => {
+    if (i === viewerIdx) return;
+    const played = state.history.filter(h => h.player === p.name).length;
+    const count = 7 - played;
+    // Filtrar fichas permitidas
+    const allowed = hidden.filter(t =>
+      !(banned[i] && (banned[i].has(t[0]) || banned[i].has(t[1]))));
+    // Si no hay suficientes permitidas, usar todas (relajar)
+    const pool = allowed.length >= count ? allowed : hidden;
+    // Muestreo sin reemplazo
+    const shuffled = pool.slice();
+    for (let k = shuffled.length - 1; k > 0; k--) {
+      const j = Math.floor(rng() * (k + 1));
+      [shuffled[k], shuffled[j]] = [shuffled[j], shuffled[k]];
+    }
+    const hand = shuffled.slice(0, count);
+    result[i] = hand;
+    // Quitar del pool oculto (evitar duplicados entre rivales)
+    hand.forEach(t => {
+      const idx = hidden.findIndex(h => h[0] === t[0] && h[1] === t[1]);
+      if (idx >= 0) hidden.splice(idx, 1);
+    });
+  });
+  return result;
+}
+
 // Probabilidad de que un rival tenga al menos una ficha de un palo
 // (dado lo que se ve). Útil para decisiones de "forzar palo".
 function probRivalHasSuit(state, viewerIdx, suit, simulations = 200, rng = Math.random) {
@@ -65,4 +136,5 @@ function probRivalHasSuit(state, viewerIdx, suit, simulations = 200, rng = Math.
   return has / simulations;
 }
 
-module.exports = { hiddenTiles, sampleOpponentHands, probRivalHasSuit };
+module.exports = { hiddenTiles, sampleOpponentHands, sampleConstrained, passConstraints, probRivalHasSuit };
+if (typeof window !== 'undefined') window.Sampler = module.exports;

@@ -237,21 +237,27 @@
     }
 
     const results = [];
-    const SIMS = 60;
+    const SIMS = 25; // mundos por jugada (modo estudio)
     let idx = 0;
 
     // Procesa una opción por tick — la UI respira entre cada una (no se congela)
     function processNext() {
       if (idx >= options.length) { finish(); return; }
       const opt = options[idx];
-      const r = C.analyzeMove(state, opt.tile, opt.side, SIMS);
-      if (r) results.push(r);
-      idx++;
       const pct = Math.round((idx / options.length) * 100);
-      el.coachHint.textContent = `Analizando ${idx}/${options.length}...`;
+      el.coachHint.textContent = `Analizando ${idx + 1}/${options.length}...`;
       el.progressFill.style.width = pct + '%';
       el.progressText.textContent = pct + '%';
-      setTimeout(processNext, 0);
+      // Actualizar progreso ANTES de calcular (evita sensación de congelado)
+      setTimeout(() => {
+        // MODO ESTUDIO: analizar desde la perspectiva del jugador de turno,
+        // muestreando manos posibles de los rivales (información imperfecta)
+        const viewerIdx = state.turn % state.players.length;
+        const r = C.analyzeMoveStudy(state, opt.tile, opt.side, viewerIdx, SIMS);
+        if (r) results.push(r);
+        idx++;
+        processNext();
+      }, 0);
     }
 
     function finish() {

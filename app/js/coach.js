@@ -4,6 +4,7 @@
  * simulación Monte Carlo del final de la partida.
  * ============================================================ */
 const E = require('./engine.js');
+const Sampler = require('./sampler.js');
 
 // Clonado profundo que preserva métodos de clase (structuredClone pierde prototipos)
 function deepCloneState(state) {
@@ -102,7 +103,84 @@ function analyzeAll(state, simulations = 800) {
   return results.sort((a, b) => b.ev - a.ev);
 }
 
+// ============================================================
+// MODO ESTUDIO: análisis con información imperfecta
+// El jugador de turno NO conoce las manos de los rivales.
+// Para cada jugada candidata:
+//   1. Muestrea N mundos posibles (manos de rivales consistentes
+//      con pases e información deducida — sampleConstrained)
+//   2. En cada mundo, simula el final de la partida
+//   3. Promedia el EV sobre todos los mundos
+// Esto es análogo a un solver: EV sobre la distribución de
+// manos posibles, no sobre un estado fijo.
+// ============================================================
+
+// Analiza una jugada en modo estudio
+// `viewerIdx`: el jugador cuyo punto de vista usamos (el que decide)
+// `passHistory`: [{playerIdx, suit}] — palos que cada rival no tiene
+function analyzeMoveStudy(state, tile, side, viewerIdx, simulations = 200, passHistory = [], rng = Math.random) {
+  let totalEv = 0;
+  let valid = 0;
+
+  for (let i = 0; i < simulations; i++) {
+    // Crear un mundo posible: clonar y muestrear manos ocultas
+    const s = deepCloneState(state);
+
+    // El jugador de turno (viewer) mantiene su mano conocida
+    // Los rivales reciben manos muestreadas condicionalmente
+    const sample = Sampler.sampleConstrained(s, viewerIdx, passHistory, rng);
+    for (const [idx, hand] of Object.entries(sample)) {
+      s.players[parseInt(idx)].hand = hand;
+    }
+
+    // Aplicar la jugada candidata en este mundo
+    const p = s.players[viewerIdx];
+    const ok = E.applyMove(s, p, tile, side);
+    if (!ok) continue;
+    s.advanceTurn();
+
+    // Simular el resto
+    const ev = simulateToEnd(s, 150);
+    totalEv += ev;
+    valid++;
+  }
+
+  if (!valid) return null;
+  return {
+    tile: [tile[0], tile[1]],
+    side,
+    ev: Math.round((-totalEv / valid) * 100) / 100, // negativo = mejor para viewer
+    simulations: valid,
+  };
+}
+
+// Analiza TODAS las jugadas del viewer en modo estudio
+function analyzeAllStudy(state, viewerIdx, simulations = 200, passHistory = [], rng = Math.random) {
+  const p = state.players[viewerIdx];
+  const moves = E.legalMoves(p.hand, state.board);
+  const results = [];
+
+  if (!state.board.length) {
+    // Primera jugada
+    for (const t of moves) {
+      const r = analyzeMoveStudy(state, t, 'right', viewerIdx, simulations, passHistory, rng);
+      if (r) results.push(r);
+    }
+  } else {
+    const ends = state.boardEnds();
+    for (const t of moves) {
+      for (const side of ['left', 'right']) {
+        const end = side === 'left' ? ends[0] : ends[1];
+        if (!E.orientations(t, end).length) continue;
+        const r = analyzeMoveStudy(state, t, side, viewerIdx, simulations, passHistory, rng);
+        if (r) results.push(r);
+      }
+    }
+  }
+  return results.sort((a, b) => b.ev - a.ev);
+}
+
 // Exponer en navegador (window.Coach) y en Node (module.exports)
-const Coach = { tileValue, simulateToEnd, analyzeMove, analyzeAll };
+const Coach = { tileValue, simulateToEnd, analyzeMove, analyzeAll, analyzeMoveStudy, analyzeAllStudy };
 if (typeof module !== 'undefined' && module.exports) module.exports = Coach;
 if (typeof window !== 'undefined') window.Coach = Coach;
