@@ -124,49 +124,24 @@
       return;
     }
 
-    // state.board guarda fichas ORIENTADAS: [n_izq, n_der]
-    // n_izq conecta con la ficha previa, n_der con la siguiente.
-    // Render en SERPIENTE (como mesa real) con fichas grandes:
-    //  - Filas de máximo 7 fichas, alternando dirección
-    //  - Las fichas se tocan (Mickey con Mickey: t[i][1] === t[i+1][0])
-    //  - Los DOBLES van perpendiculares (verticales, cruzados)
-    //  - Fichas GRANDES con pips visibles
+    // state.board guarda fichas ORIENTADAS correctamente por el motor:
+    //   [n_izq, n_der] donde n_izq conecta con la ficha previa y
+    //   n_der con la siguiente. t[i][1] === t[i+1][0] (Mickey-Mickey).
+    // Render SIMPLE y fiel: cada ficha muestra su orientación real,
+    // los dobles van perpendiculares (verticales), wrap si hay muchas.
     const tiles = state.board;
-    const PER_ROW = 7;
 
-    // Dividir en filas
-    const rows = [];
-    for (let i = 0; i < tiles.length; i += PER_ROW) {
-      rows.push(tiles.slice(i, i + PER_ROW));
-    }
-
-    let html = '<div class="board-chain">';
-    rows.forEach((row, r) => {
-      const isEven = r % 2 === 0;
-      const ordered = isEven ? row : row.slice().reverse();
-      html += `<div class="board-row${isEven ? '' : ' board-row-rev'}">`;
-
-      ordered.forEach((t, j) => {
-        const isDouble = t[0] === t[1];
-        // Orientación visual: en filas impares (invertidas) la ficha se
-        // muestra volteada [b|a] para mantener la continuidad
-        const a = isEven ? t[0] : t[1];
-        const b = isEven ? t[1] : t[0];
-
-        let cls = 'tile tile-board';
-        if (isDouble) cls += ' tile-v';
-        else cls += ' tile-h';
-
-        html += `<div class="${cls}" data-a="${t[0]}" data-b="${t[1]}">
-          <div class="half">${renderPips(a)}</div>
-          <div class="divider"></div>
-          <div class="half">${renderPips(b)}</div>
-        </div>`;
-      });
-
-      html += '</div>';
+    let html = '';
+    tiles.forEach(t => {
+      const isDouble = t[0] === t[1];
+      let cls = 'tile tile-board';
+      cls += isDouble ? ' tile-v' : ' tile-h';
+      html += `<div class="${cls}" data-a="${t[0]}" data-b="${t[1]}">
+        <div class="half">${renderPips(t[0])}</div>
+        <div class="divider"></div>
+        <div class="half">${renderPips(t[1])}</div>
+      </div>`;
     });
-    html += '</div>';
 
     el.board.innerHTML = html;
   }
