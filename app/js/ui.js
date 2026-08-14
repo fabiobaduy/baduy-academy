@@ -302,16 +302,28 @@
       return;
     }
     const p = state.currentPlayer();
-    // Determinar el lado: si el tablero está vacío, derecha; si no,
-    // pedir al usuario o elegir el lado donde la ficha encaja
-    let side = selectedSide;
+    // Determinar el lado de forma INTELIGENTE:
+    // 1. Tablero vacío → derecha (sin preguntar)
+    // 2. Solo un lado posible → ese lado
+    // 3. Ambos extremos con la MISMA pinta → derecha por defecto
+    // 4. Cuadre (extremos DIFERENTES, ficha conecta ambos) → preguntar
+    //    "¿Cuadrar a X o cuadrar a Y?" (no izquierda/derecha)
+    let side = 'right';
     if (state.board.length) {
       const ends = state.boardEnds();
       const leftOk = E.orientations(selectedTile, ends[0]).length > 0;
       const rightOk = E.orientations(selectedTile, ends[1]).length > 0;
+
       if (leftOk && rightOk) {
-        // Ambos lados posibles: preguntar (simple)
-        side = window.confirm('¿Jugar a la IZQUIERDA? (OK = izquierda, Cancelar = derecha)') ? 'left' : 'right';
+        if (ends[0] === ends[1]) {
+          // Misma pinta en ambos extremos → derecha por defecto (sin preguntar)
+          side = 'right';
+        } else {
+          // CUADRE: extremos diferentes y la ficha conecta ambos
+          // Preguntar a qué pinta cuadrar (no izquierda/derecha)
+          const cuadrarA = window.confirm(`¿Cuadrar a ${ends[1]} (OK) o cuadrar a ${ends[0]} (Cancelar)?`);
+          side = cuadrarA ? 'right' : 'left';
+        }
       } else if (leftOk) {
         side = 'left';
       } else {
