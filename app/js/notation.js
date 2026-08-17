@@ -82,11 +82,11 @@ function readHand(state) {
       }
 
       const tileStr = `${notTile[0]}${notTile[1]}`;
-      // Tiempo de pensada (la señal al compañero): sin / breve / larga
+      // Tiempo de pensada (la señal al compañero): S=Sin, B=Breve, L=Larga
       let thinkTag = '';
       if (next.think) {
-        const tMap = { sin: '·', breve: '˘', larga: '–' };
-        thinkTag = tMap[next.think] !== undefined ? ` ${tMap[next.think]}` : '';
+        const tMap = { sin: 'S', breve: 'B', larga: 'L' };
+        thinkTag = tMap[next.think] !== undefined ? tMap[next.think] : '';
       }
       parts.push(`${letter}${tileStr}${cuadre !== null ? `(${cuadre})` : ''}${thinkTag}`);
       historyIdx++;

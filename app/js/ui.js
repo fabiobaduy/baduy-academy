@@ -171,7 +171,7 @@
   function renderSequence() {
     const seqEl = document.getElementById('sequence');
     if (!seqEl) return;
-    let label = '<span class="sequence-label">📜 Bitácora de la mano</span>';
+    let label = '<span class="sequence-label">📜 Bitácora de la mano · S=Sin pensada · B=Breve · L=Larga</span>';
     if (!state.history.length && !state.passed.length) {
       seqEl.innerHTML = label + '<div class="sequence-empty">— aún no hay jugadas —</div>';
       return;
