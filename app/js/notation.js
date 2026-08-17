@@ -66,7 +66,22 @@ function readHand(state) {
         cuadre = ends[0];
       }
 
-      const tileStr = `${tile[0]}${tile[1]}`;
+      // NOTACIÓN con orientación real: primero el extremo CASTIGADO
+      // (la pinta que conecta con el tablero), luego la pinta GENERADA.
+      //   - side=right: la ficha en el tablero es [castigado, generado]
+      //   - side=left:  la ficha en el tablero es [generado, castigado]
+      //     → invertir para la notación
+      let notTile;
+      if (!replay.board.length) {
+        notTile = [tile[0], tile[1]]; // primera jugada, sin castigar aún
+      } else if (next.side === 'right') {
+        notTile = replay.board[replay.board.length - 1];
+      } else {
+        const first = replay.board[0];
+        notTile = [first[1], first[0]];
+      }
+
+      const tileStr = `${notTile[0]}${notTile[1]}`;
       parts.push(`${letter}${tileStr}${cuadre !== null ? `(${cuadre})` : ''}`);
       historyIdx++;
     } else {

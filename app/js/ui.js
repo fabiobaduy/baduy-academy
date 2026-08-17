@@ -567,8 +567,9 @@
         if (s < tiles.length) {
           const t = tiles[s];
           slots.push(`<div class="ep-slot filled" data-player="${i}" data-slot="${s}" data-a="${t[0]}" data-b="${t[1]}">
-            <span class="ep-half"><span class="ep-dot"></span><span class="ep-dot"></span></span>
-            <span class="ep-half"><span class="ep-dot"></span><span class="ep-dot"></span></span>
+            <div class="ep-pips">${renderPips(t[0])}</div>
+            <div class="ep-divider"></div>
+            <div class="ep-pips">${renderPips(t[1])}</div>
           </div>`);
         } else {
           slots.push(`<div class="ep-slot" data-player="${i}" data-slot="${s}">+</div>`);
@@ -586,8 +587,9 @@
     el.bankCount.textContent = bank.length;
     el.bankTiles.innerHTML = bank.map(t =>
       `<div class="bank-tile" data-a="${t[0]}" data-b="${t[1]}">
-        <span class="bt-half"><span class="bt-dot"></span><span class="bt-dot"></span></span>
-        <span class="bt-half"><span class="bt-dot"></span><span class="bt-dot"></span></span>
+        <div class="bt-pips">${renderPips(t[0])}</div>
+        <div class="bt-divider"></div>
+        <div class="bt-pips">${renderPips(t[1])}</div>
       </div>`).join('');
 
     // Eventos: seleccionar jugador
