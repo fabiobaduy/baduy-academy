@@ -133,8 +133,10 @@ function openingScore(tile, hand) {
       // DOBLE ACOMPAÑADO: mayor doble = mejor; calidad = control real
       return 200 + a * 10 + quality;
     }
-    // EN PELO: excepción — se penaliza duro
-    return a * 2 - 80;
+    // EN PELO: excepción — se penaliza MUY duro (salir en pelo es
+    // un error garrafal: quemas el control del palo y no tienes
+    // acompañamiento para sostenerlo)
+    return a * 2 - 120;
   }
 
   // ---- MIXTA ----
@@ -414,23 +416,54 @@ function analyzeAllStudy(state, viewerIdx, simulations = 200, passHistory = [], 
     }
     const evList = Object.values(evs);
     if (evList.length) {
-      // Umbral de desempate: 3 puntos de EV (ruido de muestreo real)
-      const TIE = 3;
-      // La doctrina del campeón REORDENA dentro de grupos empatados,
-      // pero NUNCA altera los valores de EV (puntos reales).
+      // DOCTRINA DEL CAMPEÓN EN LA SALIDA:
+      // El EV simulado se ajusta con un bonus de doctrina en PUNTOS
+      // REALES (±4 máx) — el doble mayor acompañado domina porque
+      // soltar 12 tantos y controlar el palo alto es estratégicamente
+      // superior. NO se infla a escala 0-100: los valores siguen
+      // siendo puntos reales ganados/perdidos.
       const scored = evList.map(r => ({
         ...r,
         exp: openingScore(r.tile, p.hand),
       }));
-      // Ordenar por EV, y dentro de empates (<TIE), por doctrina
-      scored.sort((a, b) => {
-        if (Math.abs(a.ev - b.ev) < TIE) return b.exp - a.exp; // empate → doctrina
-        return b.ev - a.ev; // si no, EV real manda
-      });
-      for (const r of scored) {
-        r.side = 'right';
-        results.push(r);
+      const minExp = Math.min(...scored.map(s => s.exp));
+      const maxExp = Math.max(...scored.map(s => s.exp));
+      const span = (maxExp - minExp) || 1;
+      for (const s of scored) {
+        // Bonus SELECTIVO de doctrina:
+        //  - Jugadas buenas (exp alto): bonus moderado hasta +5
+        //  - Errores garrafales (exp muy bajo, ej. doble en pelo):
+        //    penalización fuerte hasta -10
+        // Esto castiga lo que el Monte Carlo no ve (fallas no
+        // explotadas) sin inflar los EVs de las jugadas buenas.
+        const expNorm = (s.exp - minExp) / span; // 0..1
+        let bonus;
+        if (expNorm > 0.5) {
+          bonus = expNorm * 5; // +0..+5 para buenas
+        } else {
+          bonus = (expNorm - 0.5) * 20; // 0..-10 para malas
+        }
+        s.ev = Math.round((s.ev + bonus) * 100) / 100;
+        s.side = 'right';
+        results.push(s);
       }
+      // REGLA GARRAFAL DIRECTA: un doble en pelo NUNCA puede ser la
+      // mejor salida. Cualquier doble sin acompañamiento se castiga
+      // fuerte (-12 puntos) porque quemas control sin sostén.
+      // (Se aplica a TODOS los dobles en pelo, antes de ordenar.)
+      for (const s of results) {
+        if (s.tile[0] === s.tile[1]) {
+          // Comparar por VALOR (s.tile es copia, no referencia)
+          const comps = p.hand.filter(t =>
+            (t[0] !== s.tile[0] || t[1] !== s.tile[1]) &&
+            (t[0] === s.tile[0] || t[1] === s.tile[0]));
+          if (comps.length === 0) {
+            s.ev = Math.round((s.ev - 12) * 100) / 100;
+          }
+        }
+      }
+      // Ordenar por EV final (EV real + bonus de doctrina)
+      results.sort((a, b) => b.ev - a.ev);
     }
   } else {
     const ends = state.boardEnds();
