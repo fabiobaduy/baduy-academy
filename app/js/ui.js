@@ -66,26 +66,6 @@
     return `<div class="pips">${pips}</div>`;
   }
 
-  // Ficha vertical
-  function tileHTML(t, extra = '') {
-    const [a, b] = t;
-    return `<div class="tile ${extra}" data-a="${a}" data-b="${b}">
-      <div class="half">${renderPips(a)}</div>
-      <div class="divider"></div>
-      <div class="half">${renderPips(b)}</div>
-    </div>`;
-  }
-
-  // Ficha horizontal (cadena del tablero)
-  function tileHHTML(t) {
-    const [a, b] = t;
-    return `<div class="tile tile-h tile-board" data-a="${a}" data-b="${b}">
-      <div class="half">${renderPips(a)}</div>
-      <div class="divider"></div>
-      <div class="half">${renderPips(b)}</div>
-    </div>`;
-  }
-
   // Posición de cada jugador en la mesa según la perspectiva
   // El dominó se juega en sentido CONTRARIO a las agujas del reloj:
   //   - El compañero está ENFRENTE (arriba)
@@ -126,46 +106,40 @@
 
     // state.board guarda fichas ORIENTADAS correctamente por el motor:
     //   [n_izq, n_der] con t[i][1] === t[i+1][0] (Mickey-Mickey).
-    // SERPIENTE RESPONSIVE:
-    //   - PER_ROW dinámico según el ancho disponible del tablero
-    //   - Filas alternando dirección, esquina rotada 90°
-    //   - Los dobles van perpendiculares (verticales)
+    // UNA SOLA LÍNEA CONTINUA — nunca se rompe:
+    //   - El ancho de cada ficha se calcula en JS según las fichas totales
+    //   - Con pocas fichas: grandes. Con muchas: más pequeñas, pero TODAS
+    //     en una línea fluida, tocándose (Mickey con Mickey)
+    //   - Los dobles van perpendiculares (verticales) pero en la línea
     const tiles = state.board;
 
-    // Calcular fichas por fila según el ancho del tablero
+    // Calcular ancho de ficha para que quepan todas en una línea
     const boardEl = document.querySelector('.board');
-    const availW = (boardEl ? boardEl.clientWidth : 300) - 12;
-    const tileW = 64; // ancho aprox de una ficha horizontal grande
-    const PER_ROW = Math.max(2, Math.floor(availW / tileW));
-
-    // Dividir en filas
-    const rows = [];
-    for (let i = 0; i < tiles.length; i += PER_ROW) {
-      rows.push(tiles.slice(i, i + PER_ROW));
+    const availW = (boardEl ? boardEl.clientWidth : 300) - 10;
+    const gap = 2;
+    // Ancho de ficha horizontal = halfW*2 + divider + padding
+    // Objetivo: quepan todas con margen
+    const maxHalf = 26; // máximo tamaño en desktop
+    const minHalf = 8;
+    let halfW = Math.floor((availW - gap * (tiles.length - 1) - 6) / (tiles.length * 2 + 1));
+    halfW = Math.max(minHalf, Math.min(maxHalf, halfW));
+    // La ficha vertical (doble) ocupa ~halfW+6 de ancho; compensar
+    const nDoubles = tiles.filter(t => t[0] === t[1]).length;
+    if (nDoubles) {
+      const adjust = Math.floor((availW - gap * (tiles.length - 1) - 6 - nDoubles * (halfW + 6)) / (tiles.length * 2 + 1));
+      if (adjust > minHalf + 2) halfW = Math.max(minHalf, Math.min(maxHalf, adjust));
     }
 
-    let html = '<div class="board-chain">';
-    rows.forEach((row, r) => {
-      const isEven = r % 2 === 0;
-      html += `<div class="board-row${isEven ? '' : ' board-row-rev'}">`;
-
-      row.forEach((t, j) => {
-        const isDouble = t[0] === t[1];
-        const isCorner = !isEven && j === 0; // esquina: conecta filas
-
-        let cls = 'tile tile-board';
-        if (isDouble) cls += ' tile-v';
-        else if (isCorner) cls += ' tile-h tile-corner';
-        else cls += ' tile-h';
-
-        html += `<div class="${cls}" data-a="${t[0]}" data-b="${t[1]}">
-          <div class="half">${renderPips(t[0])}</div>
-          <div class="divider"></div>
-          <div class="half">${renderPips(t[1])}</div>
-        </div>`;
-      });
-
-      html += '</div>';
+    let html = `<div class="board-chain" style="--halfw:${halfW}px">`;
+    tiles.forEach(t => {
+      const isDouble = t[0] === t[1];
+      let cls = 'tile tile-board';
+      cls += isDouble ? ' tile-v' : ' tile-h';
+      html += `<div class="${cls}" data-a="${t[0]}" data-b="${t[1]}">
+        <div class="half">${renderPips(t[0])}</div>
+        <div class="divider"></div>
+        <div class="half">${renderPips(t[1])}</div>
+      </div>`;
     });
     html += '</div>';
 

@@ -293,35 +293,41 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 /* Mano visible del jugador de perspectiva */
 .player-bottom .hand { margin-top: 8px; }
 
-/* Tablero: serpiente real (filas alternadas, esquina rotada) */
-.board-chain { display: flex; flex-direction: column; gap: 3px; width: 100%; }
-.board-row {
-  display: flex; gap: 3px; align-items: center;
+/* Tablero: UNA línea continua que escala (nunca se rompe) */
+.board-chain {
+  display: flex; gap: 2px; align-items: center;
   justify-content: center;
+  width: 100%;
+  flex-wrap: nowrap;
 }
-.board-row-rev { flex-direction: row-reverse; }
 .board {
-  display: flex; flex-direction: column;
+  display: flex; align-items: center; justify-content: center;
   min-height: 90px;
   padding: 6px;
   max-width: 100%;
+  overflow-x: hidden;
 }
-.board .tile-h, .board .tile-v { flex-shrink: 0; }
-.board-felt { overflow: hidden; }
+.board .tile-h, .board .tile-v { flex-shrink: 1; }
 
-/* Fichas del tablero GRANDES */
-.board .tile-h { width: auto; padding: 3px 5px; }
-.board .tile-h .half { width: 26px; height: 100%; }
-.board .tile-h .pip { width: 6px; height: 6px; }
-.board .tile-v { width: 44px; padding: 3px; }
-.board .tile-v .half { height: 26px; }
-.board .tile-v .pip { width: 6px; height: 6px; }
-
-/* Esquina de la serpiente (rotada 90° para conectar filas) */
-.tile-corner {
-  transform: rotate(90deg);
-  margin: 2px -3px;
+/* Fichas del tablero: tamaño controlado por --halfw (JS) */
+.board .tile-h {
+  padding: 2px;
+  height: calc(var(--halfw, 26px) * 2 + 10px);
 }
+.board .tile-h .half {
+  width: var(--halfw, 26px);
+  height: 100%;
+}
+.board .tile-h .pip { width: calc(var(--halfw, 26px) * 0.22); height: calc(var(--halfw, 26px) * 0.22); }
+.board .tile-v {
+  width: calc(var(--halfw, 26px) + 8px);
+  padding: 2px;
+}
+.board .tile-v .half {
+  width: 100%;
+  height: var(--halfw, 26px);
+}
+.board .tile-v .pip { width: calc(var(--halfw, 26px) * 0.22); height: calc(var(--halfw, 26px) * 0.22); }
 
 /* ---- Fichas ---- */
 .tile {
