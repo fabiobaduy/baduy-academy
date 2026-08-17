@@ -117,5 +117,6 @@ function scoreHand(state, modalidad = 'todas') {
   return null; // la mano no ha terminado
 }
 
-module.exports = { tileValue, handPoints, teamPoints, isDominada, isTranca, dominadaTeam, scoreHand };
-if (typeof window !== 'undefined') window.Scoring = module.exports;
+const Scoring = { tileValue, handPoints, teamPoints, isDominada, isTranca, dominadaTeam, scoreHand };
+if (typeof module !== 'undefined' && module.exports) module.exports = Scoring;
+if (typeof window !== 'undefined') window.Scoring = Scoring;
