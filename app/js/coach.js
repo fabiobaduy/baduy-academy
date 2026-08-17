@@ -517,8 +517,60 @@ function analyzeMoveStudyWorlds(state, tile, side, viewerIdx, worldList, modalid
   };
 }
 
+// ============================================================
+// ANÁLISIS CON INFORMACIÓN PERFECTA (base del detector anti-señas)
+// Cuando TODAS las manos son conocidas (modo Editar Manos o partida
+// grabada), el EV de cada jugada es EXACTO: no hay muestreo de mundos,
+// el estado es único y determinista (rivales racionales).
+//
+// USO PARA EL DETECTOR:
+//   - EV_imperfecto = lo que el jugador ve racionalmente (muestreo)
+//   - EV_perfecto   = lo que la jugada VALE con todas las manos vistas
+//   Si un jugador elige una jugada con EV_imperfecto bajo pero
+//   EV_perfecto alto → "sabía más de lo que debía" → señal de colusión.
+// ============================================================
+function analyzeAllPerfect(state, viewerIdx, modalidad = 'todas') {
+  const p = state.players[viewerIdx];
+  const moves = Engine.legalMoves(p.hand, state.board);
+  const results = [];
+
+  // Mundo ÚNICO: las manos reales de los rivales (sin muestreo)
+  const world = {};
+  state.players.forEach((pl, i) => {
+    if (i !== viewerIdx) world[i] = pl.hand.map(t => [t[0], t[1]]);
+  });
+  const worldList = [world];
+
+  if (!state.board.length) {
+    for (const t of moves) {
+      const r = analyzeMoveStudyWorlds(state, t, 'right', viewerIdx, worldList, modalidad);
+      if (r) results.push(r);
+    }
+  } else {
+    const ends = state.boardEnds();
+    const sameEnds = ends[0] === ends[1];
+    for (const t of moves) {
+      // Evaluar solo los lados donde la ficha realmente encaja
+      const leftOk = Engine.orientations(t, ends[0]).length > 0;
+      const rightOk = Engine.orientations(t, ends[1]).length > 0;
+      const sides = [];
+      if (leftOk) sides.push('left');
+      // Si ambos extremos son IGUALES, izquierda y derecha son la MISMA
+      // jugada → no duplicar
+      if (rightOk && !sameEnds) sides.push('right');
+      for (const side of sides) {
+        const r = analyzeMoveStudyWorlds(state, t, side, viewerIdx, worldList, modalidad);
+        if (r) results.push(r);
+      }
+    }
+  }
+  // Info perfecta: EV exacto, sin bonus de doctrina (la doctrina es
+  // para info imperfecta). Ordenar por EV real.
+  return results.sort((a, b) => b.ev - a.ev);
+}
+
 // Exponer en navegador (window.Coach) y en Node (module.exports)
-const Coach = { tileValue, simulateToEnd, analyzeMove, analyzeAll, analyzeMoveStudy, analyzeAllStudy };
+const Coach = { tileValue, simulateToEnd, analyzeMove, analyzeAll, analyzeMoveStudy, analyzeAllStudy, analyzeAllPerfect };
 if (typeof module !== 'undefined' && module.exports) module.exports = Coach;
 if (typeof window !== 'undefined') window.Coach = Coach;
 
