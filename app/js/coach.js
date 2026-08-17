@@ -404,32 +404,30 @@ function analyzeAllStudy(state, viewerIdx, simulations = 200, passHistory = [], 
   const worldList = worlds.worlds;
 
   if (!state.board.length) {
-    // PRIMERA JUGADA: EV simulado + DOCTRINA DEL CAMPEÓN (prior experto).
-    // El score de apertura del campeón se mezcla con el EV de Monte
-    // Carlo para que los números reflejen la teoría (dobles mayores
-    // acompañados primero, mingas penalizadas, etc.).
+    // PRIMERA JUGADA: EV en PUNTOS REALES (lo que ganas/pierdes).
+    // La doctrina del campeón NO infla los números — solo DESEMPATA
+    // cuando dos jugadas tienen EV casi idéntico (diferencia < umbral).
     const evs = {};
     for (const t of moves) {
       const r = analyzeMoveStudyWorlds(state, t, 'right', viewerIdx, worldList, modalidad);
       if (r) evs[t[0] * 10 + t[1]] = r;
     }
-    // Normalizar EVs a escala comparable
     const evList = Object.values(evs);
     if (evList.length) {
-      const minEv = Math.min(...evList.map(r => r.ev));
-      const maxEv = Math.max(...evList.map(r => r.ev));
-      const span = (maxEv - minEv) || 1;
-      for (const t of moves) {
-        const r = evs[t[0] * 10 + t[1]];
-        if (!r) continue;
-        // EV normalizado 0..100
-        const evNorm = ((r.ev - minEv) / span) * 100;
-        // Prior experto del campeón (0..100, escalado)
-        const exp = openingScore(t, p.hand);
-        const expNorm = Math.max(0, Math.min(100, (exp + 100) / 4.5));
-        // MEZCLA: 50% EV simulado, 50% doctrina del campeón
-        // (la salida es donde la teoría del campeón manda)
-        r.ev = Math.round((evNorm * 0.5 + expNorm * 0.5) * 100) / 100;
+      // Umbral de desempate: 3 puntos de EV (ruido de muestreo real)
+      const TIE = 3;
+      // La doctrina del campeón REORDENA dentro de grupos empatados,
+      // pero NUNCA altera los valores de EV (puntos reales).
+      const scored = evList.map(r => ({
+        ...r,
+        exp: openingScore(r.tile, p.hand),
+      }));
+      // Ordenar por EV, y dentro de empates (<TIE), por doctrina
+      scored.sort((a, b) => {
+        if (Math.abs(a.ev - b.ev) < TIE) return b.exp - a.exp; // empate → doctrina
+        return b.ev - a.ev; // si no, EV real manda
+      });
+      for (const r of scored) {
         r.side = 'right';
         results.push(r);
       }
