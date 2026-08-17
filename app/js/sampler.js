@@ -4,7 +4,7 @@
  * imperfecta). Similar al "range" del póker: dado lo que se ve
  * (mi mano + fichas jugadas), ¿qué puede tener cada rival?
  * ============================================================ */
-const E = require('./engine.js');
+const E = (typeof window !== 'undefined') ? window.Engine : require('./engine.js');
 
 // Fichas NO visibles: todas las fichas menos (mi mano + tablero + historial)
 function hiddenTiles(state, visiblePlayerIdx) {
@@ -136,5 +136,6 @@ function probRivalHasSuit(state, viewerIdx, suit, simulations = 200, rng = Math.
   return has / simulations;
 }
 
-module.exports = { hiddenTiles, sampleOpponentHands, sampleConstrained, passConstraints, probRivalHasSuit };
-if (typeof window !== 'undefined') window.Sampler = module.exports;
+const Sampler = { hiddenTiles, sampleOpponentHands, sampleConstrained, passConstraints, probRivalHasSuit };
+if (typeof module !== 'undefined' && module.exports) module.exports = Sampler;
+if (typeof window !== 'undefined') window.Sampler = Sampler;

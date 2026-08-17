@@ -401,26 +401,51 @@
 
     const results = [];
     const SIMS = 25; // mundos por jugada (modo estudio)
-    let idx = 0;
+    const CHUNK = 5; // simulaciones por tick (deja pintar al navegador)
+    let optIdx = 0;
+    let simInOpt = 0; // sims ya hechas de la opción actual
+    let accEv = 0;    // EV acumulado de la opción actual
+    let accValid = 0; // sims válidas de la opción actual
+    const totalSims = options.length * SIMS;
+    let doneSims = 0;
 
-    // Procesa una opción por tick — la UI respira entre cada una (no se congela)
+    // Procesa un CHUNK de simulaciones por tick — la barra avanza en vivo
     function processNext() {
-      if (idx >= options.length) { finish(); return; }
-      const opt = options[idx];
-      const pct = Math.round((idx / options.length) * 100);
-      el.coachHint.textContent = `Analizando ${idx + 1}/${options.length}...`;
+      if (optIdx >= options.length) { finish(); return; }
+      const opt = options[optIdx];
+
+      // Actualizar progreso con porcentaje REAL (antes de calcular)
+      const pct = Math.round((doneSims / totalSims) * 100);
       el.progressFill.style.width = pct + '%';
       el.progressText.textContent = pct + '%';
-      // Actualizar progreso ANTES de calcular (evita sensación de congelado)
-      setTimeout(() => {
-        // MODO ESTUDIO: analizar desde la PERSPECTIVA seleccionada,
-        // muestreando manos posibles de los rivales (información imperfecta)
-        const viewerIdx = perspective;
-        const r = C.analyzeMoveStudy(state, opt.tile, opt.side, viewerIdx, SIMS);
-        if (r) results.push(r);
-        idx++;
-        processNext();
-      }, 0);
+      el.coachHint.textContent = `Analizando ${optIdx + 1}/${options.length} (${doneSims}/${totalSims} mundos)...`;
+
+      // MODO ESTUDIO: analizar desde la PERSPECTIVA seleccionada,
+      // muestreando manos posibles de los rivales (información imperfecta)
+      const viewerIdx = perspective;
+      // Calcular solo CHUNK simulaciones de esta opción
+      const n = Math.min(CHUNK, SIMS - simInOpt);
+      const r = C.analyzeMoveStudy(state, opt.tile, opt.side, viewerIdx, n);
+      if (r) { accEv += r.ev * r.simulations; accValid += r.simulations; }
+      simInOpt += n;
+      doneSims += n;
+
+      if (simInOpt >= SIMS) {
+        // Opción completa: guardar resultado agregado
+        if (accValid) {
+          results.push({
+            tile: [opt.tile[0], opt.tile[1]],
+            side: opt.side,
+            ev: Math.round((accEv / accValid) * 100) / 100,
+            simulations: accValid,
+          });
+        }
+        accEv = 0; accValid = 0; simInOpt = 0;
+        optIdx++;
+      }
+
+      // Dejar pintar al navegador entre chunks
+      setTimeout(processNext, 0);
     }
 
     function finish() {

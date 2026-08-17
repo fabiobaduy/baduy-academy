@@ -17,7 +17,7 @@
  *
  * Retorna: { equipoGanador: teamId, puntos: N, modalidad, tipo }
  * ============================================================ */
-const E = require('./engine.js');
+const E = (typeof window !== 'undefined') ? window.Engine : require('./engine.js');
 
 function tileValue(t) { return t[0] + t[1]; }
 

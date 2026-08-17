@@ -3,8 +3,8 @@
  * Calcula el Valor Esperado de cada jugada legal mediante
  * simulación Monte Carlo del final de la partida.
  * ============================================================ */
-const E = require('./engine.js');
-const Sampler = require('./sampler.js');
+const E = (typeof window !== 'undefined') ? window.Engine : require('./engine.js');
+const Sampler = (typeof window !== 'undefined') ? window.Sampler : require('./sampler.js');
 
 // Clonado profundo que preserva métodos de clase (structuredClone pierde prototipos)
 function deepCloneState(state) {

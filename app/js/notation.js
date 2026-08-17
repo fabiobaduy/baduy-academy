@@ -11,7 +11,7 @@
  *   - "P" = el jugador pasó
  *   - La PRIMERA ficha nunca es cuadre (no hay dos extremos aún)
  * ============================================================ */
-const E = require('./engine.js');
+const E = (typeof window !== 'undefined') ? window.Engine : require('./engine.js');
 
 // Reconstruye la secuencia completa (jugadas + pases en orden real)
 function readHand(state) {
@@ -98,5 +98,6 @@ function moveNotation(letter, tile, side, prevEnds) {
   return `${letter}${tileStr}${cuadre !== null ? `(${cuadre})` : ''}`;
 }
 
-module.exports = { readHand, moveNotation };
-if (typeof window !== 'undefined') window.Notation = module.exports;
+const Notation = { readHand, moveNotation };
+if (typeof module !== 'undefined' && module.exports) module.exports = Notation;
+if (typeof window !== 'undefined') window.Notation = Notation;
