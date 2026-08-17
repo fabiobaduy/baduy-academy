@@ -477,6 +477,7 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 .coach-row .tile-mini .pip { width: 5px; height: 5px; }
 .coach-row .ev { margin-left: auto; font-weight: 800; color: var(--gold); font-size: 0.95rem; }
 .coach-row .ev.neg { color: #e74c3c; }
+.coach-row .ev.best-ev { color: #2ecc71; }
 .coach-hint { color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-top: 8px; font-style: italic; }
 
 /* ---- Lesson ---- */

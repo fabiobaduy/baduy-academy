@@ -23,8 +23,11 @@ function deepCloneState(state) {
 function tileValue(t) { return t[0] + t[1]; }
 
 // Simula el resto de la partida desde un estado (juego bloqueado o alguien se queda sin fichas)
-// Devuelve puntos: +gana el jugador actual, -pierde, 0 empate (aproximación por equipo)
-function simulateToEnd(state, maxPlies = 60) {
+// Devuelve los PUNTOS que quedaron en mano del jugador `viewerIdx`
+// (menos puntos = mejor para el viewer). El viewer es quien tomó la
+// decisión; la simulación termina y medimos SU mano, no la del que
+// tendría el turno al final.
+function simulateToEnd(state, viewerIdx, maxPlies = 60) {
   const s = deepCloneState(state);
   for (let i = 0; i < maxPlies; i++) {
     const p = s.currentPlayer();
@@ -45,53 +48,51 @@ function simulateToEnd(state, maxPlies = 60) {
     // Si alguien se quedó sin fichas
     if (s.players.some(pl => pl.hand.length === 0)) break;
   }
-  // Resultado: quien tenga menos puntos en mano gana
-  const totalPts = s.players.map(p => p.hand.reduce((a, t) => a + tileValue(t), 0));
-  const minPts = Math.min(...totalPts);
-  const winners = s.players.filter((_, i) => totalPts[i] === minPts);
-  const currentIdx = s.players.indexOf(s.players[s.turn % s.players.length]);
-  const curPts = totalPts[currentIdx];
-  // Retorna diferencia de puntos (negativo = bueno para el actual)
-  return curPts - minPts;
+  // Puntos en mano del viewer al final (menos = mejor para él)
+  const viewerPts = s.players[viewerIdx].hand.reduce((a, t) => a + tileValue(t), 0);
+  return viewerPts;
 }
 
 // Análisis GTO de una jugada: simula N partidas desde después de jugarla
+// EV = puntos promedio que quedan en mano del viewer al final
+// (menos puntos = mejor jugada)
 function analyzeMove(state, tile, side, simulations = 800) {
   const s = deepCloneState(state);
-  const p = s.currentPlayer();
+  const viewerIdx = s.turn % s.players.length;
+  const p = s.players[viewerIdx];
   const ok = Engine.applyMove(s, p, tile, side);
   if (!ok) return null;
+  s.advanceTurn();
 
-  let totalDiff = 0;
+  let totalPts = 0;
   for (let i = 0; i < simulations; i++)
-    totalDiff += simulateToEnd(s);
+    totalPts += simulateToEnd(s, viewerIdx);
 
-  const avgDiff = totalDiff / simulations;
-  // Normalizar: mientras más negativo, mejor para quien juega
-  // EV se presenta como "ventaja esperada": -avgDiff
-  const ev = -avgDiff;
+  const ev = totalPts / simulations; // puntos en mano al final (menos = mejor)
   return {
     tile: tile.slice(),
     side,
     ev: Math.round(ev * 100) / 100,
     simulations,
-    winRate: Math.round((simulateToEnd(s) < 0 ? 1 : 0) * 100), // aprox
+    winRate: Math.round((simulateToEnd(s, viewerIdx) < 10 ? 1 : 0) * 100), // aprox
   };
 }
 
 // Analiza todas las jugadas legales del jugador actual
 function analyzeAll(state, simulations = 800) {
-  const p = state.currentPlayer();
+  const viewerIdx = state.turn % state.players.length;
+  const p = state.players[viewerIdx];
   const moves = Engine.legalMoves(p.hand, state.board);
   if (!state.board.length) {
     // Primera jugada: cada ficha de la mano es una opción
     return moves.map(t => {
       const s = deepCloneState(state);
       Engine.applyMove(s, p, t, 'right');
-      let diff = 0;
-      for (let i = 0; i < simulations; i++) diff += simulateToEnd(s);
-      return { tile: t.slice(), side: 'right', ev: Math.round((-diff / simulations) * 100) / 100, simulations };
-    }).sort((a, b) => b.ev - a.ev);
+      s.advanceTurn();
+      let pts = 0;
+      for (let i = 0; i < simulations; i++) pts += simulateToEnd(s, viewerIdx);
+      return { tile: t.slice(), side: 'right', ev: Math.round((pts / simulations) * 100) / 100, simulations };
+    }).sort((a, b) => a.ev - b.ev); // MENOS puntos = mejor
   }
 
   const results = [];
@@ -103,7 +104,7 @@ function analyzeAll(state, simulations = 800) {
       if (r) results.push(r);
     }
   }
-  return results.sort((a, b) => b.ev - a.ev);
+  return results.sort((a, b) => a.ev - b.ev); // MENOS puntos = mejor
 }
 
 // ============================================================
@@ -122,7 +123,7 @@ function analyzeAll(state, simulations = 800) {
 // `viewerIdx`: el jugador cuyo punto de vista usamos (el que decide)
 // `passHistory`: [{playerIdx, suit}] — palos que cada rival no tiene
 function analyzeMoveStudy(state, tile, side, viewerIdx, simulations = 200, passHistory = [], rng = Math.random) {
-  let totalEv = 0;
+  let totalPts = 0;
   let valid = 0;
 
   for (let i = 0; i < simulations; i++) {
@@ -142,9 +143,8 @@ function analyzeMoveStudy(state, tile, side, viewerIdx, simulations = 200, passH
     if (!ok) continue;
     s.advanceTurn();
 
-    // Simular el resto
-    const ev = simulateToEnd(s, 150);
-    totalEv += ev;
+    // Simular el resto y medir puntos en mano del viewer
+    totalPts += simulateToEnd(s, viewerIdx, 150);
     valid++;
   }
 
@@ -152,7 +152,8 @@ function analyzeMoveStudy(state, tile, side, viewerIdx, simulations = 200, passH
   return {
     tile: [tile[0], tile[1]],
     side,
-    ev: Math.round((-totalEv / valid) * 100) / 100, // negativo = mejor para viewer
+    // EV = puntos promedio en mano del viewer al final (menos = mejor)
+    ev: Math.round((totalPts / valid) * 100) / 100,
     simulations: valid,
   };
 }
@@ -180,7 +181,7 @@ function analyzeAllStudy(state, viewerIdx, simulations = 200, passHistory = [], 
       }
     }
   }
-  return results.sort((a, b) => b.ev - a.ev);
+  return results.sort((a, b) => a.ev - b.ev); // MENOS puntos = mejor
 }
 
 // Exponer en navegador (window.Coach) y en Node (module.exports)

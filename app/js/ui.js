@@ -490,18 +490,19 @@
     }
     el.coachResults.innerHTML = results.map((r, i) => {
       const cls = i === 0 ? 'coach-row best' : 'coach-row';
-      const evCls = r.ev < 0 ? 'ev neg' : 'ev';
       const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}º`;
       const sideLabel = r.side === 'left' ? '← izquierda' : r.side === 'right' ? '→ derecha' : '';
+      // EV = puntos promedio que quedan en mano (menos = mejor)
+      const evCls = i === 0 ? 'ev best-ev' : 'ev';
       return `
         <div class="${cls}">
           <span class="rank">${medal}</span>
           <span class="tile-mini">${tileHTML(r.tile)}</span>
           <span style="font-size:0.85rem;opacity:0.8">${sideLabel}</span>
-          <span class="${evCls}">EV ${r.ev > 0 ? '+' : ''}${r.ev}</span>
+          <span class="${evCls}">${r.ev} pts</span>
         </div>`;
     }).join('');
-    el.coachHint.textContent = '🥇 La jugada con mayor EV es la recomendada. EV positivo = ventaja esperada para ti.';
+    el.coachHint.textContent = '🥇 La jugada que deja MENOS puntos en tu mano al final es la recomendada.';
   }
 
   // ---- Eventos ----
