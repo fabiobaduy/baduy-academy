@@ -320,10 +320,15 @@
           // Misma pinta en ambos extremos → derecha por defecto (sin preguntar)
           side = 'right';
         } else {
-          // CUADRE: extremos diferentes y la ficha conecta ambos
-          // Preguntar a qué pinta cuadrar (no izquierda/derecha)
-          const cuadrarA = window.confirm(`¿Cuadrar a ${ends[1]} (OK) o cuadrar a ${ends[0]} (Cancelar)?`);
-          side = cuadrarA ? 'right' : 'left';
+          // CUADRE: extremos diferentes y la ficha conecta ambos.
+          // IMPORTANTE: "cuadrar a X" = dejar el palo X abierto en
+          // ambos extremos. Para eso conectamos el palo OPUESTO:
+          //   - Cuadrar a ends[0] (izquierda) → conectar ends[1] (derecha)
+          //   - Cuadrar a ends[1] (derecha) → conectar ends[0] (izquierda)
+          const cuadrarIzq = window.confirm(
+            `¿Cuadrar a ${ends[0]} (OK) o cuadrar a ${ends[1]} (Cancelar)?`
+          );
+          side = cuadrarIzq ? 'right' : 'left';
         }
       } else if (leftOk) {
         side = 'left';
