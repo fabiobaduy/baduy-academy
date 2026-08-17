@@ -24,7 +24,7 @@ function tileValue(t) { return t[0] + t[1]; }
 
 // Simula el resto de la partida desde un estado (juego bloqueado o alguien se queda sin fichas)
 // Devuelve puntos: +gana el jugador actual, -pierde, 0 empate (aproximación por equipo)
-function simulateToEnd(state, maxPlies = 200) {
+function simulateToEnd(state, maxPlies = 60) {
   const s = deepCloneState(state);
   for (let i = 0; i < maxPlies; i++) {
     const p = s.currentPlayer();

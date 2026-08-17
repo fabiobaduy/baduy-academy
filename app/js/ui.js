@@ -400,8 +400,8 @@
     }
 
     const results = [];
-    const SIMS = 25; // mundos por jugada (modo estudio)
-    const CHUNK = 5; // simulaciones por tick (deja pintar al navegador)
+    const SIMS = 15; // mundos por jugada (modo estudio)
+    const CHUNK = 3; // simulaciones por tick (deja pintar al navegador)
     let optIdx = 0;
     let simInOpt = 0; // sims ya hechas de la opción actual
     let accEv = 0;    // EV acumulado de la opción actual
