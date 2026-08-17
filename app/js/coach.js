@@ -81,38 +81,94 @@ function simulateToEnd(state, viewerIdx, modalidad = 'todas', maxPlies = 60, wor
   return gained;
 }
 
-// Elige la jugada racional: minimiza el peso de la mano resultante
-// y maximiza el control de palos (heurística experta del dominó).
+// ---- Heurística experta del Campeón Mundial ----
+// Fuerza de cada palo en la mano (cuántas fichas tengo de cada palo;
+// los dobles cuentan doble porque controlan el palo).
+function suitStrength(hand) {
+  const suits = [0, 0, 0, 0, 0, 0, 0];
+  hand.forEach(t => {
+    suits[t[0]]++;
+    suits[t[1]]++;
+    if (t[0] === t[1]) suits[t[0]]++; // el doble da control extra
+  });
+  return suits;
+}
+
+// Puntaje de UNA ficha de salida (primera jugada).
+// Lógica del Campeón: la salida ATA CA mostrando tu fuerza.
+//   + Muestra el palo que más tienes (limita al oponente)
+//   - Generar un extremo de un palo que no controlas = FALLA (grave)
+//   - Quemar un doble de salida = perder tu carta de control
+function openingScore(tile, hand) {
+  const suits = suitStrength(hand);
+  const a = tile[0], b = tile[1];
+  let score = 0;
+
+  // Fuerza de los palos que muestra la ficha (ataque)
+  score += suits[a] * 12;
+  score += suits[b] * 12;
+
+  // Si un palo de la ficha es DÉBIL (1 sola ficha), generas falla
+  if (suits[a] <= 1) score -= 30; // falla en a
+  if (suits[b] <= 1) score -= 30; // falla en b
+
+  // Si un palo es inexistente (0, no debería pasar), peor
+  if (suits[a] === 0) score -= 50;
+  if (suits[b] === 0) score -= 50;
+
+  // Salir con doble: quemas control (penalización MUY fuerte —
+  // el doble es tu carta de dominio del palo, no se descarta)
+  if (a === b) {
+    score -= 60;
+    // Si es el ÚNICO doble de la mano, más grave aún
+    const nDoubles = hand.filter(t => t[0] === t[1]).length;
+    if (nDoubles === 1) score -= 25;
+  }
+
+  // Ficha pesada de salida: no es delito (la soltarás igual),
+  // pero no es la razón para elegirla.
+  return score;
+}
+
+// Elige la jugada racional con la heurística del Campeón.
+// - SALIDA: mostrar el palo fuerte, evitar fallas y no quemar dobles
+// - INTERMEDIO: no generar fallas, mantener control de palos
 function chooseRationalMove(state, player, moves) {
   let best = null;
   let bestScore = -Infinity;
   for (const m of moves) {
     const ends = state.boardEnds();
     if (!state.board.length) {
-      // Primera jugada: salir con el doble más alto o la ficha más pesada
-      const score = (m[0] === m[1] ? m[0] * 10 : 0) + m[0] + m[1];
+      // PRIMERA JUGADA: heurística de salida del Campeón
+      const score = openingScore(m, player.hand);
       if (score > bestScore) { bestScore = score; best = m; }
       continue;
     }
-    // Para cada lado posible, simular el efecto
+    // JUGADA INTERMEDIA: evaluar cada lado posible
     for (const side of ['left', 'right']) {
       const end = side === 'left' ? ends[0] : ends[1];
       if (!Engine.orientations(m, end).length) continue;
-      // Puntaje: soltar fichas pesadas es bueno; quedarse con dobles del
-      // palo en juego es malo; crear extremos que no controlas es malo
       let score = 0;
-      // Soltar ficha pesada = bueno (menos puntos en mano)
-      score += (m[0] + m[1]) * 0.5;
-      // El palo que generas: si no tienes más de ese palo, es peligroso
+      const suits = suitStrength(player.hand);
+      // El palo que GENERO con esta jugada:
       const gen = (m[0] === end) ? m[1] : m[0];
       const hasGen = player.hand.some(t => t !== m && (t[0] === gen || t[1] === gen));
-      if (!hasGen) score -= 4; // dejas un palo que no controlas
-      // Si el otro extremo es un palo que no tienes, peligro futuro
+      // GENERAR FALLA = lo peor que puedes hacer
+      if (!hasGen) score -= 40;
+      // El otro extremo: si no lo controlo, riesgo
       const otherEnd = side === 'left' ? ends[1] : ends[0];
       const hasOther = player.hand.some(t => t !== m && (t[0] === otherEnd || t[1] === otherEnd));
-      if (!hasOther) score -= 2;
-      // Ficha doble: controla el palo
-      if (m[0] === m[1]) score += 3;
+      if (!hasOther) score -= 15;
+      // Soltar ficha pesada: bueno PERO no a costa de control
+      score += (m[0] + m[1]) * 0.3;
+      // Doble: si es del palo en juego, es control (no soltar);
+      // si es inerte, soltarlo pronto es aceptable
+      if (m[0] === m[1]) {
+        if (ends.includes(m[0])) score += 2; // control del palo vivo
+        else score += 1; // inerte
+      }
+      // Mantener mi palo fuerte: jugar en el palo que más tengo
+      score += suits[gen] * 0.8;
       if (score > bestScore) { bestScore = score; best = m; }
     }
   }
