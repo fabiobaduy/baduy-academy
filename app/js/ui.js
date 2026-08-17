@@ -425,16 +425,13 @@
     }
 
     const results = [];
-    const SIMS = 15; // mundos por jugada (modo estudio)
-    const CHUNK = 3; // simulaciones por tick (deja pintar al navegador)
+    const SIMS = 60; // mundos por jugada (modo estudio) — nuevo algoritmo
     let optIdx = 0;
-    let simInOpt = 0; // sims ya hechas de la opción actual
-    let accEv = 0;    // EV acumulado de la opción actual
-    let accValid = 0; // sims válidas de la opción actual
     const totalSims = options.length * SIMS;
     let doneSims = 0;
 
-    // Procesa un CHUNK de simulaciones por tick — la barra avanza en vivo
+    // Procesa UNA opción completa por tick (el algoritmo nuevo es rápido:
+    // ~45ms por opción con 60 mundos). La barra avanza entre opciones.
     function processNext() {
       if (optIdx >= options.length) { finish(); return; }
       const opt = options[optIdx];
@@ -445,32 +442,16 @@
       el.progressText.textContent = pct + '%';
       el.coachHint.textContent = `Analizando ${optIdx + 1}/${options.length} (${doneSims}/${totalSims} mundos)...`;
 
-      // MODO ESTUDIO: analizar desde la PERSPECTIVA seleccionada,
-      // muestreando manos posibles de los rivales (información imperfecta)
+      // MODO ESTUDIO: análisis de máxima calidad — mundos compatibles
+      // + rivales racionales + EV promedio de todos los desenlaces
       const viewerIdx = perspective;
       const modalidad = el.modalidadSelect ? el.modalidadSelect.value : 'todas';
-      // Calcular solo CHUNK simulaciones de esta opción
-      const n = Math.min(CHUNK, SIMS - simInOpt);
-      const r = C.analyzeMoveStudy(state, opt.tile, opt.side, viewerIdx, n, [], modalidad);
-      if (r) { accEv += r.ev * r.simulations; accValid += r.simulations; }
-      simInOpt += n;
-      doneSims += n;
+      const r = C.analyzeMoveStudy(state, opt.tile, opt.side, viewerIdx, SIMS, [], modalidad);
+      if (r) results.push(r);
+      doneSims += SIMS;
+      optIdx++;
 
-      if (simInOpt >= SIMS) {
-        // Opción completa: guardar resultado agregado
-        if (accValid) {
-          results.push({
-            tile: [opt.tile[0], opt.tile[1]],
-            side: opt.side,
-            ev: Math.round((accEv / accValid) * 100) / 100,
-            simulations: accValid,
-          });
-        }
-        accEv = 0; accValid = 0; simInOpt = 0;
-        optIdx++;
-      }
-
-      // Dejar pintar al navegador entre chunks
+      // Dejar pintar al navegador entre opciones
       setTimeout(processNext, 0);
     }
 

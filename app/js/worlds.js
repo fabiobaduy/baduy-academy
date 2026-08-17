@@ -83,6 +83,15 @@ function combinations(arr, k, used = new Set()) {
   return out;
 }
 
+// Combinatoria C(n,k) rápida (para verificar tamaño ANTES de enumerar)
+function nCk(n, k) {
+  if (k < 0 || k > n) return 0;
+  k = Math.min(k, n - k);
+  let r = 1;
+  for (let i = 0; i < k; i++) r = r * (n - i) / (i + 1);
+  return Math.round(r);
+}
+
 // Cuántas fichas le faltan a cada rival (7 - jugadas)
 function remainingCount(state, playerIdx) {
   const name = state.players[playerIdx].name;
@@ -115,7 +124,11 @@ function enumerateWorlds(state, viewerIdx, maxWorlds = 20000) {
   rivals.sort((a, b) => a.pool.length - b.pool.length);
 
   const first = rivals[0];
-  // C(19,7) ≈ 50K, C(21,7) ≈ 116K — enumerable; C(15,7) con pase = 6.4K
+  // Verificar TAMAÑO ANTES de enumerar (evita congelar el navegador):
+  // C(21,7)=116K, C(19,7)=50K — si excede maxWorlds, usar muestreo
+  const firstCombos = nCk(first.pool.length, first.count);
+  if (firstCombos > maxWorlds || firstCombos <= 0) return null;
+
   const combos = combinations(first.pool, first.count);
   if (combos.length > maxWorlds) return null; // demasiados → muestreo
 
@@ -214,7 +227,7 @@ function generateWorlds(state, viewerIdx, maxSamples = 200, rng = Math.random) {
 }
 
 const Worlds = {
-  hiddenTiles, bannedSuits, allowedPools, combinations,
+  hiddenTiles, bannedSuits, allowedPools, combinations, nCk,
   enumerateWorlds, sampleWorlds, generateWorlds, MAX_ENUM,
   remainingCount,
 };
