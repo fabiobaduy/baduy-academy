@@ -66,6 +66,16 @@
     return `<div class="pips">${pips}</div>`;
   }
 
+  // Ficha vertical mini (para resultados del Coach)
+  function tileHTML(t) {
+    const [a, b] = t;
+    return `<div class="tile tile-sm" data-a="${a}" data-b="${b}">
+      <div class="half">${renderPips(a)}</div>
+      <div class="divider"></div>
+      <div class="half">${renderPips(b)}</div>
+    </div>`;
+  }
+
   // Posición de cada jugador en la mesa según la perspectiva
   // El dominó se juega en sentido CONTRARIO a las agujas del reloj:
   //   - El compañero está ENFRENTE (arriba)
