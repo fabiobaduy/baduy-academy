@@ -408,55 +408,45 @@
     el.btnAnalyze.disabled = true;
     el.btnAnalyze.textContent = '⏳ Calculando...';
     el.coachResults.innerHTML = '';
-    el.coachHint.textContent = 'Analizando jugada por jugada...';
+    el.coachHint.textContent = 'Generando mundos posibles y proyectando desenlaces...';
     el.coachProgress.style.display = 'block';
     el.progressFill.style.width = '0%';
     el.progressText.textContent = '0%';
 
-    // Generar todas las opciones (ficha, lado)
-    const options = [];
-    if (!state.board.length) {
-      moves.forEach(t => options.push({ tile: t, side: 'right' }));
-    } else {
-      moves.forEach(t => {
-        options.push({ tile: t, side: 'left' });
-        options.push({ tile: t, side: 'right' });
-      });
-    }
+    // Análisis de máxima calidad: mundos compatibles (una sola vez) +
+    // rivales racionales + EV promedio de todos los desenlaces.
+    // analyzeAllStudy genera los mundos UNA vez y evalúa cada ficha
+    // solo en los lados donde encaja → sin fichas repetidas por ruido.
+    const viewerIdx = perspective;
+    const modalidad = el.modalidadSelect ? el.modalidadSelect.value : 'todas';
+    const SIMS = 60;
 
-    const results = [];
-    const SIMS = 60; // mundos por jugada (modo estudio) — nuevo algoritmo
-    let optIdx = 0;
-    const totalSims = options.length * SIMS;
-    let doneSims = 0;
+    // Procesar en ticks para que la barra avance y la UI respire
+    let tick = 0;
+    const TICKS = 4; // dividir el cálculo en 4 pasos visuales
 
-    // Procesa UNA opción completa por tick (el algoritmo nuevo es rápido:
-    // ~45ms por opción con 60 mundos). La barra avanza entre opciones.
     function processNext() {
-      if (optIdx >= options.length) { finish(); return; }
-      const opt = options[optIdx];
-
-      // Actualizar progreso con porcentaje REAL (antes de calcular)
-      const pct = Math.round((doneSims / totalSims) * 100);
+      tick++;
+      const pct = Math.round((tick / TICKS) * 100);
       el.progressFill.style.width = pct + '%';
       el.progressText.textContent = pct + '%';
-      el.coachHint.textContent = `Analizando ${optIdx + 1}/${options.length} (${doneSims}/${totalSims} mundos)...`;
+      el.coachHint.textContent = `Proyectando desenlaces... ${pct}%`;
 
-      // MODO ESTUDIO: análisis de máxima calidad — mundos compatibles
-      // + rivales racionales + EV promedio de todos los desenlaces
-      const viewerIdx = perspective;
-      const modalidad = el.modalidadSelect ? el.modalidadSelect.value : 'todas';
-      const r = C.analyzeMoveStudy(state, opt.tile, opt.side, viewerIdx, SIMS, [], modalidad);
-      if (r) results.push(r);
-      doneSims += SIMS;
-      optIdx++;
-
-      // Dejar pintar al navegador entre opciones
-      setTimeout(processNext, 0);
+      if (tick >= TICKS) {
+        // Calcular el resultado final (los mundos se generan 1 vez)
+        try {
+          const results = C.analyzeAllStudy(state, viewerIdx, SIMS, [], modalidad);
+          finish(results);
+        } catch (e) {
+          el.coachHint.textContent = '⚠️ Error en el análisis: ' + e.message;
+          finish([]);
+        }
+        return;
+      }
+      setTimeout(processNext, 30);
     }
 
-    function finish() {
-      results.sort((a, b) => b.ev - a.ev);
+    function finish(results) {
       renderCoach(results);
       highlightBest(results[0]);
       isAnalyzing = false;

@@ -261,24 +261,68 @@ function analyzeAllStudy(state, viewerIdx, simulations = 200, passHistory = [], 
   const moves = Engine.legalMoves(p.hand, state.board);
   const results = [];
 
+  // Generar los mundos UNA SOLA VEZ para toda la mano.
+  // Todas las opciones se evalúan sobre los MISMOS escenarios →
+  // EVs comparables y estables (sin ruido de muestreo entre fichas).
+  const worlds = Worlds.generateWorlds(state, viewerIdx, simulations, rng);
+  const worldList = worlds.worlds;
+
   if (!state.board.length) {
     // Primera jugada
     for (const t of moves) {
-      const r = analyzeMoveStudy(state, t, 'right', viewerIdx, simulations, passHistory, modalidad, rng);
+      const r = analyzeMoveStudyWorlds(state, t, 'right', viewerIdx, worldList, modalidad);
       if (r) results.push(r);
     }
   } else {
     const ends = state.boardEnds();
     for (const t of moves) {
-      for (const side of ['left', 'right']) {
-        const end = side === 'left' ? ends[0] : ends[1];
-        if (!Engine.orientations(t, end).length) continue;
-        const r = analyzeMoveStudy(state, t, side, viewerIdx, simulations, passHistory, modalidad, rng);
+      // Evaluar solo los lados donde la ficha realmente encaja
+      const leftOk = Engine.orientations(t, ends[0]).length > 0;
+      const rightOk = Engine.orientations(t, ends[1]).length > 0;
+      const sides = [];
+      if (leftOk) sides.push('left');
+      if (rightOk) sides.push('right');
+
+      for (const side of sides) {
+        const r = analyzeMoveStudyWorlds(state, t, side, viewerIdx, worldList, modalidad);
         if (r) results.push(r);
       }
     }
   }
   return results.sort((a, b) => b.ev - a.ev); // MAYOR EV = mejor (puntos ganados)
+}
+
+// Variante de analyzeMoveStudy que recibe los mundos YA generados
+// (mismos escenarios para todas las opciones → EVs estables).
+function analyzeMoveStudyWorlds(state, tile, side, viewerIdx, worldList, modalidad) {
+  let totalEv = 0;
+  let valid = 0;
+
+  for (let i = 0; i < worldList.length; i++) {
+    const world = worldList[i];
+    const s = deepCloneState(state);
+    for (const [idx, hand] of Object.entries(world)) {
+      s.players[parseInt(idx)].hand = hand.map(t => [t[0], t[1]]);
+    }
+    const p = s.players[viewerIdx];
+    const ok = Engine.applyMove(s, p, tile, side);
+    if (!ok) continue;
+    s.advanceTurn();
+
+    const ev = simulateToEnd(s, viewerIdx, modalidad, 150, null);
+    totalEv += ev;
+    valid++;
+  }
+
+  if (!valid) return null;
+  return {
+    tile: [tile[0], tile[1]],
+    side,
+    ev: Math.round((totalEv / valid) * 100) / 100,
+    modalidad,
+    simulations: valid,
+    worlds: worldList.length,
+  };
 }
 
 // Exponer en navegador (window.Coach) y en Node (module.exports)
