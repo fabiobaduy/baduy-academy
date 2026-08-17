@@ -27,6 +27,7 @@
     coachProgress: document.getElementById('coach-progress'),
     progressFill: document.getElementById('progress-fill'),
     progressText: document.getElementById('progress-text'),
+    modalidadSelect: document.getElementById('modalidad-select'),
     // Mesa
     playerTop: document.getElementById('player-top'),
     playerLeft: document.getElementById('player-left'),
@@ -45,6 +46,16 @@
   };
 
   // ---- Utilidades de render ----
+  // Tiempo de pensada seleccionado ('sin' | 'breve' | 'larga')
+  let thinkSelected = 'sin';
+  function getThinkTime() { return thinkSelected; }
+  function setThinkTime(t) {
+    thinkSelected = t;
+    document.querySelectorAll('.think-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.think === t);
+    });
+  }
+
   // Posiciones de pips en grid 3x3 (estilo dominó clásico)
   function pipPositions(n) {
     const map = {
@@ -323,6 +334,10 @@
     }
     const ok = E.applyMove(state, p, selectedTile, side);
     if (!ok) { alert('Jugada inválida.'); return; }
+    // Registrar el tiempo de pensada (la señal que recibe el compañero)
+    const think = getThinkTime();
+    const lastMove = state.history[state.history.length - 1];
+    if (lastMove) lastMove.think = think;
     selectedTile = null;
     el.btnPlay.style.display = 'none';
     state.advanceTurn();
@@ -433,9 +448,10 @@
       // MODO ESTUDIO: analizar desde la PERSPECTIVA seleccionada,
       // muestreando manos posibles de los rivales (información imperfecta)
       const viewerIdx = perspective;
+      const modalidad = el.modalidadSelect ? el.modalidadSelect.value : 'todas';
       // Calcular solo CHUNK simulaciones de esta opción
       const n = Math.min(CHUNK, SIMS - simInOpt);
-      const r = C.analyzeMoveStudy(state, opt.tile, opt.side, viewerIdx, n);
+      const r = C.analyzeMoveStudy(state, opt.tile, opt.side, viewerIdx, n, [], modalidad);
       if (r) { accEv += r.ev * r.simulations; accValid += r.simulations; }
       simInOpt += n;
       doneSims += n;
@@ -492,17 +508,20 @@
       const cls = i === 0 ? 'coach-row best' : 'coach-row';
       const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}º`;
       const sideLabel = r.side === 'left' ? '← izquierda' : r.side === 'right' ? '→ derecha' : '';
-      // EV = puntos promedio que quedan en mano (menos = mejor)
-      const evCls = i === 0 ? 'ev best-ev' : 'ev';
+      // EV = puntos promedio ganados (+) o perdidos (-)
+      const signo = r.ev > 0 ? '+' : '';
+      const evCls = i === 0 ? 'ev best-ev' : (r.ev < 0 ? 'ev neg' : 'ev');
       return `
         <div class="${cls}">
           <span class="rank">${medal}</span>
           <span class="tile-mini">${tileHTML(r.tile)}</span>
           <span style="font-size:0.85rem;opacity:0.8">${sideLabel}</span>
-          <span class="${evCls}">${r.ev} pts</span>
+          <span class="${evCls}">EV ${signo}${r.ev}</span>
         </div>`;
     }).join('');
-    el.coachHint.textContent = '🥇 La jugada que deja MENOS puntos en tu mano al final es la recomendada.';
+    const modalidad = el.modalidadSelect ? el.modalidadSelect.value : 'todas';
+    const modoLabel = modalidad === 'solo_contrarios' ? 'Solo contrarios' : 'Contándolas todas';
+    el.coachHint.textContent = `🥇 Mayor EV = más puntos que ganas en promedio. Punteo: ${modoLabel}.`;
   }
 
   // ---- Eventos ----
@@ -512,6 +531,10 @@
   el.btnEditorClear.addEventListener('click', clearEditor);
   el.btnEditorApply.addEventListener('click', applyHands);
   el.btnEditorRandom.addEventListener('click', randomHands);
+  // Selector de tiempo de pensada (la señal al compañero)
+  document.querySelectorAll('.think-btn').forEach(btn => {
+    btn.addEventListener('click', () => setThinkTime(btn.dataset.think));
+  });
   el.btnPass.addEventListener('click', () => {
     const p = state.currentPlayer();
     const moves = E.legalMoves(p.hand, state.board);

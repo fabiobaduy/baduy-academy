@@ -3,9 +3,17 @@
  * Baduy Academy — Coach GTO: análisis de jugadas con EV
  * Calcula el Valor Esperado de cada jugada legal mediante
  * simulación Monte Carlo del final de la partida.
+ *
+ * EV = puntos que el equipo del viewer GANA (+) o PIERDE (-)
+ * en promedio con cada decisión, usando el punteo real:
+ *   - Dominada: el equipo del que dominó cobra (contrarios
+ *     [+ compañero si modalidad 'todas'])
+ *   - Tranca: gana el equipo con menos tantos
+ * EV positivo = ganas puntos; EV negativo = los pierdes.
  * ============================================================ */
 const Engine = (typeof window !== 'undefined') ? window.Engine : require('./engine.js');
 const SamplerM = (typeof window !== 'undefined') ? window.Sampler : require('./sampler.js');
+const Scoring = (typeof window !== 'undefined') ? window.Scoring : require('./scoring.js');
 
 // Clonado profundo que preserva métodos de clase (structuredClone pierde prototipos)
 function deepCloneState(state) {
@@ -23,11 +31,11 @@ function deepCloneState(state) {
 function tileValue(t) { return t[0] + t[1]; }
 
 // Simula el resto de la partida desde un estado (juego bloqueado o alguien se queda sin fichas)
-// Devuelve los PUNTOS que quedaron en mano del jugador `viewerIdx`
-// (menos puntos = mejor para el viewer). El viewer es quien tomó la
-// decisión; la simulación termina y medimos SU mano, no la del que
-// tendría el turno al final.
-function simulateToEnd(state, viewerIdx, maxPlies = 60) {
+// Devuelve el RESULTADO NETO desde la perspectiva del equipo del viewer:
+//   +puntos = el equipo del viewer GANÓ y cobró N tantos
+//   -puntos = el equipo del viewer PERDIÓ y pagó N tantos
+// Usa el punteo real (scoring.js) con la modalidad indicada.
+function simulateToEnd(state, viewerIdx, modalidad = 'todas', maxPlies = 60) {
   const s = deepCloneState(state);
   for (let i = 0; i < maxPlies; i++) {
     const p = s.currentPlayer();
@@ -48,15 +56,20 @@ function simulateToEnd(state, viewerIdx, maxPlies = 60) {
     // Si alguien se quedó sin fichas
     if (s.players.some(pl => pl.hand.length === 0)) break;
   }
-  // Puntos en mano del viewer al final (menos = mejor para él)
-  const viewerPts = s.players[viewerIdx].hand.reduce((a, t) => a + tileValue(t), 0);
-  return viewerPts;
+
+  // Punteo real de la mano
+  const result = Scoring.scoreHand(s, modalidad);
+  if (!result) return 0; // mano no terminó (no debería pasar)
+
+  const viewerTeam = s.players[viewerIdx].teamId;
+  const gained = result.equipoGanador === viewerTeam ? result.puntos : -result.puntos;
+  return gained;
 }
 
 // Análisis GTO de una jugada: simula N partidas desde después de jugarla
-// EV = puntos promedio que quedan en mano del viewer al final
-// (menos puntos = mejor jugada)
-function analyzeMove(state, tile, side, simulations = 800) {
+// EV = puntos promedio que el equipo del viewer GANA (+) o PIERDE (-)
+// (EV positivo = buena jugada, negativo = mala)
+function analyzeMove(state, tile, side, simulations = 800, modalidad = 'todas') {
   const s = deepCloneState(state);
   const viewerIdx = s.turn % s.players.length;
   const p = s.players[viewerIdx];
@@ -64,17 +77,17 @@ function analyzeMove(state, tile, side, simulations = 800) {
   if (!ok) return null;
   s.advanceTurn();
 
-  let totalPts = 0;
+  let total = 0;
   for (let i = 0; i < simulations; i++)
-    totalPts += simulateToEnd(s, viewerIdx);
+    total += simulateToEnd(s, viewerIdx, modalidad);
 
-  const ev = totalPts / simulations; // puntos en mano al final (menos = mejor)
+  const ev = total / simulations; // puntos ganados (+)/perdidos (-)
   return {
     tile: tile.slice(),
     side,
     ev: Math.round(ev * 100) / 100,
     simulations,
-    winRate: Math.round((simulateToEnd(s, viewerIdx) < 10 ? 1 : 0) * 100), // aprox
+    winRate: Math.round((simulateToEnd(s, viewerIdx, modalidad) > 0 ? 1 : 0) * 100), // aprox
   };
 }
 
@@ -122,8 +135,9 @@ function analyzeAll(state, simulations = 800) {
 // Analiza una jugada en modo estudio
 // `viewerIdx`: el jugador cuyo punto de vista usamos (el que decide)
 // `passHistory`: [{playerIdx, suit}] — palos que cada rival no tiene
-function analyzeMoveStudy(state, tile, side, viewerIdx, simulations = 200, passHistory = [], rng = Math.random) {
-  let totalPts = 0;
+// `modalidad`: 'todas' | 'solo_contrarios' (variante de punteo)
+function analyzeMoveStudy(state, tile, side, viewerIdx, simulations = 200, passHistory = [], modalidad = 'todas', rng = Math.random) {
+  let totalEv = 0;
   let valid = 0;
 
   for (let i = 0; i < simulations; i++) {
@@ -143,8 +157,8 @@ function analyzeMoveStudy(state, tile, side, viewerIdx, simulations = 200, passH
     if (!ok) continue;
     s.advanceTurn();
 
-    // Simular el resto y medir puntos en mano del viewer
-    totalPts += simulateToEnd(s, viewerIdx, 150);
+    // Simular el resto y medir puntos ganados/perdidos del equipo viewer
+    totalEv += simulateToEnd(s, viewerIdx, modalidad, 150);
     valid++;
   }
 
@@ -152,14 +166,15 @@ function analyzeMoveStudy(state, tile, side, viewerIdx, simulations = 200, passH
   return {
     tile: [tile[0], tile[1]],
     side,
-    // EV = puntos promedio en mano del viewer al final (menos = mejor)
-    ev: Math.round((totalPts / valid) * 100) / 100,
+    // EV = puntos promedio ganados (+) o perdidos (-) por el equipo del viewer
+    ev: Math.round((totalEv / valid) * 100) / 100,
+    modalidad,
     simulations: valid,
   };
 }
 
 // Analiza TODAS las jugadas del viewer en modo estudio
-function analyzeAllStudy(state, viewerIdx, simulations = 200, passHistory = [], rng = Math.random) {
+function analyzeAllStudy(state, viewerIdx, simulations = 200, passHistory = [], modalidad = 'todas', rng = Math.random) {
   const p = state.players[viewerIdx];
   const moves = Engine.legalMoves(p.hand, state.board);
   const results = [];
@@ -167,7 +182,7 @@ function analyzeAllStudy(state, viewerIdx, simulations = 200, passHistory = [], 
   if (!state.board.length) {
     // Primera jugada
     for (const t of moves) {
-      const r = analyzeMoveStudy(state, t, 'right', viewerIdx, simulations, passHistory, rng);
+      const r = analyzeMoveStudy(state, t, 'right', viewerIdx, simulations, passHistory, modalidad, rng);
       if (r) results.push(r);
     }
   } else {
@@ -176,12 +191,12 @@ function analyzeAllStudy(state, viewerIdx, simulations = 200, passHistory = [], 
       for (const side of ['left', 'right']) {
         const end = side === 'left' ? ends[0] : ends[1];
         if (!Engine.orientations(t, end).length) continue;
-        const r = analyzeMoveStudy(state, t, side, viewerIdx, simulations, passHistory, rng);
+        const r = analyzeMoveStudy(state, t, side, viewerIdx, simulations, passHistory, modalidad, rng);
         if (r) results.push(r);
       }
     }
   }
-  return results.sort((a, b) => a.ev - b.ev); // MENOS puntos = mejor
+  return results.sort((a, b) => b.ev - a.ev); // MAYOR EV = mejor (puntos ganados)
 }
 
 // Exponer en navegador (window.Coach) y en Node (module.exports)

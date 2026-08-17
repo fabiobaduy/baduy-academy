@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Baduy Academy — Coach de Dominó GTO</title>
-<link rel="stylesheet" href="css/style.css?v=20">
+<link rel="stylesheet" href="css/style.css?v=21">
 </head>
 <body>
 
@@ -77,6 +77,13 @@
     <div class="player-bottom">
       <div class="player-bottom-info" id="player-bottom-info"></div>
       <div id="hand" class="hand"></div>
+      <!-- Tiempo de pensada: la señal que el jugador da a su compañero -->
+      <div class="think-wrap" id="think-wrap">
+        <span class="think-label">⏱️ Pensada:</span>
+        <button class="think-btn active" data-think="sin" title="Juega sin pausa">Sin</button>
+        <button class="think-btn" data-think="breve" title="Pausa breve (~2s)">Breve</button>
+        <button class="think-btn" data-think="larga" title="Pausa larga (~8s)">Larga</button>
+      </div>
       <div class="hand-actions">
         <button id="btn-play" class="btn-primary" style="display:none;">✅ Jugar ficha</button>
         <button id="btn-pass" class="btn-secondary" disabled>Pasar</button>
@@ -97,6 +104,13 @@
   <!-- Coach GTO -->
   <section class="coach-wrap" id="coach">
     <h2>🎓 Coach GTO <small id="coach-desc">— Valor Esperado de cada jugada</small></h2>
+    <div class="modalidad-wrap">
+      <label class="modalidad-label">Punteo:</label>
+      <select id="modalidad-select" class="modalidad-select">
+        <option value="todas">Contándolas todas</option>
+        <option value="solo_contrarios">Solo contrarios</option>
+      </select>
+    </div>
     <div id="coach-progress" class="coach-progress" style="display:none;">
       <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
       <div id="progress-text" class="progress-text">0%</div>
@@ -112,10 +126,11 @@
   </section>
 </main>
 
-<script src="js/engine.js?v=20"></script>
-<script src="js/sampler.js?v=20"></script>
-<script src="js/coach.js?v=20"></script>
-<script src="js/notation.js?v=20"></script>
-<script src="js/ui.js?v=20"></script>
+<script src="js/engine.js?v=21"></script>
+<script src="js/scoring.js?v=21"></script>
+<script src="js/sampler.js?v=21"></script>
+<script src="js/coach.js?v=21"></script>
+<script src="js/notation.js?v=21"></script>
+<script src="js/ui.js?v=21"></script>
 </body>
 </html>

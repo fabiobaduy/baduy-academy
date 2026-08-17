@@ -82,7 +82,13 @@ function readHand(state) {
       }
 
       const tileStr = `${notTile[0]}${notTile[1]}`;
-      parts.push(`${letter}${tileStr}${cuadre !== null ? `(${cuadre})` : ''}`);
+      // Tiempo de pensada (la señal al compañero): sin / breve / larga
+      let thinkTag = '';
+      if (next.think) {
+        const tMap = { sin: '·', breve: '˘', larga: '–' };
+        thinkTag = tMap[next.think] !== undefined ? ` ${tMap[next.think]}` : '';
+      }
+      parts.push(`${letter}${tileStr}${cuadre !== null ? `(${cuadre})` : ''}${thinkTag}`);
       historyIdx++;
     } else {
       // Pase: este jugador no tenía jugadas en su turno
