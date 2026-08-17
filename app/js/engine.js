@@ -36,6 +36,30 @@ class GameState {
   advanceTurn() {
     this.turn = (this.turn + 1) % this.players.length;
   }
+
+  // ---- Detección de TRANCA (reglas del Campeón Mundial) ----
+  // Regla 1: 4 pases consecutivos (uno de cada jugador, sin jugadas
+  //          entre medio) → el juego está trancado.
+  // Regla 2: Ambos extremos con la MISMA pinta Y las 7 fichas de esa
+  //          pinta ya jugadas (6 mixtas + el doble) → tranca segura.
+  isTrancado() {
+    // Regla 1: 4 pases consecutivos = los últimos 4 turnos fueron pases
+    if (this.passed.length >= this.players.length) return true;
+
+    // Regla 2: pinta completa en ambos extremos
+    if (this.board.length >= 2) {
+      const ends = this.boardEnds();
+      if (ends[0] === ends[1]) {
+        const pinta = ends[0];
+        // Contar FICHAS de esa pinta en el tablero (6 mixtas + el doble = 7)
+        // Un doble de la pinta cuenta como 1 ficha (no 2 pips)
+        const fichasPinta = this.board.filter(t => t[0] === pinta || t[1] === pinta).length;
+        // Regla del campeón: 7 fichas de la pinta jugadas = 6 mixtas + doble
+        if (fichasPinta >= 7) return true;
+      }
+    }
+    return false;
+  }
 }
 
 function dealTiles(players) {
@@ -108,9 +132,12 @@ function evaluateState(state) {
 }
 
 // Exponer en navegador (window.Engine) y en Node (module.exports)
+// isTrancado: método de GameState (st.isTrancado()) — también se expone
+// como función auxiliar para compatibilidad
 const Engine = {
   ALL_TILES, Player, GameState, dealTiles, legalMoves,
   orientations, applyMove, canPlay, evaluateState,
+  isTrancado: (st) => st.isTrancado(),
 };
 if (typeof module !== 'undefined' && module.exports) module.exports = Engine;
 if (typeof window !== 'undefined') window.Engine = Engine;

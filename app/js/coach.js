@@ -31,7 +31,9 @@ function simulateToEnd(state, maxPlies = 60) {
     const moves = Engine.legalMoves(p.hand, s.board);
     if (!moves.length) {
       s.passed.push(p.name);
-      if (s.passed.length === s.players.length) break; // bloqueado
+      // TRANCA (regla del campeón): 4 pases consecutivos (uno de cada
+      // jugador) o pinta completa en ambos extremos
+      if (s.isTrancado()) break;
     } else {
       const m = moves[Math.floor(Math.random() * moves.length)];
       const ends = s.boardEnds();
