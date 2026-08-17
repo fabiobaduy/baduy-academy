@@ -101,6 +101,7 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
   grid-template-rows: repeat(3, 5px);
   gap: 1px;
 }
+.ep-pips .pips { display: contents; }
 .ep-pips .pip { width: 4px; height: 4px; }
 .ep-divider { width: 100%; height: 1.5px; background: var(--ink); }
 .editor-player .ep-count { font-size: 0.7rem; opacity: 0.6; margin-top: 5px; text-align: center; }
@@ -129,6 +130,7 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
   grid-template-rows: repeat(3, 6px);
   gap: 1px;
 }
+.bt-pips .pips { display: contents; }
 .bt-pips .pip { width: 5px; height: 5px; }
 .bt-divider { width: 100%; height: 2px; background: var(--ink); }
 .editor-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
