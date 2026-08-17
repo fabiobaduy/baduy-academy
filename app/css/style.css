@@ -209,17 +209,31 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
 
 /* Secuencia de la mano (notación en vivo) */
 .sequence {
-  margin-top: 8px;
-  padding: 6px 8px;
-  background: rgba(0,0,0,0.4);
-  border-radius: 8px;
+  margin: 10px 0;
+  padding: 10px 12px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
   font-family: 'SF Mono', Menlo, Consolas, monospace;
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   color: var(--gold);
-  text-align: center;
+  text-align: left;
   line-height: 1.5;
-  word-break: break-all;
+  word-break: break-word;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   min-height: 20px;
+}
+.sequence-label {
+  display: block;
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 4px;
+}
+.sequence-empty {
+  color: rgba(255,255,255,0.35);
+  text-align: center;
 }
 
 /* ---- Jugadores con atril ---- */
@@ -241,22 +255,25 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
   gap: 6px;
 }
 .player-name {
-  font-weight: 800; font-size: 0.8rem; color: var(--cyan);
-  display: flex; align-items: center; justify-content: center; gap: 5px;
+  font-weight: 900; font-size: 1rem; color: var(--cyan);
+  display: flex; align-items: center; justify-content: center; gap: 6px;
   white-space: nowrap;
 }
 .player-name .p-letter {
   background: var(--gold); color: var(--ink);
-  border-radius: 50%; width: 20px; height: 20px;
+  border-radius: 50%; width: 26px; height: 26px;
   display: inline-flex; align-items: center; justify-content: center;
-  font-size: 0.7rem; font-weight: 900;
+  font-size: 0.9rem; font-weight: 900;
   flex-shrink: 0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 .player-name.me { color: #fff; }
 .player-name.me .p-letter { background: var(--cyan); }
-.player-name.team1 { color: #7fd1ff; }
-.player-name.team2 { color: #ffb07f; }
+/* Equipo A = azul/cian, Equipo B = naranja/rojo */
+.player-name.team1 { color: #4fc3f7; text-shadow: 0 0 8px rgba(79,195,247,0.5); }
+.player-name.team2 { color: #ff8a65; text-shadow: 0 0 8px rgba(255,138,101,0.5); }
+.player-name.team1 .p-letter { background: #4fc3f7; color: #0a2e23; }
+.player-name.team2 .p-letter { background: #ff8a65; color: #0a2e23; }
 .player-sub { font-size: 0.62rem; opacity: 0.6; margin-top: 1px; }
 
 /* Atril: base donde descansan las fichas boca abajo */

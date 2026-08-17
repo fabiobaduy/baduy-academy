@@ -146,18 +146,19 @@
     el.board.innerHTML = html;
   }
 
-  // Secuencia de la mano en notación (A66, B65, C55...)
+  // Bitácora de la mano (notación: quién jugó qué, en orden)
   function renderSequence() {
     const seqEl = document.getElementById('sequence');
     if (!seqEl) return;
+    let label = '<span class="sequence-label">📜 Bitácora de la mano</span>';
     if (!state.history.length && !state.passed.length) {
-      seqEl.textContent = '—';
+      seqEl.innerHTML = label + '<div class="sequence-empty">— aún no hay jugadas —</div>';
       return;
     }
     try {
-      seqEl.textContent = window.Notation.readHand(state);
+      seqEl.innerHTML = label + window.Notation.readHand(state);
     } catch (e) {
-      seqEl.textContent = '...';
+      seqEl.innerHTML = label + '<div class="sequence-empty">...</div>';
     }
   }
 
@@ -253,10 +254,10 @@
   // ---- Acciones ----
   function newGame() {
     const players = [
-      new E.Player('Tú', 1),
-      new E.Player('CPU 1', 2),
-      new E.Player('CPU 2', 1),
-      new E.Player('CPU 3', 2),
+      new E.Player('Salidor - Jugador A', 1),
+      new E.Player('Jugador B', 2),
+      new E.Player('Jugador C', 1),
+      new E.Player('Jugador D', 2),
     ];
     E.dealTiles(players);
     state = new E.GameState(players);
@@ -327,7 +328,7 @@
   }
 
   function isHumanTurn() {
-    return state.currentPlayer().name === 'Tú';
+    return state.currentPlayer().name === 'Salidor - Jugador A';
   }
 
   function cpuTurn() {
@@ -501,7 +502,7 @@
   // Dos modalidades: asignación manual + generación aleatoria
   // ============================================================
 
-  const PLAYER_NAMES = ['Tú', 'CPU 1', 'CPU 2', 'CPU 3'];
+  const PLAYER_NAMES = ['Salidor - Jugador A', 'Jugador B', 'Jugador C', 'Jugador D'];
   let editorState = {
     visible: false,
     activePlayer: 0,
