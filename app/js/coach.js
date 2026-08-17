@@ -14,6 +14,7 @@
 const Engine = (typeof window !== 'undefined') ? window.Engine : require('./engine.js');
 const SamplerM = (typeof window !== 'undefined') ? window.Sampler : require('./sampler.js');
 const Scoring = (typeof window !== 'undefined') ? window.Scoring : require('./scoring.js');
+const Worlds = (typeof window !== 'undefined') ? window.Worlds : require('./worlds.js');
 
 // Clonado profundo que preserva métodos de clase (structuredClone pierde prototipos)
 function deepCloneState(state) {
@@ -35,22 +36,36 @@ function tileValue(t) { return t[0] + t[1]; }
 //   +puntos = el equipo del viewer GANÓ y cobró N tantos
 //   -puntos = el equipo del viewer PERDIÓ y pagó N tantos
 // Usa el punteo real (scoring.js) con la modalidad indicada.
-function simulateToEnd(state, viewerIdx, modalidad = 'todas', maxPlies = 60) {
+//
+// IMPORTANTE: los rivales juegan RACIONALMENTE (heurística experta),
+// NO al azar. Esto hace que el EV sea el de una partida real contra
+// jugadores competentes, no contra ruido aleatorio.
+function simulateToEnd(state, viewerIdx, modalidad = 'todas', maxPlies = 60, world = null) {
   const s = deepCloneState(state);
+
+  // Si hay un mundo definido (manos de rivales ya fijadas), usarlo
+  if (world) {
+    for (const [idx, hand] of Object.entries(world)) {
+      s.players[parseInt(idx)].hand = hand.map(t => [t[0], t[1]]);
+    }
+  }
+
   for (let i = 0; i < maxPlies; i++) {
     const p = s.currentPlayer();
     const moves = Engine.legalMoves(p.hand, s.board);
     if (!moves.length) {
-      s.passed.push(p.name);
+      s.recordPass(p.name);
       // TRANCA (regla del campeón): 4 pases consecutivos (uno de cada
       // jugador) o pinta completa en ambos extremos
       if (s.isTrancado()) break;
     } else {
-      const m = moves[Math.floor(Math.random() * moves.length)];
+      // JUGADA RACIONAL: elegir la mejor opción con heurística experta
+      const m = chooseRationalMove(s, p, moves);
       const ends = s.boardEnds();
-      const end = s.board.length ? (Math.random() < 0.5 ? ends[0] : ends[1]) : null;
-      const ok = Engine.applyMove(s, p, m, s.board.length ? (end === ends[0] ? 'left' : 'right') : 'right');
-      if (!ok) s.passed.push(p.name);
+      // Lado: preferir el que no crea un extremo que no puedo cubrir
+      const side = chooseSide(s, p, m, ends);
+      const ok = Engine.applyMove(s, p, m, side);
+      if (!ok) s.recordPass(p.name);
     }
     s.advanceTurn();
     // Si alguien se quedó sin fichas
@@ -64,6 +79,62 @@ function simulateToEnd(state, viewerIdx, modalidad = 'todas', maxPlies = 60) {
   const viewerTeam = s.players[viewerIdx].teamId;
   const gained = result.equipoGanador === viewerTeam ? result.puntos : -result.puntos;
   return gained;
+}
+
+// Elige la jugada racional: minimiza el peso de la mano resultante
+// y maximiza el control de palos (heurística experta del dominó).
+function chooseRationalMove(state, player, moves) {
+  let best = null;
+  let bestScore = -Infinity;
+  for (const m of moves) {
+    const ends = state.boardEnds();
+    if (!state.board.length) {
+      // Primera jugada: salir con el doble más alto o la ficha más pesada
+      const score = (m[0] === m[1] ? m[0] * 10 : 0) + m[0] + m[1];
+      if (score > bestScore) { bestScore = score; best = m; }
+      continue;
+    }
+    // Para cada lado posible, simular el efecto
+    for (const side of ['left', 'right']) {
+      const end = side === 'left' ? ends[0] : ends[1];
+      if (!Engine.orientations(m, end).length) continue;
+      // Puntaje: soltar fichas pesadas es bueno; quedarse con dobles del
+      // palo en juego es malo; crear extremos que no controlas es malo
+      let score = 0;
+      // Soltar ficha pesada = bueno (menos puntos en mano)
+      score += (m[0] + m[1]) * 0.5;
+      // El palo que generas: si no tienes más de ese palo, es peligroso
+      const gen = (m[0] === end) ? m[1] : m[0];
+      const hasGen = player.hand.some(t => t !== m && (t[0] === gen || t[1] === gen));
+      if (!hasGen) score -= 4; // dejas un palo que no controlas
+      // Si el otro extremo es un palo que no tienes, peligro futuro
+      const otherEnd = side === 'left' ? ends[1] : ends[0];
+      const hasOther = player.hand.some(t => t !== m && (t[0] === otherEnd || t[1] === otherEnd));
+      if (!hasOther) score -= 2;
+      // Ficha doble: controla el palo
+      if (m[0] === m[1]) score += 3;
+      if (score > bestScore) { bestScore = score; best = m; }
+    }
+  }
+  return best || moves[0];
+}
+
+// Elige el lado de la jugada: el que mantenga control
+function chooseSide(state, player, tile, ends) {
+  if (!state.board.length) return 'right';
+  const leftOk = Engine.orientations(tile, ends[0]).length > 0;
+  const rightOk = Engine.orientations(tile, ends[1]).length > 0;
+  if (leftOk && rightOk) {
+    // Preferir el lado cuyo palo generado controlo mejor
+    const leftGen = (tile[0] === ends[0]) ? tile[1] : tile[0];
+    const rightGen = (tile[0] === ends[1]) ? tile[1] : tile[0];
+    const hasL = player.hand.some(t => t !== tile && (t[0] === leftGen || t[1] === leftGen));
+    const hasR = player.hand.some(t => t !== tile && (t[0] === rightGen || t[1] === rightGen));
+    if (hasL && !hasR) return 'left';
+    if (hasR && !hasL) return 'right';
+    return 'right'; // empate: convención
+  }
+  return leftOk ? 'left' : 'right';
 }
 
 // Análisis GTO de una jugada: simula N partidas desde después de jugarla
@@ -132,33 +203,43 @@ function analyzeAll(state, simulations = 800) {
 // manos posibles, no sobre un estado fijo.
 // ============================================================
 
-// Analiza una jugada en modo estudio
+// Analiza una jugada en modo estudio — ALGORITMO DE MÁXIMA CALIDAD
 // `viewerIdx`: el jugador cuyo punto de vista usamos (el que decide)
-// `passHistory`: [{playerIdx, suit}] — palos que cada rival no tiene
 // `modalidad`: 'todas' | 'solo_contrarios' (variante de punteo)
+//
+// MÉTODO (la visión del Campeón):
+//  1. Generar TODOS los mundos posibles compatibles con lo que ha
+//     pasado en la mano (mano del viewer + fichas jugadas + pases
+//     = certeza 100%). Si son demasiados, muestreo denso.
+//  2. Para CADA mundo, proyectar la partida hacia adelante con
+//     rivales RACIONALES (heurística experta).
+//  3. EV = promedio de todos los desenlaces (puntos ganados/perdidos
+//     con el punteo real). Un EV + significa jugada ganadora en el
+//     largo plazo; EV - significa jugada perdedora.
 function analyzeMoveStudy(state, tile, side, viewerIdx, simulations = 200, passHistory = [], modalidad = 'todas', rng = Math.random) {
   let totalEv = 0;
   let valid = 0;
 
-  for (let i = 0; i < simulations; i++) {
-    // Crear un mundo posible: clonar y muestrear manos ocultas
+  // Generar mundos compatibles (enumera si puede, muestrea si no)
+  const worlds = Worlds.generateWorlds(state, viewerIdx, simulations, rng);
+  const worldList = worlds.worlds;
+
+  for (let i = 0; i < worldList.length; i++) {
+    const world = worldList[i];
+
+    // Aplicar la jugada candidata EN ESTE MUNDO (manos ya fijadas)
     const s = deepCloneState(state);
-
-    // El jugador de turno (viewer) mantiene su mano conocida
-    // Los rivales reciben manos muestreadas condicionalmente
-    const sample = SamplerM.sampleConstrained(s, viewerIdx, passHistory, rng);
-    for (const [idx, hand] of Object.entries(sample)) {
-      s.players[parseInt(idx)].hand = hand;
+    for (const [idx, hand] of Object.entries(world)) {
+      s.players[parseInt(idx)].hand = hand.map(t => [t[0], t[1]]);
     }
-
-    // Aplicar la jugada candidata en este mundo
     const p = s.players[viewerIdx];
     const ok = Engine.applyMove(s, p, tile, side);
     if (!ok) continue;
     s.advanceTurn();
 
-    // Simular el resto y medir puntos ganados/perdidos del equipo viewer
-    totalEv += simulateToEnd(s, viewerIdx, modalidad, 150);
+    // Proyectar el final con rivales racionales en ESTE mundo fijo
+    const ev = simulateToEnd(s, viewerIdx, modalidad, 150, null);
+    totalEv += ev;
     valid++;
   }
 
@@ -166,10 +247,11 @@ function analyzeMoveStudy(state, tile, side, viewerIdx, simulations = 200, passH
   return {
     tile: [tile[0], tile[1]],
     side,
-    // EV = puntos promedio ganados (+) o perdidos (-) por el equipo del viewer
+    // EV = promedio de todos los desenlaces: +gana / -pierde en el largo plazo
     ev: Math.round((totalEv / valid) * 100) / 100,
     modalidad,
     simulations: valid,
+    worlds: worldList.length,
   };
 }
 

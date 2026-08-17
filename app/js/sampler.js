@@ -55,49 +55,70 @@ function sampleOpponentHands(state, viewerIdx, rng = Math.random) {
 }
 
 // ============================================================
-// SAMPLER CONDICIONAL (modo estudio)
+// SAMPLER CONDICIONAL (modo estudio) — lógica del Campeón
 // El jugador de turno no conoce las manos de los rivales, pero
-// INFIERE por:
-//  1. Fichas jugadas (tablero)
-//  2. Pases previos (si P pasó, NO tiene fichas del palo que pasó)
-//  3. Secuencia de juego
-// Muestrea manos CONSISTENTES con esa información.
+// INFIERE con CERTEZA 100% a partir de:
+//  1. Fichas jugadas (tablero) → ya no son desconocidas
+//  2. Pases: si P pasó con extremos [x, y], P NO tiene ninguna
+//     ficha con x ni con y. (Regla del dominó: pasar = no tener)
+//  3. Secuencia de juego (quién juega cuándo)
+// Muestrea manos CONSISTENTES con toda esa información.
 // ============================================================
 
-// Información deducida de los pases:
-// Si un jugador pasó, no tiene ninguna ficha del palo que estaba
-// en juego en ese momento.
-function passConstraints(state, viewerIdx) {
-  // Para cada jugador rival, qué palos NO puede tener
+// Fichas prohibidas por pases — derivado del passLog del estado.
+// Devuelve { playerIdx: Set(palos que NO puede tener) }
+function passConstraintsFromLog(state) {
   const constraints = {};
-  state.players.forEach((p, i) => {
-    if (i === viewerIdx) return;
-    constraints[i] = { cannotHave: new Set(), forced: [] };
+  state.players.forEach((_, i) => { constraints[i] = new Set(); });
+
+  state.passLog.forEach(pl => {
+    const pIdx = state.players.findIndex(p => p.name === pl.player);
+    if (pIdx < 0 || !pl.ends) return;
+    // Pasó con extremos [x, y] → NO tiene fichas con x NI con y
+    constraints[pIdx].add(pl.ends[0]);
+    constraints[pIdx].add(pl.ends[1]);
   });
 
-  // Reconstruir la secuencia: necesitamos saber QUÉ palo estaba
-  // en juego cuando alguien pasó.
-  // Aproximación: si un jugador pasó, no tiene los palos de los
-  // extremos en ese momento. Para simplificar, usamos los pases
-  // registrados con el estado del tablero en ese turno.
-  // (En una implementación completa, history guardaría el tablero)
+  // EXTRA: si el jugador nunca pasó, no tiene restricciones
+  return constraints;
+}
+
+// Información deducida de los pases (compatibilidad con API antigua)
+function passConstraints(state, viewerIdx) {
+  const constraints = {};
+  state.players.forEach((_, i) => {
+    constraints[i] = { cannotHave: new Set(), forced: [] };
+  });
+  const fromLog = passConstraintsFromLog(state);
+  state.players.forEach((_, i) => {
+    constraints[i].cannotHave = fromLog[i];
+  });
   return constraints;
 }
 
 // Versión práctica: muestrea manos de rivales RESPETANDO pases.
-// `passHistory`: [{playerIdx, suit}] — palos que cada rival no tiene
-function sampleConstrained(state, viewerIdx, passHistory = [], rng = Math.random) {
+// Si `passHistory` no se pasa, deriva las restricciones del
+// passLog del estado (certeza 100% por pases registrados).
+function sampleConstrained(state, viewerIdx, passHistory = null, rng = Math.random) {
   const hidden = hiddenTiles(state, viewerIdx);
 
   // Fichas prohibidas para cada rival (por pases)
   const banned = {};
   state.players.forEach((p, i) => { banned[i] = new Set(); });
-  passHistory.forEach(ph => {
-    if (banned[ph.playerIdx]) banned[ph.playerIdx].add(ph.suit);
-  });
+
+  if (passHistory && passHistory.length) {
+    passHistory.forEach(ph => {
+      if (banned[ph.playerIdx]) banned[ph.playerIdx].add(ph.suit);
+    });
+  } else {
+    // Derivar del passLog del estado (nueva lógica del Campeón)
+    const fromLog = passConstraintsFromLog(state);
+    state.players.forEach((_, i) => {
+      fromLog[i].forEach(s => banned[i].add(s));
+    });
+  }
 
   // Repartir respetando restricciones (rechazo simple)
-  const attempts = 0;
   const result = {};
   state.players.forEach((p, i) => {
     if (i === viewerIdx) return;
@@ -137,7 +158,7 @@ function probRivalHasSuit(state, viewerIdx, suit, simulations = 200, rng = Math.
   return has / simulations;
 }
 
-const Sampler = { hiddenTiles, sampleOpponentHands, sampleConstrained, passConstraints, probRivalHasSuit };
+const Sampler = { hiddenTiles, sampleOpponentHands, sampleConstrained, passConstraints, passConstraintsFromLog, probRivalHasSuit };
 if (typeof module !== 'undefined' && module.exports) module.exports = Sampler;
 if (typeof window !== 'undefined') window.Sampler = Sampler;
 

@@ -21,9 +21,10 @@ class GameState {
   constructor(players) {
     this.players = players;
     this.board = [];            // fichas en el tablero (con orientación)
-    this.history = [];          // {player, tile, side}
+    this.history = [];          // {player, tile, side, think}
     this.turn = 0;
     this.passed = [];
+    this.passLog = [];          // {player, ends: [izq, der]} — pases con extremos
     this.scores = players.map(() => 0);
   }
   currentPlayer() {
@@ -35,6 +36,14 @@ class GameState {
   }
   advanceTurn() {
     this.turn = (this.turn + 1) % this.players.length;
+  }
+  // Registra un pase con los extremos que estaban en juego.
+  // CLAVE para inferencia: si alguien pasa, NO tiene fichas de
+  // NINGÚN extremo del tablero en ese momento (certeza 100%).
+  recordPass(playerName) {
+    const ends = this.boardEnds();
+    this.passLog.push({ player: playerName, ends: ends ? ends.slice() : null });
+    if (!this.passed.includes(playerName)) this.passed.push(playerName);
   }
 
   // ---- Detección de TRANCA (reglas del Campeón Mundial) ----
