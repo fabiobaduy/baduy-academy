@@ -520,7 +520,6 @@
 
   // Iniciar
   newGame();
-  initEditor();
 
   // ============================================================
   // EDITOR DE MANOS DE ESTUDIO
@@ -534,6 +533,8 @@
     hands: [[], [], [], []],       // fichas asignadas a cada jugador
     selectedBank: null,            // ficha seleccionada del banco
   };
+
+  initEditor();
 
   function initEditor() {
     clearEditor();
