@@ -94,46 +94,114 @@ function suitStrength(hand) {
   return suits;
 }
 
+// Volumen de tantos de un palo: suma de los tantos de todas las
+// fichas de mi mano que contienen ese palo (peso real del control).
+function suitVolume(hand, suit) {
+  return hand
+    .filter(t => t[0] === suit || t[1] === suit)
+    .reduce((acc, t) => acc + t[0] + t[1], 0);
+}
+
 // Puntaje de UNA ficha de salida (primera jugada).
-// Lógica del Campeón: la salida ATA CA mostrando tu fuerza.
-//   + Muestra el palo que más tienes (limita al oponente)
-//   - Generar un extremo de un palo que no controlas = FALLA (grave)
-//   - Quemar un doble de salida = perder tu carta de control
+// DOCTRINA OFICIAL DEL CAMPEÓN:
+//   1. DOBLES MAYORES ACOMPAÑADOS = la salida por excelencia.
+//      PERO la CALIDAD del acompañamiento importa:
+//      - Trío al doble (doble + 2 mixtas del palo) = control total
+//      - Acompañante "minga" (ficha cuyo otro palo no tiene apoyo)
+//        = pasivo peligroso: te obligan a gastarla y quedas desarmado
+//   2. EN PELO = excepción, fuertemente penalizada.
+//   3. PURAS MIXTAS: la que mejor represente la mano, por CANTIDAD
+//      y VOLUMEN DE TANTOS, evitando mingas.
 function openingScore(tile, hand) {
   const suits = suitStrength(hand);
   const a = tile[0], b = tile[1];
-  let score = 0;
 
-  // Fuerza de los palos que muestra la ficha (ataque)
-  score += suits[a] * 12;
-  score += suits[b] * 12;
-
-  // Si un palo de la ficha es DÉBIL (1 sola ficha), generas falla
-  if (suits[a] <= 1) score -= 30; // falla en a
-  if (suits[b] <= 1) score -= 30; // falla en b
-
-  // Si un palo es inexistente (0, no debería pasar), peor
-  if (suits[a] === 0) score -= 50;
-  if (suits[b] === 0) score -= 50;
-
-  // Salir con doble: quemas control (penalización MUY fuerte —
-  // el doble es tu carta de dominio del palo, no se descarta)
+  // ---- DOBLE ----
   if (a === b) {
-    score -= 60;
-    // Si es el ÚNICO doble de la mano, más grave aún
-    const nDoubles = hand.filter(t => t[0] === t[1]).length;
-    if (nDoubles === 1) score -= 25;
+    // Acompañantes = fichas mixtas del palo (sin contar el doble)
+    const companions = hand.filter(t => t !== tile && (t[0] === a || t[1] === a));
+    if (companions.length > 0) {
+      // CALIDAD de cada acompañante: ¿su otro palo tiene apoyo?
+      let quality = 0;
+      companions.forEach(c => {
+        const other = c[0] === a ? c[1] : c[0];
+        const otherSupport = hand.some(t => t !== c && t !== tile &&
+          (t[0] === other || t[1] === other));
+        if (otherSupport) quality += 15;  // acompañante sólido
+        else quality -= 10;              // MINGA: no tiene agrado
+      });
+      // DOBLE ACOMPAÑADO: mayor doble = mejor; calidad = control real
+      return 200 + a * 10 + quality;
+    }
+    // EN PELO: excepción — se penaliza duro
+    return a * 2 - 80;
   }
 
-  // Ficha pesada de salida: no es delito (la soltarás igual),
-  // pero no es la razón para elegirla.
+  // ---- MIXTA ----
+  let score = 0;
+  // CANTIDAD: cuántas fichas tengo de cada palo (mostrar mi fuerza)
+  score += suits[a] * 14;
+  score += suits[b] * 14;
+  // VOLUMEN DE TANTOS: peso real del palo en mi mano
+  score += suitVolume(hand, a) * 0.6;
+  score += suitVolume(hand, b) * 0.6;
+  // FALLA: palo con 1 sola ficha (generar falla de salida = grave)
+  if (suits[a] <= 1) score -= 35;
+  if (suits[b] <= 1) score -= 35;
+  // MINGA: si el otro palo de la ficha no tiene apoyo, es pasivo
+  const supportA = hand.some(t => t !== tile && (t[0] === a || t[1] === a));
+  const supportB = hand.some(t => t !== tile && (t[0] === b || t[1] === b));
+  if (!supportA) score -= 20;
+  if (!supportB) score -= 20;
   return score;
 }
 
 // Elige la jugada racional con la heurística del Campeón.
 // - SALIDA: mostrar el palo fuerte, evitar fallas y no quemar dobles
-// - INTERMEDIO: no generar fallas, mantener control de palos
+// - INTERMEDIO: no generar fallas, mantener control, y EXPLOTAR
+//   las fallas de los oponentes (si alguien pasó en un palo,
+//   atacar ese palo para forzarlo a seguir pasando)
 function chooseRationalMove(state, player, moves) {
+  // Oponentes que han pasado: palos que NO tienen (por pases registrados)
+  // El jugador actual ataca los palos donde el oponente es débil.
+  const enemySuits = new Set();
+  const myTeam = player.teamId;
+  (state.passLog || []).forEach(pl => {
+    const pIdx = state.players.findIndex(p => p.name === pl.player);
+    if (pIdx < 0) return;
+    const passer = state.players[pIdx];
+    // Solo explotar a los oponentes (no a mi compañero)
+    if (passer.teamId !== myTeam && pl.ends) {
+      enemySuits.add(pl.ends[0]);
+      enemySuits.add(pl.ends[1]);
+    }
+  });
+
+  // INFERIR FALLAS POR SECUENCIA: si un oponente salió con un palo
+  // y luego NO ha vuelto a jugar ninguna ficha de ese palo, está en
+  // falla probable de ese palo → atacarlo para forzarlo a pasar.
+  // (Clave: el salidor que sale con 6-6 en pelo y no repite 6)
+  const opponentFallas = new Set();
+  const opponentOpenSuits = new Set(); // palos con los que salió cada oponente
+  state.players.forEach((p, i) => {
+    if (p.teamId === myTeam) return; // solo oponentes
+    const myMoves = state.history.filter(h => h.player === p.name);
+    if (myMoves.length === 0) return;
+    // Con qué palo salió este oponente (su 1ª jugada)
+    const fTile = myMoves[0].tile;
+    const fSuits = [fTile[0], fTile[1]];
+    fSuits.forEach(s => opponentOpenSuits.add(s));
+    // ¿Ha jugado algo de esos palos después?
+    const later = myMoves.slice(1);
+    fSuits.forEach(s => {
+      const playedLater = later.some(h => h.tile[0] === s || h.tile[1] === s);
+      // Si salió con s y no ha vuelto a tocar s → falla probable
+      if (!playedLater && state.board.some(t => t[0] === s || t[1] === s)) {
+        opponentFallas.add(s);
+      }
+    });
+  });
+
   let best = null;
   let bestScore = -Infinity;
   for (const m of moves) {
@@ -159,6 +227,18 @@ function chooseRationalMove(state, player, moves) {
       const otherEnd = side === 'left' ? ends[1] : ends[0];
       const hasOther = player.hand.some(t => t !== m && (t[0] === otherEnd || t[1] === otherEnd));
       if (!hasOther) score -= 15;
+      // EXPLOTAR FALLAS DEL OPONENTE: si genero un palo donde el
+      // enemigo ya pasó, lo fuerzo a pasar de nuevo (MUY valioso)
+      if (enemySuits.has(gen)) score += 50;
+      if (enemySuits.has(otherEnd)) score += 30;
+      // Explotar fallas INFERIDAS por secuencia (salió y no repitió)
+      if (opponentFallas.has(gen)) score += 40;
+      if (opponentFallas.has(otherEnd)) score += 20;
+      // ATACAR EL PALO DE SALIDA DEL OPONENTE: si el oponente salió
+      // con este palo, mantenerlo vivo lo obliga a seguir jugando ahí
+      // (y si es su palo débil, lo fuerza a gastar fichas malas)
+      if (opponentOpenSuits.has(gen)) score += 15;
+      if (opponentOpenSuits.has(otherEnd)) score += 10;
       // Soltar ficha pesada: bueno PERO no a costa de control
       score += (m[0] + m[1]) * 0.3;
       // Doble: si es del palo en juego, es control (no soltar);
@@ -324,10 +404,35 @@ function analyzeAllStudy(state, viewerIdx, simulations = 200, passHistory = [], 
   const worldList = worlds.worlds;
 
   if (!state.board.length) {
-    // Primera jugada
+    // PRIMERA JUGADA: EV simulado + DOCTRINA DEL CAMPEÓN (prior experto).
+    // El score de apertura del campeón se mezcla con el EV de Monte
+    // Carlo para que los números reflejen la teoría (dobles mayores
+    // acompañados primero, mingas penalizadas, etc.).
+    const evs = {};
     for (const t of moves) {
       const r = analyzeMoveStudyWorlds(state, t, 'right', viewerIdx, worldList, modalidad);
-      if (r) results.push(r);
+      if (r) evs[t[0] * 10 + t[1]] = r;
+    }
+    // Normalizar EVs a escala comparable
+    const evList = Object.values(evs);
+    if (evList.length) {
+      const minEv = Math.min(...evList.map(r => r.ev));
+      const maxEv = Math.max(...evList.map(r => r.ev));
+      const span = (maxEv - minEv) || 1;
+      for (const t of moves) {
+        const r = evs[t[0] * 10 + t[1]];
+        if (!r) continue;
+        // EV normalizado 0..100
+        const evNorm = ((r.ev - minEv) / span) * 100;
+        // Prior experto del campeón (0..100, escalado)
+        const exp = openingScore(t, p.hand);
+        const expNorm = Math.max(0, Math.min(100, (exp + 100) / 4.5));
+        // MEZCLA: 50% EV simulado, 50% doctrina del campeón
+        // (la salida es donde la teoría del campeón manda)
+        r.ev = Math.round((evNorm * 0.5 + expNorm * 0.5) * 100) / 100;
+        r.side = 'right';
+        results.push(r);
+      }
     }
   } else {
     const ends = state.boardEnds();
