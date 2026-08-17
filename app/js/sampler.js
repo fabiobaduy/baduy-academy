@@ -1,3 +1,4 @@
+(function(){
 /* ============================================================
  * Baduy Academy — Sampler de manos ocultas
  * Inferir las fichas posibles de los rivales (información
@@ -139,3 +140,5 @@ function probRivalHasSuit(state, viewerIdx, suit, simulations = 200, rng = Math.
 const Sampler = { hiddenTiles, sampleOpponentHands, sampleConstrained, passConstraints, probRivalHasSuit };
 if (typeof module !== 'undefined' && module.exports) module.exports = Sampler;
 if (typeof window !== 'undefined') window.Sampler = Sampler;
+
+})();

@@ -1,3 +1,4 @@
+(function(){
 /* ============================================================
  * Baduy Academy — Notación de mano (nomenclatura del dominó)
  * ============================================================
@@ -101,3 +102,5 @@ function moveNotation(letter, tile, side, prevEnds) {
 const Notation = { readHand, moveNotation };
 if (typeof module !== 'undefined' && module.exports) module.exports = Notation;
 if (typeof window !== 'undefined') window.Notation = Notation;
+
+})();

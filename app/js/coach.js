@@ -1,3 +1,4 @@
+(function(){
 /* ============================================================
  * Baduy Academy — Coach GTO: análisis de jugadas con EV
  * Calcula el Valor Esperado de cada jugada legal mediante
@@ -184,3 +185,5 @@ function analyzeAllStudy(state, viewerIdx, simulations = 200, passHistory = [], 
 const Coach = { tileValue, simulateToEnd, analyzeMove, analyzeAll, analyzeMoveStudy, analyzeAllStudy };
 if (typeof module !== 'undefined' && module.exports) module.exports = Coach;
 if (typeof window !== 'undefined') window.Coach = Coach;
+
+})();
