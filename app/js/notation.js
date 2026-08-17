@@ -11,7 +11,7 @@
  *   - "P" = el jugador pasó
  *   - La PRIMERA ficha nunca es cuadre (no hay dos extremos aún)
  * ============================================================ */
-const E = (typeof window !== 'undefined') ? window.Engine : require('./engine.js');
+const Engine = (typeof window !== 'undefined') ? window.Engine : require('./engine.js');
 
 // Reconstruye la secuencia completa (jugadas + pases en orden real)
 function readHand(state) {
@@ -20,8 +20,8 @@ function readHand(state) {
   state.players.forEach((p, i) => { nameToLetter[p.name] = 'ABCD'[i]; });
 
   // Reconstruir el tablero jugada a jugada para saber extremos
-  const emptyPlayers = state.players.map((p, i) => new E.Player(p.name, p.teamId));
-  const replay = new E.GameState(emptyPlayers);
+  const emptyPlayers = state.players.map((p, i) => new Engine.Player(p.name, p.teamId));
+  const replay = new Engine.GameState(emptyPlayers);
 
   // Timeline: intercalar jugadas y pases en orden real.
   // El historial tiene las jugadas; los pases hay que reconstruirlos:
@@ -51,7 +51,7 @@ function readHand(state) {
       // Aplicar al replay para conocer extremos
       const pObj = replay.players[playerIdx];
       pObj.hand.push(tile);
-      const ok = E.applyMove(replay, pObj, tile, next.side);
+      const ok = Engine.applyMove(replay, pObj, tile, next.side);
       if (!ok) {
         if (!replay.board.length) replay.board.push([tile[0], tile[1]]);
         else if (next.side === 'left') replay.board.unshift([tile[0], tile[1]]);

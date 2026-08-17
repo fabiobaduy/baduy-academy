@@ -4,7 +4,7 @@
  * imperfecta). Similar al "range" del póker: dado lo que se ve
  * (mi mano + fichas jugadas), ¿qué puede tener cada rival?
  * ============================================================ */
-const E = (typeof window !== 'undefined') ? window.Engine : require('./engine.js');
+const Engine = (typeof window !== 'undefined') ? window.Engine : require('./engine.js');
 
 // Fichas NO visibles: todas las fichas menos (mi mano + tablero + historial)
 function hiddenTiles(state, visiblePlayerIdx) {
@@ -20,7 +20,7 @@ function hiddenTiles(state, visiblePlayerIdx) {
     if (i === visiblePlayerIdx) p.hand.forEach(mark);
   });
 
-  const hidden = E.ALL_TILES.filter(t => !seen.has(t[0] * 10 + t[1]));
+  const hidden = Engine.ALL_TILES.filter(t => !seen.has(t[0] * 10 + t[1]));
   return hidden;
 }
 
