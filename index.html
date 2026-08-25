@@ -1242,11 +1242,18 @@ applyLang(saved === 'en' ? 'en' : 'es');
   </div>
   <div class="chatbot-body" id="chatbot-body">
     <div class="chat-msg bot">¡Hola! 👋 Soy el asistente de Baduy Academy. ¿En qué puedo ayudarte?</div>
+    <div class="chat-suggest">
+      <button onclick="quickAsk('¿Qué cursos tienen?')">🎓 Cursos</button>
+      <button onclick="quickAsk('¿Coach GTO?')">🎯 Coach GTO</button>
+      <button onclick="quickAsk('¿Escuelas?')">🏫 Escuelas</button>
+      <button onclick="quickAsk('¿Torneos?')">🏆 Torneos</button>
+    </div>
   </div>
   <div class="chatbot-input">
     <input id="chatbot-input" type="text" placeholder="Escribe tu pregunta..." onkeydown="if(event.key==='Enter')sendChat()">
     <button onclick="sendChat()">➤</button>
   </div>
+  <a class="chatbot-wa" href="https://wa.me/17868307580" target="_blank" rel="noopener">📱 Continuar por WhatsApp</a>
 </div>
 
 <style>
@@ -1276,6 +1283,19 @@ applyLang(saved === 'en' ? 'en' : 'es');
   .chatbot-input { display: flex; border-top: 1px solid #e0dccf; }
   .chatbot-input input { flex: 1; border: none; padding: 12px; font-size: 0.85rem; outline: none; }
   .chatbot-input button { background: var(--gold); color: var(--ink); border: none; padding: 0 16px; font-size: 1.1rem; cursor: pointer; }
+  .chat-suggest { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 0 10px; }
+  .chat-suggest button {
+    background: #fff; border: 1.5px solid var(--blue); color: var(--blue);
+    border-radius: 16px; padding: 5px 12px; font-size: 0.75rem; cursor: pointer;
+    font-family: inherit; transition: all .15s;
+  }
+  .chat-suggest button:hover { background: var(--blue); color: #fff; }
+  .chatbot-wa {
+    display: block; text-align: center; background: #25d366; color: #fff;
+    padding: 9px; font-size: 0.8rem; font-weight: 700; text-decoration: none;
+    border-top: 1px solid rgba(0,0,0,0.1);
+  }
+  .chatbot-wa:hover { background: #1ebe5b; }
 </style>
 
 <script>
@@ -1284,6 +1304,10 @@ applyLang(saved === 'en' ? 'en' : 'es');
    aquí un endpoint. Mientras tanto responde preguntas frecuentes. */
 function toggleChat() {
   document.getElementById('chatbot-panel').classList.toggle('open');
+}
+function quickAsk(q) {
+  addMsg(q, 'user');
+  setTimeout(() => answer(q), 450);
 }
 function addMsg(text, who) {
   const body = document.getElementById('chatbot-body');
@@ -1299,21 +1323,39 @@ function sendChat() {
   if (!q) return;
   addMsg(q, 'user');
   input.value = '';
-  setTimeout(() => answer(q), 500);
+  setTimeout(() => answer(q), 450);
 }
 function answer(q) {
   const t = q.toLowerCase();
+  const en = document.documentElement.lang === 'en' || (document.body.className || '').includes('lang-en');
+  // Frases según idioma
+  const L = {
+    hola: en ? 'Hello! 😄 I\'m the Baduy Academy assistant. Ask me about courses, schools, the GTO Coach, or tournaments!' : '¡Hola! 😄 Soy el asistente de Baduy Academy. Pregúntame sobre cursos, escuelas, el Coach GTO, torneos o la academia.',
+    curso: en ? '🎓 We\'re launching online domino courses: "Domino for Champions" and "Domino Mathematics". Leave us your email and we\'ll notify you when they open!' : '🎓 Pronto lanzaremos cursos online de dominó: "Dominó para Campeones" y "Matemáticas del Dominó". ¡Déjanos tu email y te avisamos cuando abran!',
+    escuela: en ? '🏫 We bring dominoes to schools as an educational tool. If you represent a school, contact us through the form and we\'ll guide you with the pilot program.' : '🏫 Llevamos el dominó a las escuelas como herramienta educativa. Si representas una escuela, contáctanos por el formulario y te guiamos con el programa piloto.',
+    coach: en ? '🎯 The GTO Coach is our study app: it calculates the Expected Value of every move with champion-level precision. Try it at baduyacademy.com/app/' : '🎯 El Coach GTO es nuestra app de estudio: calcula el Valor Esperado de cada jugada con precisión de campeón. Pruébala en baduyacademy.com/app/',
+    precio: en ? '💰 The site and app are FREE. Soon we\'ll have premium courses, merch, and tournaments. Follow us at @baduyacademy to stay tuned!' : '💰 El sitio y la app son GRATIS. Pronto tendremos cursos premium, merch y torneos. ¡Síguenos en @baduyacademy para enterarte!',
+    torneo: en ? '🏆 We\'re launching the World Parallel Federation (FMP) with official tournaments. Register and we\'ll notify you of the inaugural tournament!' : '🏆 Estamos lanzando la Federación Mundial Paralela (FMP) con torneos oficiales. ¡Regístrate y te avisamos del torneo inaugural!',
+    contacto: en ? '📧 You can write to contact@baduyacademy.com or use the form on the page. We reply fast.' : '📧 Puedes escribirnos a contact@baduyacademy.com o usar el formulario de la página. Respondemos rápido.',
+    fundador: en ? '👑 Fabio Baduy is the World Domino Champion 2007 (teams) and 2008 (pairs). Computer Engineer and educator. His mission: bring dominoes to schools as a thinking tool.' : '👑 Fabio Baduy es Campeón del Mundo de Dominó 2007 (equipos) y 2008 (parejas). Ingeniero en Computación y educador. Su misión: llevar el dominó a las escuelas como herramienta de pensamiento.',
+    poker: en ? '🃏 Poker is part of the Baduy philosophy (mental discipline). Although we focus on educational dominoes, the strategic mindset applies to both.' : '🃏 El póker es parte de la filosofía Baduy (disciplina mental). Aunque nos enfocamos en el dominó educativo, la mentalidad de estrategia aplica a ambos.',
+    whatsapp: en ? '📱 You can also write to us on WhatsApp at +1 786-830-7580 for personal attention.' : '📱 También puedes escribirnos por WhatsApp al +1 786-830-7580 para atención personalizada.',
+    gracias: en ? 'You\'re welcome! 🙌 Keep training minds for peace. Anything else?' : '¡De nada! 🙌 Sigue entrenando mentes para la paz. ¿Algo más?',
+    fallback: en ? '🤔 Good question! If I don\'t have the exact answer, write to contact@baduyacademy.com and we\'ll respond. Meanwhile: are you interested in learning, bringing the program to your school, or competing?' : '🤔 Buena pregunta. Si no tengo la respuesta exacta, escríbenos a contact@baduyacademy.com y te respondemos. Mientras tanto: ¿te interesa aprender, llevar el programa a tu escuela, o competir?',
+  };
   let r;
-  if (/(hola|buenas|hey|hello|hi)/.test(t)) r = '¡Hola! 😄 ¿En qué te ayudo? Pregúntame sobre cursos, escuelas, el Coach GTO o la academia.';
-  else if (/(curso|clase|aprender|estudiar)/.test(t)) r = '🎓 Pronto lanzaremos cursos online de dominó: "Dominó para Campeones" y "Matemáticas del Dominó". ¡Déjanos tu email y te avisamos cuando abran!';
-  else if (/(escuela|colegio|niños|programa)/.test(t)) r = '🏫 Llevamos el dominó a las escuelas como herramienta educativa. Si representas una escuela, contáctanos por el formulario y te guiamos con el programa piloto.';
-  else if (/(coach|app|gto|ev|análisis|analizar)/.test(t)) r = '🎯 El Coach GTO es nuestra app de estudio: calcula el Valor Esperado de cada jugada con precisión de campeón. Pruébala en baduyacademy.com/app/';
-  else if (/(precio|costar|cuanto|valor)/.test(t)) r = '💰 El sitio y la app son GRATIS. Pronto tendremos cursos premium, merch y torneos. ¡Síguenos en @baduyacademy para enterarte!';
-  else if (/(torneo|competir|competición)/.test(t)) r = '🏆 Estamos lanzando la Federación Mundial Paralela (FMP) con torneos oficiales. ¡Regístrate y te avisamos del torneo inaugural!';
-  else if (/(contact|email|correo|hablar)/.test(t)) r = '📧 Puedes escribirnos a contact@baduyacademy.com o usar el formulario de la página. Respondemos rápido.';
-  else if (/(poker|póker)/.test(t)) r = '🃏 El póker es parte de la filosofía Baduy (disciplina mental). Aunque nos enfocamos en el dominó educativo, la mentalidad de estrategia aplica a ambos.';
-  else if (/(gracias|thanks)/.test(t)) r = '¡De nada! 🙌 Sigue entrenando mentes para la paz. ¿Algo más?';
-  else r = '🤔 Buena pregunta. Si no tengo la respuesta exacta, escríbenos a contact@baduyacademy.com y te respondemos. Mientras tanto: ¿te interesa aprender, llevar el programa a tu escuela, o competir?';
+  if (/(hola|buenas|hey|hello|hi|saludos)/.test(t)) r = L.hola;
+  else if (/(curso|clase|aprender|estudiar|curs|course)/.test(t)) r = L.curso;
+  else if (/(escuela|colegio|niños|kids|school|programa)/.test(t)) r = L.escuela;
+  else if (/(coach|app|gto|ev|análisis|analizar|analy)/.test(t)) r = L.coach;
+  else if (/(precio|costar|cuanto|valor|price|cost|free|gratis)/.test(t)) r = L.precio;
+  else if (/(torneo|competir|competición|tournament|compete)/.test(t)) r = L.torneo;
+  else if (/(contact|email|correo|hablar|write)/.test(t)) r = L.contacto;
+  else if (/(fundador|fabio|champion|campeón|campeon|baduy)/.test(t)) r = L.fundador;
+  else if (/(poker|póker)/.test(t)) r = L.poker;
+  else if (/(whatsapp|wa\.me|telefono|phone)/.test(t)) r = L.whatsapp;
+  else if (/(gracias|thanks|thank)/.test(t)) r = L.gracias;
+  else r = L.fallback;
   addMsg(r, 'bot');
 }
 </script>
