@@ -1,0 +1,13 @@
+{
+  "name": "baduy-academy-whatsapp-bot",
+  "version": "1.0.0",
+  "description": "Chatbot de WhatsApp para Baduy Academy — responde preguntas, captura leads en Google Sheets",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^2.7.0"
+  }
+}
