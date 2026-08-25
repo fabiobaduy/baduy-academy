@@ -1328,6 +1328,20 @@ function sendChat() {
 function answer(q) {
   const t = q.toLowerCase();
   const en = document.documentElement.lang === 'en' || (document.body.className || '').includes('lang-en');
+
+  // 🎯 DETECCIÓN DE EMAIL: si el visitante escribe su correo, lo capturamos
+  const emailMatch = q.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  if (emailMatch) {
+    const email = emailMatch[0];
+    // Guardar el lead en Google Sheets
+    saveChatLead(email, 'email-capturado', q);
+    const r = en
+      ? `✅ ¡Listo! Tu correo (${email}) quedó registrado. Te avisaremos con las novedades de Baduy Academy y descuentos de lanzamiento. ¿Quieres probar el Coach GTO gratis mientras tanto? 👉 https://baduyacademy.com/app/`
+      : `✅ ¡Listo! Tu correo (${email}) quedó registrado. Te avisaremos con las novedades de Baduy Academy y descuentos de lanzamiento. ¿Quieres probar el Coach GTO gratis mientras tanto? 👉 https://baduyacademy.com/app/`;
+    addMsg(r, 'bot');
+    return;
+  }
+
   // Frases según idioma
   const L = {
     hola: en ? 'Hello! 😄 I\'m the Baduy Academy assistant. Ask me about courses, schools, the GTO Coach, or tournaments!' : '¡Hola! 😄 Soy el asistente de Baduy Academy. Pregúntame sobre cursos, escuelas, el Coach GTO, torneos o la academia.',
@@ -1358,18 +1372,42 @@ function answer(q) {
   else r = L.fallback;
   addMsg(r, 'bot');
 }
+
+// ============================================================
+// CAPTURA DE LEADS (chatbot → Google Sheets)
+// ============================================================
+var FORM_URL = 'https://script.google.com/macros/s/AKfycbxuWZ3DP2K6fExOS27ztq4XC9B727a13b_3XseHXM_12rrTwmysrt_BE2a3gO5cIi-w/exec';
+
+// Guarda un lead desde el chatbot (email capturado)
+async function saveChatLead(email, interes, mensaje) {
+  const data = {
+    fecha: new Date().toISOString(),
+    nombre: '',
+    whatsapp: '',
+    email: email,
+    interes: interes,
+    mensaje: mensaje.slice(0, 200),
+    fuente: 'chatbot-web'
+  };
+  try {
+    await fetch(FORM_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(data)
+    });
+    console.log('✅ Lead guardado en Sheets:', email);
+  } catch (err) {
+    console.error('❌ Error guardando lead:', err);
+  }
+}
 </script>
 
 <!-- ============ FORM: envío a Google Sheets (base de datos) ============ -->
 <script>
-/* Envía el formulario de contacto a una hoja de cálculo de Google Sheets.
-   CONFIGURACIÓN (una vez): 
-   1. Crea un Google Sheet con columnas: Fecha | Nombre | Email | Mensaje | Origen
-   2. Extensions → Apps Script → pega el código de abajo → Deploy como Web App (Access: Anyone)
-   3. Copia la URL del Web App y pégala abajo en FORM_URL
-*/
-const FORM_URL = 'https://script.google.com/macros/s/AKfycbxuWZ3DP2K6fExOS27ztq4XC9B727a13b_3XseHXM_12rrTwmysrt_BE2a3gO5cIi-w/exec';
-
+/* Envía el formulario de contacto a Google Sheets.
+   FORM_URL y saveChatLead están definidas en el script del chatbot
+   (arriba) — aquí solo se usa submitContact para el formulario. */
 async function submitContact(e) {
   const form = e.target;
   const status = document.getElementById('contact-status');
