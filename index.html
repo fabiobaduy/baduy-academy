@@ -367,6 +367,7 @@
   .contact input:focus, .contact textarea:focus { outline: none; border-color: var(--blue); }
   .contact button { background: var(--blue); color: #fff; border: none; font-weight: 700; cursor: pointer; transition: background .2s; }
   .contact button:hover { background: var(--navy); }
+  .contact-status { margin-top: 8px; font-size: 0.9rem; font-weight: 600; min-height: 20px; }
   .contact-info { display: flex; flex-direction: column; gap: 14px; }
   .contact-info .item { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; }
   .contact-info .item .e { font-size: 1.3rem; }
@@ -832,11 +833,12 @@
     <div>
       <h3 data-i18n="contact_h3">Hablemos</h3>
       <p data-i18n="contact_p">Escríbenos para más información, alianzas, o para llevar el programa a tu escuela o comunidad.</p>
-      <form onsubmit="event.preventDefault(); alert(document.querySelector('[data-i18n=contact_ok]').textContent);">
-        <input type="text" data-i18n="contact_name" placeholder="Tu nombre">
-        <input type="email" data-i18n="contact_email" placeholder="Tu correo electrónico">
-        <textarea rows="4" data-i18n="contact_msg" placeholder="Cuéntanos cómo podemos ayudarte..."></textarea>
+      <form id="contact-form" onsubmit="event.preventDefault(); submitContact(event);">
+        <input type="text" name="nombre" data-i18n="contact_name" placeholder="Tu nombre" required>
+        <input type="email" name="email" data-i18n="contact_email" placeholder="Tu correo electrónico" required>
+        <textarea rows="4" name="mensaje" data-i18n="contact_msg" placeholder="Cuéntanos cómo podemos ayudarte..." required></textarea>
         <button type="submit" data-i18n="contact_btn">Enviar mensaje</button>
+        <div id="contact-status" class="contact-status"></div>
       </form>
     </div>
     <div class="contact-info">
@@ -1229,6 +1231,130 @@ document.querySelectorAll('.faq-item').forEach(item => {
 let saved = null;
 try { saved = localStorage.getItem('baduy_lang'); } catch(e) {}
 applyLang(saved === 'en' ? 'en' : 'es');
+</script>
+
+<!-- ============ CHATBOT FLOTANTE ============ -->
+<div id="chatbot-fab" onclick="toggleChat()" title="Chat">💬</div>
+<div id="chatbot-panel" class="chatbot-panel">
+  <div class="chatbot-head">
+    <span>🤖 Coach Baduy</span>
+    <button onclick="toggleChat()" style="background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;">×</button>
+  </div>
+  <div class="chatbot-body" id="chatbot-body">
+    <div class="chat-msg bot">¡Hola! 👋 Soy el asistente de Baduy Academy. ¿En qué puedo ayudarte?</div>
+  </div>
+  <div class="chatbot-input">
+    <input id="chatbot-input" type="text" placeholder="Escribe tu pregunta..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<style>
+  #chatbot-fab {
+    position: fixed; bottom: 22px; right: 22px; width: 58px; height: 58px;
+    background: var(--gold); color: var(--ink); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; cursor: pointer; z-index: 999;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3); transition: transform .2s;
+  }
+  #chatbot-fab:hover { transform: scale(1.1); }
+  .chatbot-panel {
+    position: fixed; bottom: 90px; right: 22px; width: 320px; max-width: 90vw;
+    background: #fff; border-radius: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+    z-index: 999; display: none; flex-direction: column; overflow: hidden;
+    font-family: inherit; border: 1px solid #e0dccf;
+  }
+  .chatbot-panel.open { display: flex; }
+  .chatbot-head {
+    background: var(--navy); color: #fff; padding: 12px 14px;
+    font-weight: 700; display: flex; justify-content: space-between; align-items: center;
+  }
+  .chatbot-body { height: 280px; overflow-y: auto; padding: 12px; background: #faf8f3; }
+  .chat-msg { max-width: 85%; padding: 9px 12px; border-radius: 12px; margin-bottom: 8px; font-size: 0.85rem; line-height: 1.4; }
+  .chat-msg.bot { background: #e8f0fa; color: #1b263b; border-bottom-left-radius: 3px; }
+  .chat-msg.user { background: var(--gold); color: var(--ink); margin-left: auto; border-bottom-right-radius: 3px; }
+  .chatbot-input { display: flex; border-top: 1px solid #e0dccf; }
+  .chatbot-input input { flex: 1; border: none; padding: 12px; font-size: 0.85rem; outline: none; }
+  .chatbot-input button { background: var(--gold); color: var(--ink); border: none; padding: 0 16px; font-size: 1.1rem; cursor: pointer; }
+</style>
+
+<script>
+/* CHATBOT — respuestas automáticas sobre Baduy Academy.
+   Para actualizarlo a IA real (GPT/Claude) cuando quieras: conecta
+   aquí un endpoint. Mientras tanto responde preguntas frecuentes. */
+function toggleChat() {
+  document.getElementById('chatbot-panel').classList.toggle('open');
+}
+function addMsg(text, who) {
+  const body = document.getElementById('chatbot-body');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + who;
+  div.textContent = text;
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+function sendChat() {
+  const input = document.getElementById('chatbot-input');
+  const q = input.value.trim();
+  if (!q) return;
+  addMsg(q, 'user');
+  input.value = '';
+  setTimeout(() => answer(q), 500);
+}
+function answer(q) {
+  const t = q.toLowerCase();
+  let r;
+  if (/(hola|buenas|hey|hello|hi)/.test(t)) r = '¡Hola! 😄 ¿En qué te ayudo? Pregúntame sobre cursos, escuelas, el Coach GTO o la academia.';
+  else if (/(curso|clase|aprender|estudiar)/.test(t)) r = '🎓 Pronto lanzaremos cursos online de dominó: "Dominó para Campeones" y "Matemáticas del Dominó". ¡Déjanos tu email y te avisamos cuando abran!';
+  else if (/(escuela|colegio|niños|programa)/.test(t)) r = '🏫 Llevamos el dominó a las escuelas como herramienta educativa. Si representas una escuela, contáctanos por el formulario y te guiamos con el programa piloto.';
+  else if (/(coach|app|gto|ev|análisis|analizar)/.test(t)) r = '🎯 El Coach GTO es nuestra app de estudio: calcula el Valor Esperado de cada jugada con precisión de campeón. Pruébala en baduyacademy.com/app/';
+  else if (/(precio|costar|cuanto|valor)/.test(t)) r = '💰 El sitio y la app son GRATIS. Pronto tendremos cursos premium, merch y torneos. ¡Síguenos en @baduyacademy para enterarte!';
+  else if (/(torneo|competir|competición)/.test(t)) r = '🏆 Estamos lanzando la Federación Mundial Paralela (FMP) con torneos oficiales. ¡Regístrate y te avisamos del torneo inaugural!';
+  else if (/(contact|email|correo|hablar)/.test(t)) r = '📧 Puedes escribirnos a contact@baduyacademy.com o usar el formulario de la página. Respondemos rápido.';
+  else if (/(poker|póker)/.test(t)) r = '🃏 El póker es parte de la filosofía Baduy (disciplina mental). Aunque nos enfocamos en el dominó educativo, la mentalidad de estrategia aplica a ambos.';
+  else if (/(gracias|thanks)/.test(t)) r = '¡De nada! 🙌 Sigue entrenando mentes para la paz. ¿Algo más?';
+  else r = '🤔 Buena pregunta. Si no tengo la respuesta exacta, escríbenos a contact@baduyacademy.com y te respondemos. Mientras tanto: ¿te interesa aprender, llevar el programa a tu escuela, o competir?';
+  addMsg(r, 'bot');
+}
+</script>
+
+<!-- ============ FORM: envío a Google Sheets (base de datos) ============ -->
+<script>
+/* Envía el formulario de contacto a una hoja de cálculo de Google Sheets.
+   CONFIGURACIÓN (una vez): 
+   1. Crea un Google Sheet con columnas: Fecha | Nombre | Email | Mensaje | Origen
+   2. Extensions → Apps Script → pega el código de abajo → Deploy como Web App (Access: Anyone)
+   3. Copia la URL del Web App y pégala abajo en FORM_URL
+*/
+const FORM_URL = 'https://script.google.com/macros/s/AQUI_VA_TU_URL/exec'; // ← REEMPLAZAR
+
+async function submitContact(e) {
+  const form = e.target;
+  const status = document.getElementById('contact-status');
+  const data = {
+    fecha: new Date().toISOString(),
+    nombre: form.nombre.value,
+    email: form.email.value,
+    mensaje: form.mensaje.value,
+    origen: 'sitio-web'
+  };
+  status.textContent = '⏳ Enviando...';
+  status.style.color = '#666';
+  try {
+    await fetch(FORM_URL, {
+      method: 'POST',
+      mode: 'no-cors', // necesario para Google Apps Script
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(data)
+    });
+    status.textContent = '✅ ¡Gracias! Te contactaremos pronto.';
+    status.style.color = '#2ecc71';
+    form.reset();
+  } catch (err) {
+    status.textContent = '❌ Error al enviar. Escríbenos directo a contact@baduyacademy.com';
+    status.style.color = '#e74c3c';
+  }
+}
 </script>
 
 </body>
