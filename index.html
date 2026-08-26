@@ -305,6 +305,26 @@
   .impact-card .num { font-size: 2.3rem; font-weight: 900; color: var(--blue); }
   .impact-card p { font-size: 0.9rem; opacity: 0.8; margin-top: 6px; }
 
+  /* Pilares de impacto (evidencia científica) */
+  .pilar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 30px; }
+  .pilar-card {
+    background: var(--paper); border-radius: 16px; padding: 26px;
+    box-shadow: var(--shadow); border-top: 4px solid var(--blue);
+    transition: transform .2s;
+  }
+  .pilar-card:hover { transform: translateY(-4px); }
+  .pilar-ico { font-size: 2rem; margin-bottom: 10px; }
+  .pilar-card h3 { font-size: 1.1rem; color: var(--navy); margin-bottom: 8px; }
+  .pilar-card p { font-size: 0.88rem; opacity: 0.85; line-height: 1.5; }
+  .pilar-card ul { margin: 12px 0 0; padding-left: 18px; }
+  .pilar-card li { font-size: 0.8rem; opacity: 0.75; margin-bottom: 6px; line-height: 1.45; }
+  .impact-highlight {
+    margin-top: 30px; text-align: center; background: var(--navy); color: #fff;
+    border-radius: 14px; padding: 20px; font-size: 1.05rem;
+  }
+  .impact-highlight strong { color: var(--gold); }
+  .impact-highlight span { opacity: 0.8; font-size: 0.85rem; }
+
   /* ===== TESTIMONIALS ===== */
   .testimonials { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
   .testimonial {
@@ -647,12 +667,59 @@
 <section id="impacto">
   <div class="section-tag" data-i18n="impact_tag">Impacto</div>
   <h2 data-i18n="impact_title">El juego que transforma</h2>
-  <p class="sub" data-i18n="impact_sub">La evidencia lo respalda: los juegos de estrategia desarrollan habilidades cognitivas y socioemocionales que mejoran el rendimiento académico y la convivencia.</p>
-  <div class="impact-grid">
-    <div class="impact-card"><div class="num" data-i18n="imp1n">+35%</div><p data-i18n="imp1l">Mejor rendimiento académico con juegos de estrategia</p></div>
-    <div class="impact-card"><div class="num" data-i18n="imp2n">🧠</div><p data-i18n="imp2l">Desarrolla lógica, memoria y probabilidad</p></div>
-    <div class="impact-card"><div class="num" data-i18n="imp3n">🤝</div><p data-i18n="imp3l">Fomenta trabajo en equipo y fair play</p></div>
-    <div class="impact-card"><div class="num" data-i18n="imp4n">🕊️</div><p data-i18n="imp4l">Forma personas que eligen la paz</p></div>
+  <p class="sub" data-i18n="impact_sub">La evidencia lo respalda: el dominó entrena simultáneamente el cerebro, las matemáticas, la estrategia, las emociones y la convivencia. En una sola jugada, el jugador recuerda, calcula, infiere, anticipa, controla un impulso y decide bajo incertidumbre.</p>
+
+  <div class="pilar-grid">
+    <div class="pilar-card">
+      <div class="pilar-ico">🧠</div>
+      <h3 data-i18n="pilar1t">Cognitiva</h3>
+      <p data-i18n="pilar1d">Memoria de trabajo, atención, funciones ejecutivas, flexibilidad cognitiva, reconocimiento de patrones y resolución de problemas.</p>
+      <ul>
+        <li data-i18n="pilar1a">Metaanálisis: los juegos de mesa mejoran la cognición global en adultos mayores</li>
+        <li data-i18n="pilar1b">El dominó se usa en programas de memoria de trabajo y atención</li>
+      </ul>
+    </div>
+    <div class="pilar-card">
+      <div class="pilar-ico">🔢</div>
+      <h3 data-i18n="pilar2t">Matemática</h3>
+      <p data-i18n="pilar2d">Cálculo mental, conteo, clasificación, estimación, pensamiento probabilístico y lógico — todo mientras se juega.</p>
+      <ul>
+        <li data-i18n="pilar2a">Estudios: el dominó desarrolla habilidades cognitivas y matemáticas en niños y adultos</li>
+        <li data-i18n="pilar2b">Clasificar, contar, reconocer patrones y estimar surgen naturalmente</li>
+      </ul>
+    </div>
+    <div class="pilar-card">
+      <div class="pilar-ico">🎯</div>
+      <h3 data-i18n="pilar3t">Estratégica</h3>
+      <p data-i18n="pilar3d">Planificación, anticipación, toma de decisiones bajo incertidumbre, inferencia y evaluación de riesgos.</p>
+      <ul>
+        <li data-i18n="pilar3a">Entrenamiento con dominó mejora la planificación estratégica</li>
+        <li data-i18n="pilar3b">Enseña a decidir bien sin tener toda la información</li>
+      </ul>
+    </div>
+    <div class="pilar-card">
+      <div class="pilar-ico">❤️</div>
+      <h3 data-i18n="pilar4t">Socioemocional</h3>
+      <p data-i18n="pilar4d">Control emocional, paciencia, tolerancia a la frustración y aprendizaje de victorias y derrotas.</p>
+      <ul>
+        <li data-i18n="pilar4a">Entrenamiento con dominó mejora el control emocional en niños</li>
+        <li data-i18n="pilar4b">"Pensar antes de actuar": practica el control inhibitorio</li>
+      </ul>
+    </div>
+    <div class="pilar-card">
+      <div class="pilar-ico">🤝</div>
+      <h3 data-i18n="pilar5t">Social</h3>
+      <p data-i18n="pilar5d">Interacción, cooperación, trabajo en equipo, respeto por reglas y relaciones intergeneracionales.</p>
+      <ul>
+        <li data-i18n="pilar5a">Combate el aislamiento social y une generaciones</li>
+        <li data-i18n="pilar5b">En parejas: sacrificar ventajas individuales por el equipo</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="impact-highlight">
+    <strong data-i18n="impact_hl1">28 beneficios documentados</strong>
+    <span data-i18n="impact_hl2">— respaldados por estudios científicos (PubMed, PMC, ERIC)</span>
   </div>
 </section>
 
@@ -969,11 +1036,24 @@ const translations = {
     pilot_c3t: "Trabajo en equipo", pilot_c3p: "Fomentar trabajo en equipo y comunicación efectiva.",
     pilot_c4t: "Regulación emocional", pilot_c4p: "Promover regulación emocional y juego limpio.",
     impact_tag: "Impacto", impact_title: "El juego que transforma",
-    impact_sub: "La evidencia lo respalda: los juegos de estrategia desarrollan habilidades cognitivas y socioemocionales que mejoran el rendimiento académico y la convivencia.",
-    imp1n: "+35%", imp1l: "Mejor rendimiento académico con juegos de estrategia",
-    imp2n: "🧠", imp2l: "Desarrolla lógica, memoria y probabilidad",
-    imp3n: "🤝", imp3l: "Fomenta trabajo en equipo y fair play",
-    imp4n: "🕊️", imp4l: "Forma personas que eligen la paz",
+    impact_sub: "La evidencia lo respalda: el dominó entrena simultáneamente el cerebro, las matemáticas, la estrategia, las emociones y la convivencia. En una sola jugada, el jugador recuerda, calcula, infiere, anticipa, controla un impulso y decide bajo incertidumbre.",
+    pilar1t: "Cognitiva", pilar1d: "Memoria de trabajo, atención, funciones ejecutivas, flexibilidad cognitiva, reconocimiento de patrones y resolución de problemas.",
+    pilar1a: "Metaanálisis: los juegos de mesa mejoran la cognición global en adultos mayores",
+    pilar1b: "El dominó se usa en programas de memoria de trabajo y atención",
+    pilar2t: "Matemática", pilar2d: "Cálculo mental, conteo, clasificación, estimación, pensamiento probabilístico y lógico — todo mientras se juega.",
+    pilar2a: "Estudios: el dominó desarrolla habilidades cognitivas y matemáticas en niños y adultos",
+    pilar2b: "Clasificar, contar, reconocer patrones y estimar surgen naturalmente",
+    pilar3t: "Estratégica", pilar3d: "Planificación, anticipación, toma de decisiones bajo incertidumbre, inferencia y evaluación de riesgos.",
+    pilar3a: "Entrenamiento con dominó mejora la planificación estratégica",
+    pilar3b: "Enseña a decidir bien sin tener toda la información",
+    pilar4t: "Socioemocional", pilar4d: "Control emocional, paciencia, tolerancia a la frustración y aprendizaje de victorias y derrotas.",
+    pilar4a: "Entrenamiento con dominó mejora el control emocional en niños",
+    pilar4b: "\"Pensar antes de actuar\": practica el control inhibitorio",
+    pilar5t: "Social", pilar5d: "Interacción, cooperación, trabajo en equipo, respeto por reglas y relaciones intergeneracionales.",
+    pilar5a: "Combate el aislamiento social y une generaciones",
+    pilar5b: "En parejas: sacrificar ventajas individuales por el equipo",
+    impact_hl1: "28 beneficios documentados",
+    impact_hl2: "— respaldados por estudios científicos (PubMed, PMC, ERIC)",
     testi_tag: "Testimonios", testi_title: "Voces del movimiento",
     testi_sub: "Pronto, las historias de padres, maestros y estudiantes que viven el método Baduy. Este espacio espera sus primeras voces.",
     testi1: "\"El dominó le enseñó a mi hijo a pensar antes de actuar. Hoy lo aplica en la escuela y en la vida.\"",
@@ -1125,11 +1205,24 @@ const translations = {
     pilot_c3t: "Teamwork", pilot_c3p: "Foster teamwork and effective communication.",
     pilot_c4t: "Emotional regulation", pilot_c4p: "Promote emotional regulation and fair play.",
     impact_tag: "Impact", impact_title: "The game that transforms",
-    impact_sub: "Evidence supports it: strategy games develop cognitive and socio-emotional skills that improve academic performance and coexistence.",
-    imp1n: "+35%", imp1l: "Better academic performance with strategy games",
-    imp2n: "🧠", imp2l: "Develops logic, memory, and probability",
-    imp3n: "🤝", imp3l: "Fosters teamwork and fair play",
-    imp4n: "🕊️", imp4l: "Forms people who choose peace",
+    impact_sub: "Evidence supports it: dominoes simultaneously trains the brain, mathematics, strategy, emotions, and coexistence. In a single move, the player recalls, calculates, infers, anticipates, controls an impulse, and decides under uncertainty.",
+    pilar1t: "Cognitive", pilar1d: "Working memory, attention, executive functions, cognitive flexibility, pattern recognition, and problem-solving.",
+    pilar1a: "Meta-analysis: board games improve global cognition in older adults",
+    pilar1b: "Dominoes is used in working memory and attention programs",
+    pilar2t: "Mathematical", pilar2d: "Mental arithmetic, counting, classification, estimation, probabilistic and logical thinking — all while playing.",
+    pilar2a: "Studies: dominoes develops cognitive and mathematical skills in children and adults",
+    pilar2b: "Classifying, counting, recognizing patterns, and estimating arise naturally",
+    pilar3t: "Strategic", pilar3d: "Planning, anticipation, decision-making under uncertainty, inference, and risk evaluation.",
+    pilar3a: "Dominoes training improves strategic planning",
+    pilar3b: "Teaches making good decisions without full information",
+    pilar4t: "Socio-emotional", pilar4d: "Emotional control, patience, frustration tolerance, and learning from wins and losses.",
+    pilar4a: "Dominoes training improves emotional control in children",
+    pilar4b: "\"Think before you act\": practices inhibitory control",
+    pilar5t: "Social", pilar5d: "Interaction, cooperation, teamwork, respect for rules, and intergenerational relationships.",
+    pilar5a: "Combats social isolation and unites generations",
+    pilar5b: "In pairs: sacrificing individual advantages for the team",
+    impact_hl1: "28 documented benefits",
+    impact_hl2: "— backed by scientific studies (PubMed, PMC, ERIC)",
     testi_tag: "Testimonials", testi_title: "Voices of the movement",
     testi_sub: "Soon, stories from parents, teachers, and students living the Baduy method. This space awaits its first voices.",
     testi1: "\"Dominoes taught my son to think before acting. Today he applies it at school and in life.\"",
