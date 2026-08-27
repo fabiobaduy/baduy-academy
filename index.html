@@ -1354,7 +1354,7 @@ applyLang(saved === 'en' ? 'en' : 'es');
     <input id="chatbot-input" type="text" placeholder="Escribe tu pregunta..." onkeydown="if(event.key==='Enter')sendChat()">
     <button onclick="sendChat()">➤</button>
   </div>
-  <a class="chatbot-wa" href="https://wa.me/17868307580" target="_blank" rel="noopener">📱 Continuar por WhatsApp</a>
+  <a class="chatbot-wa" href="#" onclick="continueWhatsApp(); return false;">📱 Continuar por WhatsApp</a>
 </div>
 
 <style>
@@ -1425,6 +1425,22 @@ function sendChat() {
   addMsg(q, 'user');
   input.value = '';
   setTimeout(() => answer(q), 450);
+}
+// 📱 Continuar conversación por WhatsApp (con contexto de lo que preguntaba)
+function continueWhatsApp() {
+  // Recolectar las últimas preguntas del visitante
+  const msgs = document.querySelectorAll('#chatbot-body .chat-msg.user');
+  let contexto = '';
+  if (msgs.length) {
+    const last = msgs[msgs.length - 1].textContent.trim().slice(0, 120);
+    contexto = ' Estaba preguntando: "' + last + '"';
+  }
+  const en = document.documentElement.lang === 'en' || (document.body.className || '').includes('lang-en');
+  const msg = en
+    ? 'Hello! I come from baduyacademy.com.' + contexto
+    : 'Hola! Vengo de baduyacademy.com.' + contexto;
+  const url = 'https://wa.me/17868307580?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
 }
 function answer(q) {
   const t = q.toLowerCase();
