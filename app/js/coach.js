@@ -467,13 +467,16 @@ function analyzeAllStudy(state, viewerIdx, simulations = 200, passHistory = [], 
     }
   } else {
     const ends = state.boardEnds();
+    const sameEnds = ends[0] === ends[1];
     for (const t of moves) {
       // Evaluar solo los lados donde la ficha realmente encaja
       const leftOk = Engine.orientations(t, ends[0]).length > 0;
       const rightOk = Engine.orientations(t, ends[1]).length > 0;
       const sides = [];
       if (leftOk) sides.push('left');
-      if (rightOk) sides.push('right');
+      // Si ambos extremos son IGUALES, izquierda y derecha son la MISMA
+      // jugada (tablero simétrico) → NO duplicar con EVs distintos
+      if (rightOk && !sameEnds) sides.push('right');
 
       for (const side of sides) {
         const r = analyzeMoveStudyWorlds(state, t, side, viewerIdx, worldList, modalidad);
