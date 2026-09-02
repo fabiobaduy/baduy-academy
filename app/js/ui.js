@@ -482,12 +482,16 @@
       // EV = puntos promedio ganados (+) o perdidos (-)
       const signo = r.ev > 0 ? '+' : '';
       const evCls = i === 0 ? 'ev best-ev' : (r.ev < 0 ? 'ev neg' : 'ev');
+      // Transparencia: error estándar (cuánto ruido tiene la estimación)
+      const seNote = (typeof r.stdErr !== 'undefined' && r.stdErr !== null)
+        ? `<span style="font-size:0.72rem;opacity:0.65;margin-left:6px">±${r.stdErr}</span>`
+        : '';
       return `
         <div class="${cls}">
           <span class="rank">${medal}</span>
           <span class="tile-mini">${tileHTML(r.tile)}</span>
           <span style="font-size:0.85rem;opacity:0.8">${sideLabel}</span>
-          <span class="${evCls}">EV ${signo}${r.ev}</span>
+          <span class="${evCls}">EV ${signo}${r.ev}${seNote}</span>
         </div>`;
     }).join('');
     const modalidad = el.modalidadSelect ? el.modalidadSelect.value : 'todas';

@@ -492,6 +492,7 @@ function analyzeAllStudy(state, viewerIdx, simulations = 200, passHistory = [], 
 function analyzeMoveStudyWorlds(state, tile, side, viewerIdx, worldList, modalidad) {
   let totalEv = 0;
   let valid = 0;
+  let sumSq = 0; // para desviación estándar / error estándar
 
   for (let i = 0; i < worldList.length; i++) {
     const world = worldList[i];
@@ -504,19 +505,27 @@ function analyzeMoveStudyWorlds(state, tile, side, viewerIdx, worldList, modalid
     if (!ok) continue;
     s.advanceTurn();
 
-    const ev = simulateToEnd(s, viewerIdx, modalidad, 150, null);
+    const ev = simulateToEnd(s, viewerIdx, modalidad, 300, null);
     totalEv += ev;
+    sumSq += ev * ev;
     valid++;
   }
 
   if (!valid) return null;
+  const mean = totalEv / valid;
+  const variance = Math.max(0, sumSq / valid - mean * mean);
+  const sd = Math.sqrt(variance);
+  const se = sd / Math.sqrt(valid); // error estándar de la media
   return {
     tile: [tile[0], tile[1]],
     side,
-    ev: Math.round((totalEv / valid) * 100) / 100,
+    ev: Math.round(mean * 100) / 100,
     modalidad,
     simulations: valid,
     worlds: worldList.length,
+    // Transparencia total: cuánto ruido tiene esta estimación
+    stdErr: Math.round(se * 100) / 100,
+    conf: Math.round((1 - se / (Math.abs(mean) + 0.01)) * 100) / 100,
   };
 }
 
