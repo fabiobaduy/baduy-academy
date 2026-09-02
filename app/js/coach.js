@@ -173,57 +173,88 @@ function openingScore(tile, hand) {
 }
 
 // Elige la jugada racional con la heurística del Campeón.
-// - SALIDA: mostrar el palo fuerte, evitar fallas y no quemar dobles
-// - INTERMEDIO: no generar fallas, mantener control, y EXPLOTAR
-//   las fallas de los oponentes (si alguien pasó en un palo,
-//   atacar ese palo para forzarlo a seguir pasando)
+// Implementa los 10 PRINCIPIOS DOMINA:
+//   #1 Timing: la pensada informa tenencia del palo castigado
+//   #2 Repetir los palos iniciados por el COMPAÑERO
+//   #3 Castigar/bloquear los palos iniciados por los CONTRARIOS
+//   #4 Mostrar lo que se tiene (anunciar mi mejor palo)
+//   #5 Castigar POR ENCIMA de la salida del contrario
+//   #6 Iniciar palos POR ENCIMA de la salida de los contrarios
+//   #7 Castigar POR DEBAJO de la salida del compañero (3er jugador)
+//   #8 Iniciar palos POR DEBAJO de la salida del compañero
+//   #9 Crear facilidades al compañero (repetir sus palos)
+//   #10 Crear dificultades a los contrarios (atacar sus fallas)
 function chooseRationalMove(state, player, moves) {
-  // Oponentes que han pasado: palos que NO tienen (por pases registrados)
-  // El jugador actual ataca los palos donde el oponente es débil.
-  const enemySuits = new Set();
   const myTeam = player.teamId;
+  const suits = suitStrength(player.hand);
+  const ends = state.boardEnds();
+
+  // ---- Identificar palos de compañeros y contrarios (Principios #2,#3,#10) ----
+  const partnerSuits = new Set();   // palos que el COMPAÑERO ha iniciado/jugado
+  const opponentSuits = new Set();  // palos que los CONTRARIOS han iniciado
+  const partnerLeadSuit = null;     // palo de la salida del compañero (si la hizo)
+  let partnerLead = null;           // la ficha de salida del compañero
+  const enemySuits = new Set();     // palos donde un oponente PASÓ (falla 100%)
+
   (state.passLog || []).forEach(pl => {
     const pIdx = state.players.findIndex(p => p.name === pl.player);
-    if (pIdx < 0) return;
+    if (pIdx < 0 || !pl.ends) return;
     const passer = state.players[pIdx];
-    // Solo explotar a los oponentes (no a mi compañero)
-    if (passer.teamId !== myTeam && pl.ends) {
+    if (passer.teamId !== myTeam) {
       enemySuits.add(pl.ends[0]);
       enemySuits.add(pl.ends[1]);
     }
   });
 
-  // INFERIR FALLAS POR SECUENCIA: si un oponente salió con un palo
-  // y luego NO ha vuelto a jugar ninguna ficha de ese palo, está en
-  // falla probable de ese palo → atacarlo para forzarlo a pasar.
-  // (Clave: el salidor que sale con 6-6 en pelo y no repite 6)
+  state.history.forEach(h => {
+    const pIdx = state.players.findIndex(p => p.name === h.player);
+    if (pIdx < 0) return;
+    const p = state.players[pIdx];
+    if (p.teamId === myTeam) {
+      // COMPAÑERO: sus palos son para repetir (Principio #2,#9)
+      partnerSuits.add(h.tile[0]);
+      partnerSuits.add(h.tile[1]);
+      if (!partnerLead && h.side !== undefined && h.tile) {
+        partnerLead = h.tile;
+      }
+    } else {
+      // CONTRARIO: sus palos son para castigar/bloquear (Principio #3,#10)
+      opponentSuits.add(h.tile[0]);
+      opponentSuits.add(h.tile[1]);
+    }
+  });
+
+  // Falla INFERIDA por secuencia: oponente salió con un palo y no lo repitió
   const opponentFallas = new Set();
-  const opponentOpenSuits = new Set(); // palos con los que salió cada oponente
+  const opponentOpenSuits = new Set();
   state.players.forEach((p, i) => {
-    if (p.teamId === myTeam) return; // solo oponentes
+    if (p.teamId === myTeam) return;
     const myMoves = state.history.filter(h => h.player === p.name);
     if (myMoves.length === 0) return;
-    // Con qué palo salió este oponente (su 1ª jugada)
     const fTile = myMoves[0].tile;
     const fSuits = [fTile[0], fTile[1]];
     fSuits.forEach(s => opponentOpenSuits.add(s));
-    // ¿Ha jugado algo de esos palos después?
     const later = myMoves.slice(1);
     fSuits.forEach(s => {
       const playedLater = later.some(h => h.tile[0] === s || h.tile[1] === s);
-      // Si salió con s y no ha vuelto a tocar s → falla probable
       if (!playedLater && state.board.some(t => t[0] === s || t[1] === s)) {
         opponentFallas.add(s);
       }
     });
   });
 
+  // Salida del compañero (para #7,#8): la primera ficha que jugó mi compañero
+  const partnerFirst = state.history.find(h => {
+    const pIdx = state.players.findIndex(p => p.name === h.player);
+    return pIdx >= 0 && state.players[pIdx].teamId === myTeam && h.player !== player.name;
+  });
+  const partnerLeadTile = partnerFirst ? partnerFirst.tile : null;
+
   let best = null;
   let bestScore = -Infinity;
   for (const m of moves) {
-    const ends = state.boardEnds();
     if (!state.board.length) {
-      // PRIMERA JUGADA: heurística de salida del Campeón
+      // PRIMERA JUGADA: heurística de salida del Campeón (Principio #4)
       const score = openingScore(m, player.hand);
       if (score > bestScore) { bestScore = score; best = m; }
       continue;
@@ -233,7 +264,6 @@ function chooseRationalMove(state, player, moves) {
       const end = side === 'left' ? ends[0] : ends[1];
       if (!Engine.orientations(m, end).length) continue;
       let score = 0;
-      const suits = suitStrength(player.hand);
       // El palo que GENERO con esta jugada:
       const gen = (m[0] === end) ? m[1] : m[0];
       const hasGen = player.hand.some(t => t !== m && (t[0] === gen || t[1] === gen));
@@ -243,18 +273,60 @@ function chooseRationalMove(state, player, moves) {
       const otherEnd = side === 'left' ? ends[1] : ends[0];
       const hasOther = player.hand.some(t => t !== m && (t[0] === otherEnd || t[1] === otherEnd));
       if (!hasOther) score -= 15;
-      // EXPLOTAR FALLAS DEL OPONENTE: si genero un palo donde el
-      // enemigo ya pasó, lo fuerzo a pasar de nuevo (MUY valioso)
+
+      // ============ PRINCIPIOS DOMINA ============
+
+      // #2+#9 REPETIR PALOS DEL COMPAÑERO: si genero un palo que mi
+      // compañero inició, lo apoyo (facilidad al compañero) → MUY valioso
+      if (partnerSuits.has(gen)) score += 35;
+      if (partnerSuits.has(otherEnd)) score += 20;
+
+      // #3+#10 CASTIGAR/BLOQUEAR PALOS DE CONTRARIOS: si genero un palo
+      // que el contrario inició, lo fuerzo a seguir jugando ahí (dificultad)
+      if (opponentSuits.has(gen)) score += 10;
+      if (opponentSuits.has(otherEnd)) score += 5;
+
+      // EXPLOTAR FALLAS DEL OPONENTE (Principio #10): atacar donde pasó
       if (enemySuits.has(gen)) score += 50;
       if (enemySuits.has(otherEnd)) score += 30;
-      // Explotar fallas INFERIDAS por secuencia (salió y no repitió)
+      // Fallas inferidas por secuencia
       if (opponentFallas.has(gen)) score += 40;
       if (opponentFallas.has(otherEnd)) score += 20;
-      // ATACAR EL PALO DE SALIDA DEL OPONENTE: si el oponente salió
-      // con este palo, mantenerlo vivo lo obliga a seguir jugando ahí
-      // (y si es su palo débil, lo fuerza a gastar fichas malas)
-      if (opponentOpenSuits.has(gen)) score += 15;
-      if (opponentOpenSuits.has(otherEnd)) score += 10;
+
+      // #5 CASTIGAR POR ENCIMA DE LA SALIDA DEL CONTRARIO:
+      // si juego SOBRE un extremo cuyo palo es de la salida del contrario,
+      // preferir castigar ALTO (el otro número de mi ficha grande) para
+      // controlar el flujo de tantos del palo del contrario.
+      if (opponentOpenSuits.has(end)) {
+        score += 10; // estoy castigando el palo del contrario
+        const myOther = (m[0] === end) ? m[1] : m[0];
+        score += myOther * 2.5; // castigar por ENCIMA = ficha alta
+      }
+      if (opponentOpenSuits.has(otherEnd)) score += 5;
+
+      // #7 CASTIGAR POR DEBAJO DE LA SALIDA DEL COMPAÑERO (3er jugador):
+      // si mi compañero salió con un DOBLE y yo castigo ESE palo (juego
+      // sobre ese extremo), el otro número de mi ficha debe ser BAJO:
+      // mejora la mano del compañero (si tiene el doble) y evita que el
+      // contrario coloque el doble por encima.
+      if (partnerLeadTile && partnerLeadTile[0] === partnerLeadTile[1]) {
+        const pSuit = partnerLeadTile[0];
+        if (end === pSuit) {
+          const myOther = (m[0] === pSuit) ? m[1] : m[0];
+          score += (6 - myOther) * 8; // más bajo = mejor (0 → +48, 6 → 0)
+        }
+      }
+
+      // #8 INICIAR PALOS POR DEBAJO DE LA SALIDA DEL COMPAÑERO:
+      // si genero un palo NUEVO (no castigado, no del compañero), preferir
+      // iniciarlo POR DEBAJO del palo de salida del compañero.
+      if (partnerLeadTile && partnerLeadTile[0] === partnerLeadTile[1] &&
+          !partnerSuits.has(gen) && !opponentOpenSuits.has(gen)) {
+        if (gen < partnerLeadTile[0]) score += 15;
+      }
+
+      // #4 MOSTRAR LO QUE TENGO: jugar en mi palo dominante (4+ fichas)
+      score += suits[gen] * 1.2;
       // Soltar ficha pesada: bueno PERO no a costa de control
       score += (m[0] + m[1]) * 0.3;
       // Doble: si es del palo en juego, es control (no soltar);
@@ -263,8 +335,7 @@ function chooseRationalMove(state, player, moves) {
         if (ends.includes(m[0])) score += 2; // control del palo vivo
         else score += 1; // inerte
       }
-      // Mantener mi palo fuerte: jugar en el palo que más tengo
-      score += suits[gen] * 0.8;
+
       if (score > bestScore) { bestScore = score; best = m; }
     }
   }
@@ -596,7 +667,7 @@ function analyzeAllPerfect(state, viewerIdx, modalidad = 'todas') {
 }
 
 // Exponer en navegador (window.Coach) y en Node (module.exports)
-const Coach = { tileValue, simulateToEnd, analyzeMove, analyzeAll, analyzeMoveStudy, analyzeAllStudy, analyzeAllPerfect };
+const Coach = { tileValue, simulateToEnd, analyzeMove, analyzeAll, analyzeMoveStudy, analyzeAllStudy, analyzeAllPerfect, chooseRationalMove, chooseSide, openingScore };
 if (typeof module !== 'undefined' && module.exports) module.exports = Coach;
 if (typeof window !== 'undefined') window.Coach = Coach;
 
