@@ -128,10 +128,23 @@ function openingScore(tile, hand) {
         const otherSupport = hand.some(t => t !== c && t !== tile &&
           (t[0] === other || t[1] === other));
         if (otherSupport) quality += 15;  // acompañante sólido
-        else quality -= 10;              // MINGA: no tiene agrado
+        else quality -= 10;              // MINGA: no tiene apoyo
       });
-      // DOBLE ACOMPAÑADO: mayor doble = mejor; calidad = control real
-      return 200 + a * 10 + quality;
+      // DOCTRINA DEL CAMPEÓN (corregida):
+      // La salida es por el palo que DOMINAS. Un doble solo es gran salida
+      // si SU palo es el dominante de la mano — el 6-6 con 1 acompañante y
+      // palo 6 débil NO debe ganar a una mixta del palo 5 con 5 fichas
+      // (control total). La fuerza del palo del doble, RELATIVA al palo
+      // más fuerte de la mano, manda:
+      //   score = 100 (base)
+      //         + fuerza del palo × 40 × (fuerza / palo dominante)
+      //           (si el palo del doble no es el dominante, se devalúa)
+      //         + acompañantes × 15 (apoyos)
+      //         + doble × 2 (desempate menor entre dobles)
+      //         + quality (ajuste por mingas)
+      const maxSuit = Math.max(...suits);
+      const suitRatio = suits[a] / maxSuit; // 1.0 si es el palo dominante
+      return 100 + suits[a] * 40 * suitRatio + companions.length * 15 + a * 2 + quality;
     }
     // EN PELO: excepción — se penaliza MUY duro (salir en pelo es
     // un error garrafal: quemas el control del palo y no tienes
@@ -141,12 +154,13 @@ function openingScore(tile, hand) {
 
   // ---- MIXTA ----
   let score = 0;
-  // CANTIDAD: cuántas fichas tengo de cada palo (mostrar mi fuerza)
-  score += suits[a] * 14;
-  score += suits[b] * 14;
+  // CANTIDAD: cuántas fichas tengo de cada palo (mostrar mi fuerza).
+  // El palo dominante (4+ fichas) es EL que manda en la salida.
+  score += suits[a] * 32;
+  score += suits[b] * 32;
   // VOLUMEN DE TANTOS: peso real del palo en mi mano
-  score += suitVolume(hand, a) * 0.6;
-  score += suitVolume(hand, b) * 0.6;
+  score += suitVolume(hand, a) * 0.5;
+  score += suitVolume(hand, b) * 0.5;
   // FALLA: palo con 1 sola ficha (generar falla de salida = grave)
   if (suits[a] <= 1) score -= 35;
   if (suits[b] <= 1) score -= 35;
