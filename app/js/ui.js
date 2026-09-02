@@ -419,7 +419,7 @@
     // solo en los lados donde encaja → sin fichas repetidas por ruido.
     const viewerIdx = perspective;
     const modalidad = el.modalidadSelect ? el.modalidadSelect.value : 'todas';
-    const SIMS = 60;
+    const SIMS = 150;
 
     // Procesar en ticks para que la barra avance y la UI respire
     let tick = 0;
