@@ -141,7 +141,7 @@
     // Ancho de ficha horizontal = halfW*2 + divider + padding
     // Objetivo: quepan todas con margen
     const maxHalf = 26; // máximo tamaño en desktop
-    const minHalf = 8;
+    const minHalf = 12; // mínimo legible; si sobra se escala con transform
     let halfW = Math.floor((availW - gap * (tiles.length - 1) - 6) / (tiles.length * 2 + 1));
     halfW = Math.max(minHalf, Math.min(maxHalf, halfW));
     // La ficha vertical (doble) ocupa ~halfW+6 de ancho; compensar
@@ -165,6 +165,22 @@
     html += '</div>';
 
     el.board.innerHTML = html;
+
+    // ESCALA DE SEGURIDAD: si la cadena aún excede el ancho del tablero
+    // (ej. tablero casi lleno en un celular), la escalamos con transform
+    // para que TODAS las fichas queden DENTRO del área visible.
+    const chain = el.board.querySelector('.board-chain');
+    if (chain && tiles.length > 2) {
+      const boardW = el.board.clientWidth - 12;
+      const chainW = chain.scrollWidth;
+      if (chainW > boardW) {
+        const scale = Math.max(0.4, boardW / chainW);
+        chain.style.transform = `scale(${scale})`;
+        chain.style.transformOrigin = 'center center';
+        // Compensar el alto reducido para centrar verticalmente
+        chain.style.margin = `${(1 - scale) * 20}px 0`;
+      }
+    }
   }
 
   // Bitácora de la mano (notación: quién jugó qué, en orden)

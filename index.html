@@ -92,6 +92,12 @@
     color: var(--cyan); letter-spacing: 1.5px; text-transform: uppercase;
   }
   .nav-right { display: flex; align-items: center; gap: 14px; }
+  .hamburger {
+    display: none; background: transparent; border: 1px solid rgba(255,255,255,0.25);
+    color: #fff; font-size: 1.5rem; line-height: 1; padding: 4px 12px;
+    border-radius: 6px; cursor: pointer;
+  }
+  .hamburger:hover { border-color: var(--cyan); color: var(--cyan); }
   nav .links a {
     color: #ddd; text-decoration: none; margin-left: 14px; font-size: 0.88rem;
     transition: color .2s;
@@ -432,9 +438,23 @@
   @media (max-width: 800px) {
     .game-preview, .schools, .champion, .disciplines, .contact { grid-template-columns: 1fr; }
     .hero h1 { font-size: 2rem; }
-    nav .links a { margin-left: 8px; font-size: 0.72rem; }
-    .nav-right { gap: 6px; }
+    nav { flex-wrap: nowrap; }
+    .hamburger { display: block; }
+    nav .links {
+      display: none;
+      position: absolute; top: 100%; left: 0; right: 0;
+      background: var(--ink);
+      flex-direction: column; align-items: flex-start;
+      padding: 12px 24px 18px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      z-index: 99;
+    }
+    nav .links.open { display: flex; }
+    nav .links a { margin: 9px 0; font-size: 0.98rem; width: 100%; }
+    .nav-right { gap: 6px; margin-left: auto; }
     .logo { font-size: 1rem; }
+    .logo .brand { display: none; }
+    .logo img { height: 34px; }
   }
 </style>
 </head>
@@ -446,24 +466,25 @@
     <img src="assets/logo-baduyacademy-ai.png" alt="Logo Baduy Academy" style="height:52px;width:auto;border-radius:6px;">
     <div class="brand" style="font-size:0.8rem;line-height:1.3;color:#fff;font-weight:700;">Entrenando<br>Mentes para la Paz</div>
   </div>
+  <div class="links" id="nav-links">
+    <a href="#inicio" data-i18n="nav_home">Inicio</a>
+    <a href="#manifiesto" data-i18n="nav_mani">Manifiesto</a>
+    <a href="#filosofia" data-i18n="nav_philosophy">Filosofía</a>
+    <a href="#metodo" data-i18n="nav_method">Método</a>
+    <a href="#programas" data-i18n="nav_programs">Programas</a>
+    <a href="#escuelas" data-i18n="nav_schools">Escuelas</a>
+    <a href="#piloto" data-i18n="nav_pilot">Iniciativa</a>
+    <a href="#mercancia" data-i18n="nav_merch">Mercancía</a>
+    <a href="#productos" data-i18n="nav_prod">Productos</a>
+    <a href="#fundador" data-i18n="nav_founder">Fundador</a>
+    <a href="#contacto" data-i18n="nav_contact">Contacto</a>
+  </div>
   <div class="nav-right">
-    <div class="links">
-      <a href="#inicio" data-i18n="nav_home">Inicio</a>
-      <a href="#manifiesto" data-i18n="nav_mani">Manifiesto</a>
-      <a href="#filosofia" data-i18n="nav_philosophy">Filosofía</a>
-      <a href="#metodo" data-i18n="nav_method">Método</a>
-      <a href="#programas" data-i18n="nav_programs">Programas</a>
-      <a href="#escuelas" data-i18n="nav_schools">Escuelas</a>
-      <a href="#piloto" data-i18n="nav_pilot">Iniciativa</a>
-      <a href="#mercancia" data-i18n="nav_merch">Mercancía</a>
-      <a href="#productos" data-i18n="nav_prod">Productos</a>
-      <a href="#fundador" data-i18n="nav_founder">Fundador</a>
-      <a href="#contacto" data-i18n="nav_contact">Contacto</a>
-    </div>
     <div class="lang-switch">
       <button id="lang-es" class="active" onclick="setLang('es')">ES</button>
       <button id="lang-en" onclick="setLang('en')">EN</button>
     </div>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Menú">☰</button>
   </div>
 </nav>
 
@@ -479,7 +500,7 @@
     <div class="tile-wrap t7"><div class="d-tile"><div class="half n5"><span class="pip p-a"></span><span class="pip p-b"></span><span class="pip p-d"></span><span class="pip p-f"></span><span class="pip p-g"></span></div><div class="divider"></div><div class="half n2"><span class="pip p-a"></span><span class="pip p-g"></span></div></div></div>
     <div class="tile-wrap t8"><div class="d-tile"><div class="half n1"><span class="pip p-d"></span></div><div class="divider"></div><div class="half n0"></div></div></div>
   </div>
-  <span class="badge" data-i18n="hero_badge">🏆 Campeón del Mundo de Dominó 2007</span>
+  <span class="badge" data-i18n="hero_badge">🎓 Baduy Academy — Academia de Enseñanza</span>
   <h1 data-i18n="hero_title">A través del Juego, <span>educamos para la vida</span></h1>
   <p class="mission" data-i18n="hero_mission">"Aprender jugando es de las maneras más efectivas y gratificantes de adquirir conocimientos: nos divertimos y a la vez crecemos como personas." — Fabio Baduy</p>
   <p class="sub" data-i18n="hero_sub">Baduy Academy tiene como misión llevar el dominó a las escuelas como fortalecedor del pensamiento crítico y analítico de nuestros jóvenes, así como también para entrenar su memoria, inteligencia emocional, disposición a colaborar en equipo y por sobre todo crecer como seres humanos.</p>
@@ -971,7 +992,7 @@ const translations = {
     tagline: "Entrenando Mentes para la Paz",
     nav_home: "Inicio", nav_mani: "Manifiesto", nav_philosophy: "Filosofía", nav_method: "Método",
     nav_programs: "Programas", nav_schools: "Escuelas", nav_pilot: "Iniciativa", nav_merch: "Mercancía", nav_prod: "Productos", nav_founder: "Fundador", nav_contact: "Contacto",
-    hero_badge: "🏆 Campeón del Mundo de Dominó 2007 y 2008",
+    hero_badge: "🎓 Baduy Academy — Academia de Enseñanza",
     hero_title: "A través del Juego, <span>educamos para la vida</span>",
     hero_mission: "\"Aprender jugando es de las maneras más efectivas y gratificantes de adquirir conocimientos: nos divertimos y a la vez crecemos como personas.\" — Fabio Baduy",
     hero_sub: "Baduy Academy tiene como misión llevar el dominó a las escuelas como fortalecedor del pensamiento crítico y analítico de nuestros jóvenes, así como también para entrenar su memoria, inteligencia emocional, disposición a colaborar en equipo y por sobre todo crecer como seres humanos.",
@@ -1136,7 +1157,7 @@ const translations = {
     tagline: "Training Minds for Peace",
     nav_home: "Home", nav_mani: "Manifesto", nav_philosophy: "Philosophy", nav_method: "Method",
     nav_programs: "Programs", nav_schools: "Schools", nav_pilot: "Initiative", nav_merch: "Merch", nav_prod: "Products", nav_founder: "Founder", nav_contact: "Contact",
-    hero_badge: "🏆 World Dominoes Champion 2007 & 2008",
+    hero_badge: "🎓 Baduy Academy — Teaching Academy",
     hero_title: "Through Play, <span>we educate for life</span>",
     hero_mission: "\"Learning through play is one of the most effective and rewarding ways to acquire knowledge: we have fun and at the same time grow as people.\" — Fabio Baduy",
     hero_sub: "Baduy Academy's mission is to bring dominoes to schools as a strengthener of critical and analytical thinking in our youth, as well as training their memory, emotional intelligence, willingness to collaborate as a team, and above all, grow as human beings.",
@@ -1320,6 +1341,24 @@ function applyLang(lang) {
 }
 
 function setLang(lang) { applyLang(lang); }
+
+/* ===== MENÚ MÓVIL (HAMBURGUESA) ===== */
+function toggleMenu() {
+  document.getElementById('nav-links').classList.toggle('open');
+}
+// Cerrar el menú al hacer click en cualquier enlace (móvil)
+document.querySelectorAll('#nav-links a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.getElementById('nav-links').classList.remove('open');
+  });
+});
+// Cerrar al hacer click fuera del nav
+document.addEventListener('click', (e) => {
+  const links = document.getElementById('nav-links');
+  if (!e.target.closest('nav') && links.classList.contains('open')) {
+    links.classList.remove('open');
+  }
+});
 
 /* ===== FAQ ACORDEÓN ===== */
 document.querySelectorAll('.faq-item').forEach(item => {
