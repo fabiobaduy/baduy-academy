@@ -468,7 +468,6 @@
   </div>
   <div class="links" id="nav-links">
     <a href="#inicio" data-i18n="nav_home">Inicio</a>
-    <a href="#manifiesto" data-i18n="nav_mani">Manifiesto</a>
     <a href="#filosofia" data-i18n="nav_philosophy">Filosofía</a>
     <a href="#metodo" data-i18n="nav_method">Método</a>
     <a href="#programas" data-i18n="nav_programs">Programas</a>
@@ -509,16 +508,6 @@
     <a href="#escuelas" class="btn btn-outline" data-i18n="hero_cta2">🏫 Para Escuelas</a>
   </div>
 </header>
-
-<!-- ============ MANIFESTO ============ -->
-<section id="manifiesto">
-  <div class="section-tag" data-i18n="mani_tag">El Manifiesto Baduy</div>
-  <h2 data-i18n="mani_title">Una forma de ver la vida</h2>
-  <div class="quote" style="max-width:820px;margin:0 auto;font-size:1.15rem;line-height:1.9;">
-    <p data-i18n="mani_text">"Baduy es más que poker y dominó: es una forma de ver la vida como un juego, de disfrutarla cada segundo, de entender que a pesar de querer ganar, lo más satisfactorio es la entrega, la lucha, la dedicación. Es disfrutar el camino agradeciendo lo que nos pase, sea bueno, sea malo, ganemos, perdamos. Es conectar nuestro pensar con nuestro sentir para posicionarnos en esta vida como seres íntegros, capaces de respetar al prójimo en cualquier circunstancia. Es vivir con alegría, buen humor y con la voluntad y el deseo de ayudar, con la esperanza de que algún día transformemos al mundo y se convierta en un espacio de amor, hermandad y humanidad. Amén."</p>
-    <p style="margin-top:20px;font-style:normal;font-weight:800;color:var(--blue);">— <span data-i18n="mani_sign">Fabio Baduy, Fundador</span></p>
-  </div>
-</section>
 
 <!-- ============ MVV ============ -->
 <section id="filosofia">
@@ -912,8 +901,9 @@
       <div class="title" data-i18n="founder_title2">Campeón del Mundo de Dominó 2007 · Ingeniero en Computación · Educador</div>
       <p data-i18n="founder_p1">Campeón del Mundo de Dominó 2007 en modalidad por equipos y por parejas. Ingeniero en Computación (Universidad Simón Bolívar). Nadador, waterpolista y ajedrecista de alta competencia. Vivió del póker profesionalmente durante 7 años.</p>
       <p data-i18n="founder_p2">Su misión: democratizar la enseñanza del dominó y convertirlo en herramienta educativa para las nuevas generaciones, tal como el ajedrez transformó la educación en el mundo.</p>
-      <div class="quote">
-        <span data-i18n="founder_quote">"La amabilidad es la palabra más bonita. Creo en la paz, en el amor y en la alegría como camino indispensable para mejorar nuestra humanidad. La familia es el pilar fundamental de la sociedad."</span> — <b>Fabio Baduy</b>
+      <div class="quote" style="margin-top:24px;font-size:1.05rem;line-height:1.8;border-left:3px solid var(--gold);padding-left:16px;">
+        <span data-i18n="mani_text">"Baduy es más que poker y dominó: es una forma de ver la vida como un juego, de disfrutarla cada segundo, de entender que a pesar de querer ganar, lo más satisfactorio es la entrega, la lucha, la dedicación. Es disfrutar el camino agradeciendo lo que nos pase, sea bueno, sea malo, ganemos, perdamos. Es conectar nuestro pensar con nuestro sentir para posicionarnos en esta vida como seres íntegros, capaces de respetar al prójimo en cualquier circunstancia. Es vivir con alegría, buen humor y con la voluntad y el deseo de ayudar, con la esperanza de que algún día transformemos al mundo y se convierta en un espacio de amor, hermandad y humanidad. Amén."</span>
+        <div style="margin-top:10px;font-style:normal;font-weight:800;color:var(--blue);">— <span data-i18n="mani_sign">Fabio Baduy, Fundador</span></div>
       </div>
     </div>
   </div>
@@ -944,15 +934,13 @@
 const translations = {
   es: {
     tagline: "Entrenando Mentes para la Paz",
-    nav_home: "Inicio", nav_mani: "Manifiesto", nav_philosophy: "Filosofía", nav_method: "Método",
+    nav_home: "Inicio", nav_philosophy: "Filosofía", nav_method: "Método",
     nav_programs: "Programas", nav_schools: "Escuelas", nav_pilot: "Iniciativa", nav_merch: "Mercancía", nav_prod: "Productos", nav_founder: "Fundador", nav_contact: "Contacto",
     hero_badge: "🎓 Baduy Academy — Academia de Enseñanza",
     hero_title: "A través del Juego, <span>educamos para la vida</span>",
     hero_mission: "\"Aprender jugando es de las maneras más efectivas y gratificantes de adquirir conocimientos: nos divertimos y a la vez crecemos como personas.\" — Fabio Baduy",
     hero_sub: "Baduy Academy tiene como misión llevar el dominó a las escuelas, para ayudar a fortalecer el pensamiento crítico y analítico de nuestros jóvenes, así como también para entrenar su memoria, ayudar notablemente en su inteligencia emocional, en su disposición a colaborar en equipo, y por sobre todo a crecer como seres humanos.",
     hero_cta1: "🎓 Empezar a Aprender", hero_cta2: "🏫 Para Escuelas",
-    mani_tag: "El Manifiesto Baduy",
-    mani_title: "Una forma de ver la vida",
     mani_text: "\"Baduy es más que poker y dominó: es una forma de ver la vida como un juego, de disfrutarla cada segundo, de entender que a pesar de querer ganar, lo más satisfactorio es la entrega, la lucha, la dedicación. Es disfrutar el camino agradeciendo lo que nos pase, sea bueno, sea malo, ganemos, perdamos. Es conectar nuestro pensar con nuestro sentir para posicionarnos en esta vida como seres íntegros, capaces de respetar al prójimo en cualquier circunstancia. Es vivir con alegría, buen humor y con la voluntad y el deseo de ayudar, con la esperanza de que algún día transformemos al mundo y se convierta en un espacio de amor, hermandad y humanidad. Amén.\"",
     mani_sign: "Fabio Baduy, Fundador",
     mvv_tag: "Nuestra Filosofía",
@@ -1079,7 +1067,6 @@ const translations = {
     founder_title2: "Campeón del Mundo de Dominó 2007 y 2008 · Ingeniero en Computación · Educador",
     founder_p1: "Campeón del Mundo de Dominó 2007 por equipos (La Habana, Cuba) y 2008 por parejas (Orlando, EE.UU.). Ingeniero en Computación (Universidad Simón Bolívar). Nadador, waterpolista y ajedrecista de alta competencia. Vivió del póker profesionalmente durante 7 años.",
     founder_p2: "Su misión: democratizar la enseñanza del dominó y convertirlo en herramienta educativa para las nuevas generaciones, tal como el ajedrez transformó la educación en el mundo.",
-    founder_quote: "\"La amabilidad es la palabra más bonita. Creo en la paz, en el amor y en la alegría como camino indispensable para mejorar nuestra humanidad. La familia es el pilar fundamental de la sociedad.\"",
     final_title: "¿Listo para hacer historia?",
     final_text: "Únete al movimiento. Aprende, enseña, compite — y ayúdanos a sembrar paz a través del juego.",
     final_btn1: "📲 Únete al movimiento", final_btn2: "🏫 Solicita el Programa Escolar",
@@ -1089,15 +1076,13 @@ const translations = {
   },
   en: {
     tagline: "Training Minds for Peace",
-    nav_home: "Home", nav_mani: "Manifesto", nav_philosophy: "Philosophy", nav_method: "Method",
+    nav_home: "Home", nav_philosophy: "Philosophy", nav_method: "Method",
     nav_programs: "Programs", nav_schools: "Schools", nav_pilot: "Initiative", nav_merch: "Merch", nav_prod: "Products", nav_founder: "Founder", nav_contact: "Contact",
     hero_badge: "🎓 Baduy Academy — Teaching Academy",
     hero_title: "Through Play, <span>we educate for life</span>",
     hero_mission: "\"Learning through play is one of the most effective and rewarding ways to acquire knowledge: we have fun and at the same time grow as people.\" — Fabio Baduy",
     hero_sub: "Baduy Academy's mission is to bring dominoes to schools, to help strengthen the critical and analytical thinking of our youth, as well as train their memory, notably support their emotional intelligence, their willingness to collaborate as a team, and above all, to grow as human beings.",
     hero_cta1: "🎓 Start Learning", hero_cta2: "🏫 For Schools",
-    mani_tag: "The Baduy Manifesto",
-    mani_title: "A way of seeing life",
     mani_text: "\"Baduy is more than poker and dominoes: it is a way of seeing life as a game, enjoying every second of it, understanding that even though we want to win, the most satisfying part is the commitment, the struggle, the dedication. It is enjoying the journey, grateful for whatever comes our way, good or bad, win or lose. It is connecting our thinking with our feeling to position ourselves in this life as whole beings, capable of respecting our neighbor in any circumstance. It is living with joy, good humor, and with the will and desire to help, with the hope that one day we will transform the world into a space of love, brotherhood, and humanity. Amen.\"",
     mani_sign: "Fabio Baduy, Founder",
     mvv_tag: "Our Philosophy",
@@ -1227,8 +1212,7 @@ const translations = {
     founder_name: "Eng. Fabio Baduy",
     founder_title2: "World Dominoes Champion 2007 & 2008 · Computer Engineer · Educator",
     founder_p1: "World Dominoes Champion 2007 by teams (Havana, Cuba) and 2008 by pairs (Orlando, USA). Computer Engineer (Simón Bolívar University). High-competition swimmer, water polo player, and chess player. Lived from professional poker for 7 years.",
-    founder_p2: "His mission: to democratize dominoes education and turn it into an educational tool for new generations, just as chess transformed education around the world.",
-    founder_quote: "\"Kindness is the most beautiful word. I believe in peace, love, and joy as the indispensable path to improve our humanity. Family is the fundamental pillar of society.\"",
+    founder_p2: "His mission: to democratize dominoes education and turn it into an educational tool for new generations, just as chess transformed education worldwide.",
     final_title: "Ready to make history?",
     final_text: "Join the movement. Learn, teach, compete — and help us sow peace through play.",
     final_btn1: "📲 Join the movement", final_btn2: "🏫 Request the School Program",
